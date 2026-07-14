@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System rozpoznawania kart · Dawid Majewski</title>
+<meta name="description" content="Case study: rozpoznawanie kart do gry w czasie rzeczywistym na Raspberry Pi 4 — YOLOv8n, 52 klasy, audio PL. Projekt z Uczenia Maszynowego.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ---------- POWIERZCHNIE: papier techniczny, nie biel ---------- */
+    --ink:#F7F5F1;
+    --panel:#FDFCFA;
+    --panel-2:#F1EDE5;
+
+    --line:rgba(22,37,43,.10);
+    --line-strong:rgba(22,37,43,.20);
+    --sep:#566A6E;
+
+    /* ---------- TUSZ ---------- */
+    --text:#16252B;         /* 14.46:1 */
+    --muted:#47595E;        /*  6.75:1 — .prose, .hero .lede (dawne #CFDAD8)   */
+    --muted-2:#566A6E;      /*  5.24:1 */
+
+    /* ---------- AKCENTY ---------- */
+    --amber:#96590E;        /* tekst 5.17:1 / wypełnienie z bielą 5.63:1       */
+    --amber-hover:#7A4809;  /* 7.61:1 z bielą                                  */
+    --amber-line:#B0770D;   /* tylko grafika >=2px, 3.51:1                     */
+    --amber-soft:rgba(240,166,60,.14);
+    --mint:#0E7351;         /* 5.37:1 */
+    --mint-line:#12916B;    /* 3.65:1 */
+    --mint-soft:rgba(18,145,107,.12);
+
+    /* ---------- CZERWIEŃ KOLORU KART (SEMANTYCZNA — całe case study jest
+                  o czerwonych vs czarnych kartach; nie wolno jej zneutralizować) */
+    --red:#BC302A;          /* TEKST 5.37:1 (było #E9605A = 3.15:1 na papierze) */
+    --red-line:#D0453C;     /* reguły 2px, 4.19:1                              */
+    --red-soft:rgba(233,96,90,.14);  /* BEZ ZMIAN — konsumowane WYŁĄCZNIE w .hud */
+
+    --oled-fg:#8affcf;      /* BEZ ZMIAN — fosfor ZAPALONEGO OLED-a            */
+    --oled-red:#ff8a8a;     /* BEZ ZMIAN                                       */
+
+    /* ---------- CIENIE: papier, nie brud ---------- */
+    --sh-1:0 1px 2px rgba(22,37,43,.05),0 10px 26px -18px rgba(22,37,43,.18);
+    --sh-2:0 2px 6px rgba(22,37,43,.06),0 22px 46px -26px rgba(22,37,43,.26);
+    --sh-anchor:0 16px 36px -22px rgba(22,37,43,.28);  /* pod .hud             */
+
+    --display:"Bricolage Grotesque",system-ui,sans-serif;
+    --body:"IBM Plex Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --maxw:1100px;
+  }
+
+  /* ===== WYSPY CIEMNE =====
+     .hud to podgląd z kamery, .oled to ZAPALONY wyświetlacz. Obie są ciemne
+     Z DEFINICJI, nie z powodu motywu — biały „podgląd z kamery" to sprzeczność,
+     a zapalony OLED, który nie jest czarny, to po prostu prostokąt.
+     Lokalne tokeny = CAŁY ich chrom (rogi, tagi, pasek pewności, scan, sound-btn,
+     .oled-cap) zachowuje ORYGINALNE, jasne wartości bez ANI JEDNEJ zmiany w
+     regułach potomnych. Czego zakres NIE potrafi: własnego OBRAMOWANIA wyspy —
+     rozwinęłoby się do bladej mięty, niewidocznej na papierze. Stąd literał niżej. */
+  .hud,.oled{
+    --text:#E7EDEB;
+    --muted:#8FA8A5;
+    --muted-2:#7E9490;
+    --line:rgba(180,214,210,.14);
+    --line-strong:rgba(180,214,210,.24);
+    --amber:#F0A63C;
+    --amber-line:#F0A63C;
+    --amber-hover:#F0A63C;
+    --mint:#57D4A8;
+    --mint-line:#57D4A8;
+    --red:#E9605A;
+    --red-line:#E9605A;
+    --red-soft:rgba(233,96,90,.14);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--body);
+    background:var(--ink);
+    color:var(--text);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 0%,transparent 72%);
+    mask-image:radial-gradient(120% 90% at 50% 0%,#000 0%,transparent 72%);
+    /* #000 powyżej to STOP MASKI ALFA, nie widzialny kolor — nie zamieniać. */
+    opacity:.55;   /* ciemny tusz przy 10% alfy potrzebuje podbicia, inaczej siatka znika */
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--amber);color:#fff}   /* #111 na nowym bursztynie = 3.36:1 */
+  img,video{max-width:100%;display:block}
+
+  /* ---------- console top bar ---------- */
+  .console{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;gap:1.1rem;
+    padding:.55rem clamp(1rem,4vw,2.5rem);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;
+    color:var(--muted);
+    background:rgba(247,245,241,.92);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line-strong);
+  }
+  .console .back{color:var(--text);font-weight:500;display:inline-flex;align-items:center;gap:.5rem;transition:color .2s}
+  .console .back:hover,.console .back:focus-visible{color:var(--amber)}
+  .console .back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .console .crumb{color:var(--muted-2)}
+  .console .crumb b{color:var(--muted);font-weight:500}
+  .console nav{margin-left:auto;display:flex;gap:1.2rem}
+  .console nav a{transition:color .2s}
+  .console nav a:hover,.console nav a:focus-visible{color:var(--amber)}
+  .lang-toggle{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;
+    background:none;border:1px solid var(--line-strong);color:var(--muted-2);
+    padding:.32rem .5rem;border-radius:3px;cursor:pointer;
+    display:inline-flex;gap:.35rem;align-items:center;transition:border-color .2s;
+  }
+  .lang-toggle:hover,.lang-toggle:focus-visible{border-color:var(--amber)}
+  .lang-toggle .active{color:var(--amber);font-weight:600}
+  @media(max-width:820px){ .console nav{display:none} .lang-toggle{margin-left:auto} }
+
+  main{position:relative;z-index:1}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+  section{scroll-margin-top:64px}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.26em;
+    text-transform:uppercase;color:var(--amber);
+    display:inline-flex;align-items:center;gap:.6rem;
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--amber);display:inline-block}
+
+  /* ---------- hero ---------- */
+  .hero{padding-top:clamp(2.4rem,6vw,4.2rem);padding-bottom:clamp(1.6rem,4vw,2.6rem)}
+  .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.6rem,4vw,3rem);align-items:center}
+  .hero-grid>div{min-width:0}
+  .hero h1{
+    font-family:var(--display);font-weight:750;
+    font-size:clamp(1.7rem,7vw,4.4rem);
+    line-height:.98;letter-spacing:-.02em;margin:1.1rem 0 1.2rem;
+    overflow-wrap:break-word;hyphens:auto;
+  }
+  .hero h1 .ai{color:var(--amber)}
+  .hero .lede{font-size:clamp(1.02rem,1.5vw,1.18rem);color:var(--muted);max-width:44ch;margin-bottom:1.6rem}
+  .hero .lede b{color:var(--text);font-weight:600}
+  .runline{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.7rem}
+  .runline span{
+    font-family:var(--mono);font-size:.74rem;color:var(--muted);
+    border:1px solid var(--line-strong);border-radius:2px;padding:.35rem .6rem;
+    display:inline-flex;align-items:center;gap:.45rem;
+  }
+  .runline span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--mint-line)}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:.7rem}
+  .btn{
+    font-family:var(--mono);font-size:.8rem;letter-spacing:.03em;
+    display:inline-flex;align-items:center;gap:.55rem;
+    padding:.7rem 1.15rem;border-radius:3px;transition:all .2s;cursor:pointer;
+  }
+  .btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
+  .btn.primary{background:var(--amber);color:#fff;font-weight:600}
+  .btn.primary:hover,.btn.primary:focus-visible{background:var(--amber-hover);transform:translateY(-2px)}
+  .btn.ghost{border:1px solid var(--line-strong);color:var(--text)}
+  .btn.ghost:hover,.btn.ghost:focus-visible{border-color:var(--amber);color:var(--amber)}
+
+  /* ---------- HUD detection frame (the signature) ---------- */
+  /* LITERAŁ, a NIE var(--line-strong): zakres wyspy przedefiniowuje --line-strong na
+     bladą miętę, więc ramka wokół tego ciemnego prostokąta byłaby na papierze niewidoczna. */
+  .hud{position:relative;border:1px solid rgba(22,37,43,.22);border-radius:6px;overflow:hidden;
+    background:#0E1A1F;box-shadow:var(--sh-anchor)}
+  .hud video,.hud img{width:100%;aspect-ratio:3/4;object-fit:cover;background:#0E1A1F}
+  .hud.wide video,.hud.wide img{aspect-ratio:16/10}
+  /* .hud.wide nakłada się na hardware.jpg — Pi w BIAŁEJ obudowie. Jasny bursztyn na
+     białych pikselach to 2.02:1 (błąd obecny już dziś). Otoczka daje 7.06:1 wszędzie. */
+  .hud .corner{position:absolute;width:22px;height:22px;border:2px solid var(--amber);z-index:3;pointer-events:none;
+    filter:drop-shadow(0 0 2px rgba(6,20,26,.9))}
+  .hud .corner.tl{top:10px;left:10px;border-right:0;border-bottom:0}
+  .hud .corner.tr{top:10px;right:10px;border-left:0;border-bottom:0}
+  .hud .corner.bl{bottom:10px;left:10px;border-right:0;border-top:0}
+  .hud .corner.br{bottom:10px;right:10px;border-left:0;border-top:0}
+  .hud .hud-tag{position:absolute;z-index:4;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
+    text-transform:uppercase;padding:.3rem .55rem;border-radius:3px;background:rgba(6,20,26,.72);
+    color:var(--muted);border:1px solid var(--line);backdrop-filter:blur(4px)}
+  .hud .hud-tag.rec{top:16px;left:16px;color:var(--red);border-color:var(--red-soft)}
+  .hud .hud-tag.rec::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--red);margin-right:.4rem;vertical-align:middle;animation:blink 1.4s steps(2) infinite}
+  .hud .hud-tag.spec{top:16px;right:16px}
+  /* .hud .conf — USUNIĘTE razem z nakładką „K♥ wykryto · 0.92" (patrz komentarz w <body>). */
+  .hud .scan{position:absolute;left:0;right:0;top:0;height:2px;z-index:3;
+    background:linear-gradient(90deg,transparent,rgba(240,166,60,.85),transparent);
+    box-shadow:0 0 14px 2px rgba(240,166,60,.4);animation:scan 3.6s cubic-bezier(.6,0,.4,1) infinite}
+  .hud .sound-btn{position:absolute;top:16px;right:16px;z-index:6;display:inline-flex;align-items:center;gap:.4rem;
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text);
+    background:rgba(6,20,26,.78);border:1px solid var(--line-strong);border-radius:4px;padding:.35rem .55rem;
+    cursor:pointer;backdrop-filter:blur(6px);transition:border-color .2s,color .2s,background .2s}
+  .hud .sound-btn:hover,.hud .sound-btn:focus-visible{border-color:var(--amber);color:var(--amber)}
+  .hud .sound-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .hud .sound-btn .ic-loud{display:none}
+  .hud .sound-btn.is-on{border-color:var(--mint);color:var(--mint);background:rgba(87,212,168,.12)}
+  .hud .sound-btn.is-on .ic-muted{display:none}
+  .hud .sound-btn.is-on .ic-loud{display:inline}
+
+  @keyframes scan{0%{top:2%;opacity:0}12%{opacity:1}88%{opacity:1}100%{top:98%;opacity:0}}
+  @keyframes blink{50%{opacity:.25}}
+
+  /* ---------- metrics band ---------- */
+  /* .metrics to pas PEŁNOEKRANOWY (sam nie ma .wrap) — zostawiony ciemny malowałby
+     czarny pas przez cały viewport przy szerokości > 1100px. */
+  .metrics{border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(22,37,43,.045),rgba(22,37,43,.015))}
+  /* separatory to KOLOR PRZEŚWITUJĄCY przez 1px szczeliny gridu; --line przy .10
+     jest za słaby, żeby unieść linię strukturalną. */
+  .metrics .wrap{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
+    background:var(--line-strong);border-left:1px solid var(--line-strong);border-right:1px solid var(--line-strong);padding:0}
+  .metric{background:var(--ink);padding:1.4rem 1.1rem;position:relative}
+  .metric::before{content:"";position:absolute;top:12px;left:12px;width:9px;height:9px;
+    border-top:2px solid var(--amber-line);border-left:2px solid var(--amber-line);opacity:1}
+    /* przy opacity .6 jasnego bursztynu te znaczniki dawały ~1.5:1 na bieli */
+  .metric .v{font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,2.4vw,2.1rem);
+    line-height:1;letter-spacing:-.02em;color:var(--text)}
+  .metric .v small{font-size:.62em;color:var(--muted);font-weight:600}
+  .metric .k{font-family:var(--mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted-2);margin-top:.55rem}
+  @media(max-width:900px){.metrics .wrap{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:520px){.metrics .wrap{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---------- section shell ---------- */
+  .sec{padding:clamp(3rem,7vw,5.2rem) 0;border-top:1px solid var(--line)}
+  .sec:first-of-type{border-top:0}
+  .sec-head{display:flex;align-items:baseline;gap:1rem;margin-bottom:2.2rem;flex-wrap:wrap}
+  .sec-head .idx{font-family:var(--mono);font-size:.78rem;color:var(--amber);letter-spacing:.1em}
+  .sec-head h2{font-family:var(--display);font-weight:650;font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.01em}
+  .sec-head .sub{font-family:var(--mono);font-size:.72rem;color:var(--muted-2);letter-spacing:.06em;margin-left:auto}
+  .prose{max-width:66ch;color:var(--muted);font-size:1.04rem}   /* #CFDAD8 = 1.37:1 na papierze,
+      a to kontener treści dla KAŻDEGO bloku prozy na stronie */
+  .prose p+p{margin-top:1rem}
+  .prose b,.prose strong{color:var(--text);font-weight:600}
+  .amber{color:var(--amber)}.mint{color:var(--mint)}.suitred{color:var(--red)}
+
+  code{font-family:var(--mono);font-size:.86em;color:var(--mint);
+    background:var(--mint-soft);padding:.08em .38em;border-radius:3px}
+
+  /* ---------- overview / team ---------- */
+  .ov-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:clamp(1.4rem,3vw,2.6rem);align-items:start}
+  .card{border:1px solid var(--line-strong);border-radius:5px;
+    background:var(--panel);box-shadow:var(--sh-1)}
+  .card-head{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted-2);padding:.75rem .95rem;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center}
+  .card-head .pin{color:var(--amber)}
+  .team{padding:.4rem .5rem}
+  .team a,.team div{display:flex;align-items:center;gap:.7rem;padding:.55rem .5rem;border-radius:4px}
+  .team .who{font-size:.95rem}
+  .team .role{font-family:var(--mono);font-size:.64rem;color:var(--muted-2);margin-left:auto;text-transform:uppercase;letter-spacing:.06em}
+  .team .me{background:var(--amber-soft);border:1px solid var(--line-strong)}
+  .team .me .who{color:var(--amber);font-weight:600}
+  /* ZEPSUTE KONSTRUKCYJNIE: używało TŁA STRONY (--ink) jako KOLORU TEKSTU. Po flipie
+     obu tokenów dałoby to prawie białe inicjały na jasnoszarym kółku (~1.5:1).
+     Do przepisania, nie do przetokenizowania. #fff na --muted = 7.35:1. */
+  .avatar{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+    font-family:var(--mono);font-size:.66rem;font-weight:600;color:#fff;background:var(--muted)}
+  .team .me .avatar{background:var(--amber);color:#fff}
+
+  /* ---------- pipeline ---------- */
+  .pipeline{display:flex;flex-direction:column;gap:0;margin-top:.4rem}
+  .stage{display:grid;grid-template-columns:auto 1fr;gap:1.3rem;padding:1.35rem 0;
+    border-top:1px solid var(--line);position:relative}
+  .stage:first-child{border-top:0}
+  .stage .rail{display:flex;flex-direction:column;align-items:center;padding-top:.2rem}
+  .stage .node{width:38px;height:38px;border-radius:9px;border:1px solid var(--line-strong);
+    display:grid;place-items:center;font-family:var(--mono);font-size:.74rem;font-weight:600;
+    color:var(--amber);background:var(--panel);flex:none;transition:border-color .4s,box-shadow .4s,color .4s}
+  /* Nośnym sygnałem jest SKOK WYPEŁNIENIA (--panel -> --amber, 5.49:1), nie poświata.
+     Inaczej sygnaturowa animacja „etapy zapalają się po kolei" czytałaby się jako
+     „etapy po kolei się brudzą". */
+  .stage.lit .node{border-color:var(--amber);color:#fff;background:var(--amber);
+    box-shadow:0 0 0 3px rgba(150,89,14,.18),0 2px 6px -2px rgba(22,37,43,.22)}
+  .stage .stem{width:1px;flex:1;background:var(--line);margin-top:.4rem;min-height:14px}
+  .stage:last-child .stem{display:none}
+  .stage h3{font-family:var(--display);font-weight:600;font-size:1.16rem;letter-spacing:-.01em}
+  .stage h3 .en{color:var(--muted-2);font-family:var(--mono);font-size:.72rem;font-weight:500;
+    letter-spacing:.04em;margin-left:.5rem}
+  .stage p{color:var(--muted);font-size:.95rem;margin:.35rem 0 .6rem;max-width:62ch}
+  .stage .params{display:flex;flex-wrap:wrap;gap:.4rem}
+  .stage .params span{font-family:var(--mono);font-size:.7rem;color:var(--muted);
+    border:1px solid var(--line);border-radius:2px;padding:.22rem .5rem;background:var(--panel-2)}
+  .stage .params span b{color:var(--mint);font-weight:500}
+
+  /* ---------- spec / hardware ---------- */
+  .hw-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(1.4rem,3vw,2.6rem);align-items:start}
+  .spec-list{list-style:none;display:flex;flex-direction:column}
+  .spec-list li{display:grid;grid-template-columns:auto 1fr;gap:1rem;padding:.85rem 0;border-top:1px solid var(--line);align-items:baseline}
+  .spec-list li:first-child{border-top:0}
+  .spec-list .comp{font-weight:600;color:var(--text);font-size:.98rem}
+  .spec-list .comp small{display:block;font-family:var(--mono);font-size:.66rem;color:var(--muted-2);
+    font-weight:400;letter-spacing:.05em;margin-top:.2rem;text-transform:uppercase}
+  .spec-list .val{color:var(--muted);font-size:.92rem;text-align:right;font-family:var(--mono)}
+  .callout{margin-top:1.6rem;border:1px solid var(--line-strong);border-left:2px solid var(--amber);
+    border-radius:4px;padding:1.1rem 1.2rem;background:var(--amber-soft)}
+  .callout .t{font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--amber);margin-bottom:.5rem}
+  .callout p{color:var(--text);font-size:.95rem;max-width:60ch}
+  /* Wariant miętowy. Był inline style w markupie — a inline style nie potrafi wyrazić,
+     że linia 2px (grafika, próg 3:1) i nagłówek (tekst, próg 4.5:1) potrzebują RÓŻNYCH
+     odcieni tego samego koloru. Stąd klasa. */
+  .callout.is-mint{border-left-color:var(--mint-line);background:var(--mint-soft)}
+  .callout.is-mint .t{color:var(--mint)}   /* 4.68:1 na washu */
+
+  /* ---------- dataset ---------- */
+  .ds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-bottom:1.8rem}
+  .ds-stat{border:1px solid var(--line);border-radius:5px;padding:1.2rem;background:var(--panel-2)}
+  .ds-stat .v{font-family:var(--display);font-weight:700;font-size:1.7rem;letter-spacing:-.02em}
+  .ds-stat .k{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted-2);margin-top:.4rem}
+  .split{display:flex;height:14px;border-radius:3px;overflow:hidden;border:1px solid var(--line);margin:.4rem 0 1rem}
+  .split i{display:block;height:100%}
+  .split .tr{background:var(--amber);width:87.5%}
+  .split .va{background:var(--mint);width:8.3%}
+  .split .te{background:var(--muted-2);width:4.2%}
+  .split-key{display:flex;gap:1.2rem;flex-wrap:wrap;font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+  .split-key span{display:inline-flex;align-items:center;gap:.45rem}
+  .split-key i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+  /* deck grid */
+  .deck{display:grid;grid-template-columns:repeat(13,1fr);gap:5px;margin-top:1.4rem;max-width:560px}
+  .deck .cardpip{aspect-ratio:2/3;border:1px solid var(--line-strong);border-radius:3px;
+    display:grid;place-items:center;font-family:var(--mono);font-size:.6rem;color:var(--muted);
+    background:var(--panel)}
+  .deck .cardpip.r{color:var(--red)}
+  @media(max-width:640px){.deck{grid-template-columns:repeat(13,1fr);gap:3px}.deck .cardpip{font-size:.5rem}}
+
+  /* ---------- chart ---------- */
+  .chart-wrap{border:1px solid var(--line-strong);border-radius:6px;background:var(--panel);
+    box-shadow:var(--sh-1);padding:1.3rem 1.1rem 1rem;overflow-x:auto}
+  .chart-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.6rem;margin-bottom:.4rem;padding:0 .3rem}
+  .chart-head .ct{font-family:var(--body);font-weight:600;font-size:1rem;color:var(--text)}
+  .chart-head .cs{font-family:var(--mono);font-size:.7rem;color:var(--muted-2)}
+  .chart svg{width:100%;height:auto;min-width:560px;display:block}
+  .gridline{stroke:var(--line);stroke-width:1}
+  .axtxt{fill:var(--muted-2);font-family:var(--mono);font-size:11px}
+  .phaseband{fill:var(--mint-soft)}
+  .divider{stroke:var(--muted-2);stroke-width:1;stroke-dasharray:3 3}
+  .trend{fill:none;stroke:var(--amber);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+  .dot{fill:var(--panel);stroke:var(--amber);stroke-width:2}   /* punkty leżą NA karcie, nie na stronie */
+  .ptlabel{fill:var(--text);font-family:var(--mono);font-size:11px;font-weight:600}
+  .phaselabel{fill:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.04em}
+  .phaselabel.is-mint{fill:var(--mint)}
+  .ptlabel.is-muted{fill:var(--muted)}
+  .ptlabel.is-mint{fill:var(--mint)}
+  .dot.is-mint{stroke:var(--mint)}
+
+  /* ---------- before/after bars ---------- */
+  .ba{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-top:1.6rem}
+  .ba-card{border:1px solid var(--line-strong);border-radius:5px;padding:1.2rem}
+  .ba-card.before{border-left:2px solid var(--red-line)}
+  .ba-card.after{border-left:2px solid var(--mint-line)}
+  .ba-card .bt{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:.9rem}
+  .ba-card.before .bt b{color:var(--red)}
+  .ba-card.after .bt b{color:var(--mint)}
+  .meter{margin:.7rem 0}
+  .meter .ml{display:flex;justify-content:space-between;font-size:.86rem;margin-bottom:.35rem}
+  .meter .ml .suit-r{color:var(--red)}
+  .meter .ml .val{font-family:var(--mono);color:var(--muted)}
+  /* Koryto paska na PAPIERZE (ciemny tusz na jasnym tle) — odwrotnie niż stary literał
+     rgba(180,214,210,.12), który był jasny-na-ciemnym. Bez tego paski tracą koryto
+     i wypełnienia zdają się unosić w powietrzu. */
+  .meter .track{height:9px;border-radius:5px;background:rgba(22,37,43,.10);overflow:hidden}
+  /* display:block JEST KONIECZNE. .fill to <span>, czyli element INLINE — a na inline
+     nie działa ani width, ani height:100%. JS ustawiał width:40%, przeglądarka to
+     ignorowała i paski były PUSTE (błąd obecny od początku, także w motywie ciemnym). */
+  .meter .fill{display:block;height:100%;border-radius:5px;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+  .meter .fill.red{background:var(--red)}      /* JEDNOLITE: gradienty startowały od ciemnych */
+  .meter .fill.mint{background:var(--mint)}    /* barw dobranych pod ciemne tło — na papierze */
+  .meter .fill.gray{background:var(--muted)}   /* czytałyby się jak brud */
+
+  /* ---------- results table ---------- */
+  .tbl{width:100%;border-collapse:collapse;font-size:.92rem;margin-top:.4rem}
+  .tbl th,.tbl td{text-align:left;padding:.7rem .8rem;border-bottom:1px solid var(--line)}
+  .tbl thead th{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);font-weight:500}
+  .tbl td.m{font-family:var(--mono);color:var(--muted)}
+  .tbl td.win{color:var(--mint);font-weight:600;font-family:var(--mono)}
+  .tbl tr:hover td{background:rgba(22,37,43,.045)}   /* przy .4 najechany wiersz robił się
+                                                        prawie czarny, a jego ciemny tekst znikał */
+  .tbl .delta{font-family:var(--mono);font-size:.8rem;color:var(--mint)}
+  .tbl-scroll{overflow-x:auto}
+
+  /* ---------- demo flow + OLED ---------- */
+  .demo-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(1.4rem,3vw,2.4rem);align-items:start}
+  .flow{list-style:none;counter-reset:step;display:flex;flex-direction:column;gap:.2rem}
+  .flow li{display:grid;grid-template-columns:auto 1fr;gap:.95rem;padding:.7rem 0;border-top:1px dashed var(--line);align-items:baseline}
+  .flow li:first-child{border-top:0}
+  .flow li::before{counter-increment:step;content:counter(step,decimal-leading-zero);
+    font-family:var(--mono);font-size:.72rem;color:var(--amber)}
+  .flow .st{font-weight:600;color:var(--text);font-size:.95rem}
+  .flow .say{color:var(--muted);font-size:.92rem}
+  .flow .say .q{color:var(--mint)}
+
+  .oled-wrap{position:sticky;top:80px}
+  /* LITERAŁ zamiast var(--line-strong) — patrz komentarz przy .hud (zakres wyspy). */
+  .oled{background:#05100a;border:1px solid rgba(22,37,43,.22);border-radius:8px;padding:1.3rem;
+    box-shadow:inset 0 0 40px rgba(87,212,168,.06)}   /* wewnętrzny bloom W ŚRODKU ciemnego
+                                                         urządzenia — fizycznie poprawny, zostaje */
+  .oled .frame{border:1px solid rgba(87,212,168,.2);border-radius:4px;background:#020604;
+    padding:1.2rem 1rem;text-align:center;font-family:var(--mono)}
+  .oled .rs{font-size:2.8rem;font-weight:600;color:var(--oled-fg);line-height:1;letter-spacing:.04em;
+    text-shadow:0 0 12px rgba(87,212,168,.5)}
+  .oled .rs .h{color:var(--oled-red);text-shadow:0 0 12px rgba(233,96,90,.5)}
+  .oled .cf{color:var(--oled-fg);font-size:1rem;margin:.6rem 0 .5rem;opacity:.9}
+  .oled .bar{font-size:.9rem;color:var(--oled-fg);letter-spacing:.08em;opacity:.85}
+  .oled-cap{font-family:var(--mono);font-size:.68rem;color:var(--muted-2);text-align:center;
+    margin-top:.8rem;letter-spacing:.06em}
+  /* Adnotacja pod sekcją — celowo cicha (mono, --muted-2), ale z bursztynową etykietą,
+     żeby dało się ją zauważyć bez czytania całości. */
+  .note{margin-top:1.8rem;padding-top:.9rem;border-top:1px solid var(--line);
+    display:flex;gap:.7rem;align-items:baseline;flex-wrap:wrap;
+    font-family:var(--mono);font-size:.72rem;line-height:1.7;color:var(--muted-2);max-width:78ch}
+  .note b{color:var(--amber);font-weight:600;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+  .note span{flex:1;min-width:22ch}
+  /* Wariant pod wideo: bez kreski u góry i bliżej kadru — kreska odcinałaby adnotację
+     od tego, czego dotyczy. */
+  .note.tight{margin-top:.85rem;padding-top:0;border-top:0;font-size:.7rem;line-height:1.6}
+
+  .audio-note{margin-top:1.3rem}
+  .audio-cat{display:flex;align-items:center;gap:.7rem;padding:.5rem 0;font-size:.88rem;border-top:1px solid var(--line)}
+  .audio-cat:first-child{border-top:0}
+  .audio-cat .n{font-family:var(--mono);color:var(--amber);font-size:.78rem;min-width:2.6rem}
+  .audio-cat .c{color:var(--muted)}
+  .audio-cat .p{margin-left:auto;font-family:var(--mono);font-size:.72rem;color:var(--muted-2)}
+
+  /* ---------- modules ---------- */
+  .mods{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem}
+  /* KOLIZJA NAZW: .mod w index.html to WIERSZ panelu statusu — zupełnie inny byt.
+     Nigdy nie współdzielić reguły .mod między plikami. */
+  .mod{border:1px solid var(--line);border-radius:5px;padding:1rem 1.1rem;background:var(--panel-2);
+    transition:border-color .25s,transform .25s}
+  .mod .fn{font-family:var(--mono);font-size:.82rem;color:var(--amber);margin-bottom:.4rem}
+  .mod .d{color:var(--muted);font-size:.85rem;line-height:1.5}
+  .mod .badge{display:inline-block;margin-top:.6rem;font-family:var(--mono);font-size:.62rem;
+    letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);border:1px solid var(--line);
+    border-radius:2px;padding:.15rem .4rem}
+  .stackrow{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.8rem}
+  .stackrow span{font-family:var(--mono);font-size:.76rem;color:var(--muted);border:1px solid var(--line-strong);
+    border-radius:2px;padding:.35rem .6rem}
+  .stackrow span b{color:var(--text);font-weight:600}
+
+  /* ---------- closing ---------- */
+  .close{text-align:center;padding-top:clamp(3rem,7vw,5rem);padding-bottom:clamp(3rem,7vw,5rem)}
+  .close h2{font-family:var(--display);font-weight:700;font-size:clamp(1.8rem,4vw,3rem);letter-spacing:-.02em;margin:1.1rem 0 1.4rem}
+  .close .cta-row{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center}
+
+  footer{border-top:1px solid var(--line);padding:2.4rem 0;font-family:var(--mono);font-size:.7rem;color:var(--muted-2)}
+  footer .row{display:flex;justify-content:space-between;gap:1.4rem;flex-wrap:wrap}
+  footer a{color:var(--muted);transition:color .2s}
+  footer a:hover{color:var(--amber)}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+
+  @media(max-width:880px){
+    .hero-grid,.ov-grid,.hw-grid,.demo-grid{grid-template-columns:1fr}
+    .ds-grid,.mods{grid-template-columns:1fr 1fr}
+    .oled-wrap{position:static}
+    .ba{grid-template-columns:1fr}
+  }
+  @media(max-width:560px){
+    .ds-grid,.mods{grid-template-columns:1fr}
+    .metric{padding:1.1rem .9rem}
+    .eyebrow{letter-spacing:.12em;font-size:.63rem}
+    .eyebrow::before{width:16px}
+    .deck{grid-template-columns:repeat(13,1fr)}
+    .stage{gap:.9rem}
+    .console .crumb{display:none}
+    .hero-cta{width:100%}
+    .hero-cta .btn{flex:1 1 140px;justify-content:center}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;scroll-behavior:auto!important}
+    .reveal{opacity:1;transform:none;transition:none}
+    .hud .scan{display:none}
+  }
+
+  /* ---------- print / export to PDF ---------- */
+  /* karty.html NIE MIAŁO żadnego bloku @media print. Dziś drukuje się prawie PUSTE:
+     .reveal{opacity:0} zostaje na każdej sekcji, do której użytkownik nie doscrollował.
+     KOLEJNOŚCI NIE ZMIENIAĆ: strona A4 ma ~794px CSS, więc @media(max-width:880px) też
+     się łapie przy druku — ten blok wygrywa tylko dlatego, że jest OSTATNI. */
+  @media print{
+    body{background:#fff}
+    body::before,.console,.hud .scan,.hud .sound-btn{display:none}
+
+    .reveal{opacity:1!important;transform:none!important}   /* BŁĄD PUSTEJ STRONY */
+    *{box-shadow:none!important}
+
+    /* WYSPY CIEMNE W DRUKU. Przeglądarki nie drukują tła, więc .hud i .oled straciłyby
+       swoje czarne wypełnienie, a CAŁY ich jasny chrom (--text:#E7EDEB, --oled-fg:#8affcf,
+       bursztynowe rogi) wydrukowałby się bielą na bieli. Przestawiamy je z powrotem na
+       tusz-na-papierze — tym samym mechanizmem co zakres wyspy, tylko odwrotnie. */
+    .hud,.oled{
+      --text:#111;--muted:#444;--muted-2:#555;
+      --line:rgba(0,0,0,.18);--line-strong:rgba(0,0,0,.28);
+      --amber:#96590E;--amber-line:#96590E;--amber-hover:#96590E;
+      --mint:#0E7351;--mint-line:#0E7351;
+      --red:#BC302A;--red-line:#BC302A;--red-soft:rgba(188,48,42,.3);
+      background:#fff!important;border:1px solid #bbb!important;color:#111;
+    }
+    .hud video,.hud img{background:#fff!important}
+    .hud .corner,.hud .hud-tag{display:none}   /* chrom kamery nie ma sensu w druku */
+    .oled .frame{background:#fff!important;border-color:#bbb!important}
+    .oled .rs,.oled .cf,.oled .bar{color:#111!important;text-shadow:none!important;opacity:1}
+    .oled .rs .h{color:#BC302A!important}
+
+    /* WYPEŁNIENIA BURSZTYNOWE Z BIAŁYM TEKSTEM = biel na bieli, gdy tło jest porzucone. */
+    .btn.primary{background:none!important;color:var(--amber)!important;
+      border:1px solid var(--amber)!important}
+    .btn.primary svg{stroke:var(--amber)!important;fill:none!important}
+    .stage.lit .node{background:none!important;color:var(--amber)!important;
+      border-color:var(--amber)!important}
+    .avatar{background:none!important;color:var(--text)!important;
+      border:1px solid var(--line-strong)!important}
+
+    /* Elementy, których INFORMACJA JEST kolorem tła — wymuszamy druk tła punktowo. */
+    .split i,.meter .fill,.metric::before{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+
+    .tbl-scroll,.chart-wrap{overflow:visible}
+    .chart svg{min-width:0}
+    .oled-wrap{position:static}
+    .demo-grid,.ov-grid,.hw-grid,.hero-grid{grid-template-columns:1fr}
+    /* .hud ma aspect-ratio 3/4 — na pełnej szerokości A4 zjadałby całą stronę */
+    .hud{max-width:9cm;margin-left:auto;margin-right:auto}
+
+    .sec,.card,.mod,.ds-stat,.ba-card,.stage,.chart-wrap,.hud,.oled{
+      break-inside:avoid;page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+  <div class="console">
+    <a class="back" href="./index.html">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>dawidmajewskiit.pl</span>
+    </a>
+    <span class="crumb">/ <b data-en="projects">projekty</b> / <b data-en="cards">karty</b></span>
+    <nav>
+      <a href="#przeglad" data-en="Overview">Przegląd</a>
+      <a href="#sprzet" data-en="Hardware">Sprzęt</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#trening" data-en="Training">Trening</a>
+      <a href="#wyniki" data-en="Results">Wyniki</a>
+      <a href="#demo">Demo</a>
+    </nav>
+    <button class="lang-toggle" id="langBtn" type="button" aria-label="Zmień język / Change language">
+      <span data-role="pl">PL</span><span>/</span><span data-role="en">EN</span>
+    </button>
+  </div>
+
+  <main>
+    <!-- HERO -->
+    <header class="hero wrap">
+      <div class="hero-grid">
+        <div class="reveal">
+          <span class="eyebrow" data-en="Case study · Machine Learning · 2026">Case study · Uczenie Maszynowe · 2026</span>
+          <h1 data-en="Playing-card recognition <span class='ai'>system</span>">System rozpoznawania <span class="ai">kart do gry</span></h1>
+          <p class="lede" data-en="Real-time playing-card recognition running fully <b>on-device</b> on a Raspberry Pi 4 — a fine-tuned <b>YOLOv8n</b> model, all 52 cards, with a <b>Polish talking assistant</b> that reads each card aloud.">Rozpoznawanie kart do gry w czasie rzeczywistym, w całości <b>na urządzeniu</b> — na Raspberry Pi 4. Dostrojony model <b>YOLOv8n</b>, wszystkie 52 karty i <b>polski asystent głosowy</b>, który odczytuje każdą kartę na głos.</p>
+          <div class="runline">
+            <span>Raspberry Pi 4</span>
+            <span>YOLOv8n</span>
+            <span data-en="grayscale camera">kamera gray</span>
+            <span>OLED + audio</span>
+            <span data-en="edge inference">inference on-device</span>
+          </div>
+          <div class="hero-cta">
+            <a class="btn primary" href="#demo">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <span data-en="See how it works">Zobacz jak działa</span>
+            </a>
+            <a class="btn ghost" href="./index.html">
+              <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+              <span data-en="Back to portfolio">Wróć do portfolio</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Owijka jest KONIECZNA: .hero-grid ma dwie kolumny, więc adnotacja wstawiona
+             jako rodzeństwo .hud stałaby się TRZECIM elementem siatki i spadła do
+             następnego wiersza. Klasa .reveal przeniesiona na owijkę, żeby kadr
+             i adnotacja pojawiały się razem. -->
+        <div class="reveal">
+          <div class="hud">
+            <span class="corner tl"></span><span class="corner tr"></span>
+            <span class="corner bl"></span><span class="corner br"></span>
+            <span class="scan"></span>
+            <span class="hud-tag rec" data-en="LIVE · Pi 4">LIVE · Pi 4</span>
+            <button class="sound-btn" id="soundBtn" type="button" aria-pressed="false" title="Włącz dźwięk / Enable sound">
+              <svg class="ic-muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9l4 4m0-4l-4 4"/></svg>
+              <svg class="ic-loud" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a4 4 0 0 1 0 7"/><path d="M19.5 6a8 8 0 0 1 0 12"/></svg>
+              <span data-en="Sound">Dźwięk</span>
+            </button>
+            <!-- Nakładka .conf („K♥ wykryto · 0.92") USUNIĘTA. Była statyczną grafiką CSS
+                 narysowaną na wideo: pokazywała konkretną detekcję z konkretną pewnością,
+                 niezależnie od tego, co faktycznie działo się w kadrze. Prawdziwe wyniki
+                 modelu są w sekcji „Wyniki" — tam są zmierzone, a nie narysowane. -->
+            <video src="./Img/raspberry-cards-v2.mp4" poster="./Img/hardware.jpg"
+                   aria-label="Nagranie działającego systemu rozpoznawania kart na Raspberry Pi 4"
+                   autoplay muted loop playsinline preload="metadata" controls></video>
+          </div>
+          <!-- Adnotacja MUSI stać POZA .hud: wewnątrz obowiązuje zakres tokenów ciemnej
+               wyspy (jasny tekst), a .hud ma overflow:hidden — tekst by zniknął. -->
+          <p class="note tight">
+            <b data-en="Note">Adnotacja</b>
+            <span data-en="For the purposes of this CV the system's spoken messages are in English; the rest of the interface — the OLED display among others — stays in Polish.">Na potrzeby CV komunikaty głosowe systemu są po angielsku; reszta interfejsu — m.in. ekran OLED — pozostaje polska.</span>
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <!-- METRICS BAND -->
+    <div class="metrics">
+      <div class="wrap">
+        <div class="metric reveal"><div class="v">52</div><div class="k" data-en="card classes">klasy kart</div></div>
+        <div class="metric reveal"><div class="v">24<small>k</small></div><div class="k" data-en="images in dataset">zdjęć w zbiorze</div></div>
+        <div class="metric reveal"><div class="v">0.789</div><div class="k">mAP<small>50-95</small></div></div>
+        <div class="metric reveal"><div class="v">90–95<small>%</small></div><div class="k" data-en="real-world conf.">pewność w praktyce</div></div>
+        <div class="metric reveal"><div class="v">~5<small> fps</small></div><div class="k" data-en="on Raspberry Pi">na Raspberry Pi</div></div>
+        <div class="metric reveal"><div class="v">76</div><div class="k" data-en="Polish audio files">plików audio PL</div></div>
+      </div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="sec" id="przeglad">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">01</span>
+          <h2 data-en="Overview">Przegląd</h2>
+          <span class="sub" data-en="Master's · ML course project">Studia mgr · projekt z UM</span>
+        </div>
+        <div class="ov-grid">
+          <div class="prose reveal">
+            <p data-en="A six-person team project for the <b>Machine Learning</b> course (Master's programme, summer 2026). The brief was open; we chose the hardest, most tangible option: <b>recognise playing cards in real time and deploy it to an embedded device</b> — not a notebook, a physical box you can hold.">Projekt zespołowy (6 osób) na przedmiot <b>Uczenie Maszynowe</b> (studia magisterskie, semestr letni 2026). Temat był dowolny — wybraliśmy najbardziej namacalny: <b>rozpoznawać karty do gry w czasie rzeczywistym i wdrożyć to na urządzenie embedded</b> — nie w notebooku, tylko w fizycznym pudełku, które trzymasz w ręku.</p>
+            <p data-en="Everything runs locally on the Pi: the camera captures a frame, a fine-tuned YOLOv8n model detects the card, a state machine decides when it is sure, and a Polish voice announces it while a tiny OLED shows the rank, suit and confidence. No cloud, no internet needed at runtime.">Wszystko dzieje się lokalnie na Pi: kamera łapie klatkę, dostrojony model YOLOv8n wykrywa kartę, maszyna stanów decyduje, kiedy jest pewna, a polski głos ją ogłasza — równolegle mały wyświetlacz OLED pokazuje figurę, kolor i pewność. Bez chmury, bez internetu w trakcie działania.</p>
+            <p data-en="My focus in the team spanned the deployment path on the Raspberry Pi and the recognition pipeline — getting the trained model to behave the same on real, physical cards as it did on the validation set.">Mój obszar w zespole obejmował ścieżkę wdrożenia na Raspberry Pi oraz pipeline rozpoznawania — doprowadzenie modelu do tego, by na prawdziwych, fizycznych kartach zachowywał się tak samo dobrze jak na zbiorze walidacyjnym.</p>
+          </div>
+
+          <div class="card reveal">
+            <div class="card-head"><span data-en="Project team">Zespół projektowy</span><span class="pin">6</span></div>
+            <div class="team">
+              <div><span class="avatar">GŁ</span><span class="who">Gabriela Ławrynowicz</span></div>
+              <div><span class="avatar">SM</span><span class="who">Sebastian Mazurek</span></div>
+              <div><span class="avatar">ŁM</span><span class="who">Łukasz Molenda</span></div>
+              <div class="me"><span class="avatar">DM</span><span class="who">Dawid Majewski</span><span class="role" data-en="that's me">to ja</span></div>
+              <div><span class="avatar">KP</span><span class="who">Konrad Paulus</span></div>
+              <div><span class="avatar">DP</span><span class="who">Dominik Pacanowski</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HARDWARE -->
+    <section class="sec" id="sprzet">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">02</span>
+          <h2 data-en="Hardware">Sprzęt</h2>
+          <span class="sub" data-en="a box you can hold">pudełko, które trzymasz w ręku</span>
+        </div>
+        <div class="hw-grid">
+          <div class="reveal">
+            <div class="hud wide" aria-label="Wnętrze urządzenia — Raspberry Pi, głośnik i akumulator w obudowie">
+              <span class="corner tl"></span><span class="corner tr"></span>
+              <span class="corner bl"></span><span class="corner br"></span>
+              <span class="hud-tag spec" data-en="the build">montaż</span>
+              <img src="Img/hardware.jpg" alt="Wnętrze urządzenia: Raspberry Pi z okablowaniem, głośnik i akumulator LiPo w białej obudowie">
+            </div>
+            <div class="callout">
+              <div class="t" data-en="Engineering decision · grayscale mode">Decyzja inżynierska · tryb gray</div>
+              <p data-en="Colour cameras kept confusing red cards — different shades of red made the model unsure. Switching the camera to <b>monochrome</b> removed the colour-balance problem entirely: every card is seen in grayscale and recognised by the <b>shape of its pips and digits</b>, not its colour. Red and black cards now detect equally well.">Kolorowe kamery wciąż myliły czerwone karty — różne odcienie czerwieni sprawiały, że model tracił pewność. Przełączenie kamery w tryb <b>monochromatyczny</b> całkowicie usunęło problem balansu kolorów: każda karta widziana jest w skali szarości i rozpoznawana po <b>kształcie symboli i cyfr</b>, a nie po kolorze. Czerwone i czarne karty wykrywane są teraz jednakowo dobrze.</p>
+            </div>
+          </div>
+
+          <div class="reveal">
+            <ul class="spec-list">
+              <li><span class="comp"><span>Raspberry Pi 4</span><small data-en="central unit · 4 GB RAM">jednostka centralna · 4 GB RAM</small></span><span class="val">Bookworm 64-bit · 5V/3A</span></li>
+              <li><span class="comp"><span data-en="CSI Camera">Kamera CSI</span><small data-en="Camera Module · ribbon">Camera Module · taśma</small></span><span class="val">640×480 · gray · AF</span></li>
+              <li><span class="comp"><span>OLED SSD1306</span><small data-en="128×64 · I2C @ 0x3C">128×64 · I2C @ 0x3C</small></span><span class="val">luma.oled</span></li>
+              <li><span class="comp"><span data-en="Custom speaker">Głośnik custom</span><small data-en="3.5 mm jack · ALSA">jack 3,5 mm · ALSA</small></span><span class="val">pygame mixer</span></li>
+              <li><span class="comp"><span data-en="LiPo battery">Akumulator LiPo</span><small data-en="inside the enclosure">w obudowie urządzenia</small></span><span class="val">600 mAh · 3.7V</span></li>
+              <li><span class="comp"><span data-en="SD card + WiFi">Karta SD + WiFi</span><small data-en="storage &amp; SSH deploy">storage i deploy SSH</small></span><span class="val">32 GB · Class 10</span></li>
+            </ul>
+            <div class="callout is-mint">
+              <div class="t" data-en="Boot to voice">Od włączenia do głosu</div>
+              <p data-en="Power on the Pi and a <code>systemd</code> service starts everything automatically — no keyboard, no monitor. Within 30–90 seconds it greets you with <b>&ldquo;Witaj&rdquo;</b> and is ready to scan.">Włączasz Pi, a usługa <code>systemd</code> uruchamia wszystko automatycznie — bez klawiatury, bez monitora. W 30–90 sekund wita Cię słowem <b>„Witaj”</b> i jest gotowe do skanowania.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PIPELINE -->
+    <section class="sec" id="pipeline">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">03</span>
+          <h2 data-en="Recognition pipeline">Pipeline rozpoznawania</h2>
+          <span class="sub" data-en="frame → voice">klatka → głos</span>
+        </div>
+        <p class="prose reveal" style="margin-bottom:1.4rem" data-en="A single frame flows through seven stages — from raw pixels to a spoken card name. Each stage does one job and hands off to the next.">Jedna klatka przechodzi przez siedem etapów — od surowych pikseli po wypowiedzianą nazwę karty. Każdy etap robi jedną rzecz i przekazuje wynik dalej.</p>
+
+        <div class="pipeline">
+          <div class="stage reveal">
+            <div class="rail"><div class="node">01</div><div class="stem"></div></div>
+            <div>
+              <h3 data-en='CSI Camera <span class="en">camera.py</span>'>Kamera CSI <span class="en">camera.py</span></h3>
+              <p data-en="Grayscale frame from the Pi Camera Module. One wrapper abstracts <code>picamera2</code> on the Pi and <code>cv2.VideoCapture</code> for USB testing on a PC.">Klatka w skali szarości z Pi Camera Module. Jeden wrapper ukrywa różnicę między <code>picamera2</code> na Pi a <code>cv2.VideoCapture</code> przy testach na PC.</p>
+              <div class="params"><span><b>640×480</b></span><span><b>gray</b></span><span>autofocus <b>continuous</b></span></div>
+            </div>
+          </div>
+
+          <div class="stage reveal">
+            <div class="rail"><div class="node">02</div><div class="stem"></div></div>
+            <div>
+              <h3>Preprocess <span class="en">preprocess.py</span></h3>
+              <p data-en="White balance, red boost and saturation — built for a colour camera on PC. On the grayscale Pi camera these steps are largely skipped: the image is already clean.">Balans bieli, wzmocnienie czerwieni i saturacji — zbudowane pod kolorową kamerę na PC. Na monochromatycznej kamerze Pi te kroki są w większości pomijane: obraz jest już czysty.</p>
+              <div class="params"><span>gray_world_wb</span><span>boost_red</span><span>boost_saturation</span></div>
+            </div>
+          </div>
+
+          <div class="stage reveal">
+            <div class="rail"><div class="node">03</div><div class="stem"></div></div>
+            <div>
+              <h3 data-en='YOLOv8 Detector <span class="en">detector.py</span>'>Detektor YOLOv8 <span class="en">detector.py</span></h3>
+              <p data-en="The fine-tuned YOLOv8n model runs with Test-Time Augmentation and returns a list of detections — label, confidence, bounding box.">Dostrojony model YOLOv8n uruchamiany z Test-Time Augmentation zwraca listę detekcji — etykieta, pewność, bounding box.</p>
+              <div class="params"><span>augment <b>TTA</b></span><span>conf ≥ <b>0.25</b></span><span>iou <b>0.45</b></span></div>
+            </div>
+          </div>
+
+          <div class="stage reveal">
+            <div class="rail"><div class="node">04</div><div class="stem"></div></div>
+            <div>
+              <h3 data-en='Colour correction <span class="en">color_aware.py</span>'>Korekta koloru <span class="en">color_aware.py</span></h3>
+              <p data-en="Per detection, the real symbol colour (red / black) is classified in HSV. A match boosts confidence ×1.30; a mismatch penalises it ×0.30 — killing red-vs-black confusions.">Dla każdej detekcji rzeczywisty kolor symbolu (czerwony / czarny) klasyfikowany jest w HSV. Zgodność podbija pewność ×1.30, niezgodność karze ją ×0.30 — eliminując pomyłki czerwone–czarne.</p>
+              <div class="params"><span>match <b>×1.30</b></span><span>mismatch <b>×0.30</b></span></div>
+            </div>
+          </div>
+
+          <div class="stage reveal">
+            <div class="rail"><div class="node">05</div><div class="stem"></div></div>
+            <div>
+              <h3>Index Tracker <span class="en">index_tracker.py</span></h3>
+              <p data-en="A card has four corner indices. If two or more detections of the same class appear in a single frame, the card is <b>confirmed</b> — cutting reaction latency from ~1.5 s to ~150 ms versus a frame-counting tracker.">Karta ma cztery indeksy w rogach. Jeśli w jednej klatce pojawią się dwie lub więcej detekcji tej samej klasy, karta jest <b>potwierdzona</b> — skraca to reakcję z ~1,5 s do ~150 ms względem trackera liczącego klatki.</p>
+              <div class="params"><span>min_indexes <b>2</b></span><span><b>~150 ms</b></span></div>
+            </div>
+          </div>
+
+          <div class="stage reveal">
+            <div class="rail"><div class="node">06</div><div class="stem"></div></div>
+            <div>
+              <h3>Announcer <span class="en">announcer.py · state machine</span></h3>
+              <p data-en="The heart of the interaction — a seven-state machine: greet → wait → stabilise (3 s) → announce → repeat → ask for the next card → wait for removal. It decides what to say and when.">Serce interakcji — siedmiostanowa maszyna: powitanie → oczekiwanie → stabilizacja (3 s) → ogłoszenie → powtórka → prośba o następną → oczekiwanie na zabranie. Decyduje, co i kiedy powiedzieć.</p>
+              <div class="params"><span>stabilize <b>3 s</b></span><span>repeat <b>2 s</b></span><span>next <b>2 s</b></span></div>
+            </div>
+          </div>
+
+          <div class="stage reveal">
+            <div class="rail"><div class="node">07</div></div>
+            <div>
+              <h3>Audio + Display <span class="en">audio_player.py · display.py</span></h3>
+              <p data-en="Two outputs in parallel: a Polish MP3 announces the card via <code>pygame</code>, while the display layer auto-detects OLED → LCD → HDMI and shows rank, suit and a confidence bar.">Dwa wyjścia równolegle: polski plik MP3 ogłasza kartę przez <code>pygame</code>, a warstwa wyświetlacza auto-wykrywa OLED → LCD → HDMI i pokazuje figurę, kolor oraz pasek pewności.</p>
+              <div class="params"><span>pygame mixer</span><span>OLED → LCD → HDMI</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATASET -->
+    <section class="sec" id="dataset">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">04</span>
+          <h2>Dataset</h2>
+          <span class="sub">Roboflow Universe · Public Domain</span>
+        </div>
+        <div class="ds-grid">
+          <div class="ds-stat reveal"><div class="v">24 233</div><div class="k" data-en="images total">zdjęć łącznie</div></div>
+          <div class="ds-stat reveal"><div class="v">52</div><div class="k" data-en="classes · 4 suits × 13 ranks">klas · 4 kolory × 13 figur</div></div>
+          <div class="ds-stat reveal"><div class="v">2 GB</div><div class="k">YOLOv8 format · .txt</div></div>
+        </div>
+        <div class="reveal">
+          <div class="split-key" style="margin-bottom:.4rem">
+            <span><i style="background:var(--amber)"></i> Train — 21 203 (87,5%)</span>
+            <span><i style="background:var(--mint)"></i> Val — 2 020 (8,3%)</span>
+            <span><i style="background:var(--muted-2)"></i> Test — 1 010 (4,2%)</span>
+          </div>
+          <div class="split"><i class="tr"></i><i class="va"></i><i class="te"></i></div>
+          <p class="prose" data-en="Source: the public <code>playing-cards-ow27d</code> project on Roboflow Universe (v4, YOLOv8 format). Labels use English notation (<code>KH</code>, <code>QD</code>, <code>AS</code>…) which a central translation table maps to Polish names, Unicode suits and audio slugs — so &ldquo;KH&rdquo; becomes &ldquo;Król kier&rdquo; and <code>krol_kier.mp3</code>.">Źródło: publiczny projekt <code>playing-cards-ow27d</code> na Roboflow Universe (v4, format YOLOv8). Etykiety w notacji angielskiej (<code>KH</code>, <code>QD</code>, <code>AS</code>…) centralna tablica tłumaczeń mapuje na polskie nazwy, symbole Unicode i slugi audio — więc „KH” staje się „Król kier” i <code>krol_kier.mp3</code>.</p>
+          <div class="deck" aria-hidden="true">
+            <div class="cardpip r">A♥</div><div class="cardpip r">2♥</div><div class="cardpip r">3♥</div><div class="cardpip r">4♥</div><div class="cardpip r">5♥</div><div class="cardpip r">6♥</div><div class="cardpip r">7♥</div><div class="cardpip r">8♥</div><div class="cardpip r">9♥</div><div class="cardpip r">10♥</div><div class="cardpip r">J♥</div><div class="cardpip r">Q♥</div><div class="cardpip r">K♥</div>
+            <div class="cardpip r">A♦</div><div class="cardpip r">2♦</div><div class="cardpip r">3♦</div><div class="cardpip r">4♦</div><div class="cardpip r">5♦</div><div class="cardpip r">6♦</div><div class="cardpip r">7♦</div><div class="cardpip r">8♦</div><div class="cardpip r">9♦</div><div class="cardpip r">10♦</div><div class="cardpip r">J♦</div><div class="cardpip r">Q♦</div><div class="cardpip r">K♦</div>
+            <div class="cardpip">A♣</div><div class="cardpip">2♣</div><div class="cardpip">3♣</div><div class="cardpip">4♣</div><div class="cardpip">5♣</div><div class="cardpip">6♣</div><div class="cardpip">7♣</div><div class="cardpip">8♣</div><div class="cardpip">9♣</div><div class="cardpip">10♣</div><div class="cardpip">J♣</div><div class="cardpip">Q♣</div><div class="cardpip">K♣</div>
+            <div class="cardpip">A♠</div><div class="cardpip">2♠</div><div class="cardpip">3♠</div><div class="cardpip">4♠</div><div class="cardpip">5♠</div><div class="cardpip">6♠</div><div class="cardpip">7♠</div><div class="cardpip">8♠</div><div class="cardpip">9♠</div><div class="cardpip">10♠</div><div class="cardpip">J♠</div><div class="cardpip">Q♠</div><div class="cardpip">K♠</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRAINING -->
+    <section class="sec" id="trening">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">05</span>
+          <h2 data-en="Training &amp; fine-tuning">Trening i fine-tuning</h2>
+          <span class="sub">YOLOv8n · RTX 3060</span>
+        </div>
+        <p class="prose reveal" style="margin-bottom:1.6rem" data-en="Transfer learning from COCO-pretrained YOLOv8n (~3.2M params). One detail mattered a lot: <b>horizontal and vertical flips were disabled</b> — playing cards are asymmetric, so a mirror image is a different card and flipping would corrupt the labels.">Transfer learning z YOLOv8n pretrenowanego na COCO (~3,2 mln parametrów). Jeden szczegół miał duże znaczenie: <b>flip poziomy i pionowy były wyłączone</b> — karty są asymetryczne, więc lustrzane odbicie to inna karta, a flip zepsułby etykiety.</p>
+
+        <div class="chart-wrap reveal">
+          <div class="chart-head">
+            <span class="ct" data-en="mAP50-95 across training">mAP50-95 w trakcie treningu</span>
+            <span class="cs" data-en="single metric · higher is better">jedna metryka · wyżej = lepiej</span>
+          </div>
+          <div class="chart">
+            <svg viewBox="0 0 720 320" role="img" aria-label="Wykres mAP50-95: wzrost z 0.356 do 0.770 w treningu v1, spadek do 0.635 na starcie fine-tuningu i wzrost do 0.789 w v2">
+              <!-- fine-tune phase band -->
+              <rect class="phaseband" x="520.8" y="40" width="169.2" height="230"></rect>
+              <!-- gridlines + y labels -->
+              <g>
+                <line class="gridline" x1="60" y1="270" x2="690" y2="270"></line>
+                <line class="gridline" x1="60" y1="224" x2="690" y2="224"></line>
+                <line class="gridline" x1="60" y1="178" x2="690" y2="178"></line>
+                <line class="gridline" x1="60" y1="132" x2="690" y2="132"></line>
+                <line class="gridline" x1="60" y1="86"  x2="690" y2="86"></line>
+                <line class="gridline" x1="60" y1="40"  x2="690" y2="40"></line>
+                <text class="axtxt" x="52" y="273" text-anchor="end">0.30</text>
+                <text class="axtxt" x="52" y="227" text-anchor="end">0.40</text>
+                <text class="axtxt" x="52" y="181" text-anchor="end">0.50</text>
+                <text class="axtxt" x="52" y="135" text-anchor="end">0.60</text>
+                <text class="axtxt" x="52" y="89"  text-anchor="end">0.70</text>
+                <text class="axtxt" x="52" y="43"  text-anchor="end">0.80</text>
+              </g>
+              <!-- x labels (epochs) -->
+              <g>
+                <text class="axtxt" x="60"  y="288" text-anchor="middle">1</text>
+                <text class="axtxt" x="165" y="288" text-anchor="middle">10</text>
+                <text class="axtxt" x="281.7" y="288" text-anchor="middle">20</text>
+                <text class="axtxt" x="398.3" y="288" text-anchor="middle">30</text>
+                <text class="axtxt" x="515" y="288" text-anchor="middle">40</text>
+                <text class="axtxt" x="690" y="288" text-anchor="middle">55</text>
+                <text class="axtxt" x="375" y="308" text-anchor="middle" data-en="epoch">epoka</text>
+              </g>
+              <!-- divider between v1 and fine-tune -->
+              <line class="divider" x1="520.8" y1="40" x2="520.8" y2="270"></line>
+              <!-- phase labels -->
+              <text class="phaselabel" x="70" y="56" data-en="Training v1 · 40 epochs">Trening v1 · 40 epok</text>
+              <text class="phaselabel is-mint" x="530" y="56">Fine-tune v2</text>
+              <!-- trend line (true data, incl. fine-tune dip) -->
+              <polyline class="trend" id="trend"
+                points="60,244.2 106.7,225.8 165,160.5 281.7,122.8 398.3,81.4 515,53.8 526.7,115.9 573.3,70.4 631.7,58.9 690,45.1"></polyline>
+              <!-- data dots -->
+              <circle class="dot" cx="60" cy="244.2" r="3.5"></circle>
+              <circle class="dot" cx="165" cy="160.5" r="3.5"></circle>
+              <circle class="dot" cx="398.3" cy="81.4" r="3.5"></circle>
+              <circle class="dot" cx="515" cy="53.8" r="4.5"></circle>
+              <circle class="dot" cx="526.7" cy="115.9" r="3.5"></circle>
+              <circle class="dot is-mint" cx="690" cy="45.1" r="4.5"></circle>
+              <!-- key point labels -->
+              <text class="ptlabel" x="60" y="236" text-anchor="start">0.356</text>
+              <text class="ptlabel" x="515" y="44" text-anchor="middle">0.770</text>
+              <text class="ptlabel is-muted" x="536" y="122" text-anchor="start">↓ 0.635</text>
+              <text class="ptlabel is-mint" x="686" y="36" text-anchor="end">0.789</text>
+            </svg>
+          </div>
+          <p class="prose" style="font-size:.86rem;color:var(--muted-2);margin-top:.6rem;max-width:none" data-en="The dip at epoch 41 is the aggressive colour augmentation kicking in during fine-tuning — the model briefly gets &ldquo;confused&rdquo; on the harder examples, then recovers past its previous best.">Spadek na epoce 41 to moment włączenia agresywnej augmentacji kolorów w fine-tuningu — model na chwilę „głupieje” na trudniejszych przykładach, po czym przebija swój poprzedni rekord.</p>
+        </div>
+
+        <h3 style="font-family:var(--display);font-weight:600;font-size:1.3rem;margin:2.4rem 0 .3rem" class="reveal" data-en="A story worth telling: domain shift">Historia warta opowiedzenia: domain shift</h3>
+        <p class="prose reveal" style="margin-bottom:.4rem" data-en="The v1 model scored beautifully on the validation set — but on the <b>physical cards we actually bought</b>, red cards were only recognised with 30–50% confidence and often mixed up. The training deck simply had a narrower range of reds than reality. Instead of collecting a new dataset, we fine-tuned with <b>3× stronger hue augmentation</b> so the model would learn &ldquo;a King is a King regardless of the exact shade of red.&rdquo;">Model v1 miał świetne metryki na zbiorze walidacyjnym — ale na <b>fizycznych kartach, które faktycznie kupiliśmy</b>, czerwone karty rozpoznawane były z pewnością tylko 30–50% i często myliły się między sobą. Talia treningowa miała po prostu węższy zakres czerwieni niż rzeczywistość. Zamiast zbierać nowy zbiór, zrobiliśmy fine-tuning z <b>3× mocniejszą augmentacją odcienia</b>, by model nauczył się, że „Król to Król niezależnie od dokładnego odcienia czerwonego”.</p>
+
+        <div class="ba">
+          <div class="ba-card before reveal">
+            <div class="bt" data-en="<b>Before</b> · model v1 on physical cards">v1 <b>przed</b> · na fizycznych kartach</div>
+            <div class="meter">
+              <div class="ml"><span class="suit-r" data-en="Red cards ♥ ♦">Czerwone ♥ ♦</span><span class="val">30–50%</span></div>
+              <div class="track"><span class="fill red" data-w="40" style="width:0"></span></div>
+            </div>
+            <div class="meter">
+              <div class="ml"><span data-en="Black cards ♣ ♠">Czarne ♣ ♠</span><span class="val">95–100%</span></div>
+              <div class="track"><span class="fill gray" data-w="97" style="width:0"></span></div>
+            </div>
+          </div>
+          <div class="ba-card after reveal">
+            <div class="bt" data-en="<b>After</b> · model v2 + grayscale mode">v2 <b>po</b> · + tryb gray</div>
+            <div class="meter">
+              <div class="ml"><span class="suit-r" data-en="Red cards ♥ ♦">Czerwone ♥ ♦</span><span class="val">90–95%</span></div>
+              <div class="track"><span class="fill mint" data-w="92" style="width:0"></span></div>
+            </div>
+            <div class="meter">
+              <div class="ml"><span data-en="Black cards ♣ ♠">Czarne ♣ ♠</span><span class="val">95–100%</span></div>
+              <div class="track"><span class="fill mint" data-w="97" style="width:0"></span></div>
+            </div>
+          </div>
+        </div>
+        <p class="prose reveal" style="font-size:.9rem;color:var(--muted-2);margin-top:1rem" data-en="On paper the metric moved only +2.5% (mAP50-95 0.770 → 0.789). In the real world, red-card confidence roughly doubled — a reminder that validation scores don't fully capture behaviour in the target environment.">Na papierze metryka wzrosła tylko o +2,5% (mAP50-95 0,770 → 0,789). W rzeczywistości pewność na czerwonych kartach niemal się podwoiła — przypomnienie, że metryki walidacyjne nie oddają w pełni zachowania w środowisku docelowym.</p>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="sec" id="wyniki">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">06</span>
+          <h2 data-en="Results">Wyniki</h2>
+          <span class="sub" data-en="v1 vs v2 · validated on Roboflow val set">v1 vs v2 · walidacja na zbiorze Roboflow</span>
+        </div>
+        <div class="tbl-scroll reveal">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th data-en="Metric">Metryka</th>
+                <th>yolo_cards.pt <span style="color:var(--muted-2)">· v1</span></th>
+                <th>yolo_cards_v2.pt <span style="color:var(--muted-2)">· v2</span></th>
+                <th data-en="Change">Zmiana</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>mAP50</td><td class="m">0.995</td><td class="m">0.995</td><td class="delta">=</td></tr>
+              <tr><td>mAP50-95</td><td class="m">0.770</td><td class="win">0.789</td><td class="delta">+2.5%</td></tr>
+              <tr><td>Precision</td><td class="m">0.999</td><td class="m">—</td><td class="delta"></td></tr>
+              <tr><td>Recall</td><td class="m">1.000</td><td class="m">—</td><td class="delta"></td></tr>
+              <tr><td>cls_loss</td><td class="m">0.320</td><td class="m">0.340</td><td class="delta">≈</td></tr>
+              <tr><td data-en="File size">Rozmiar pliku</td><td class="m">23.44 MB</td><td class="win">5.98 MB</td><td class="delta">fp16</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ov-grid" style="margin-top:2rem">
+          <div class="prose reveal">
+            <p data-en="For context, YOLOv8n on the COCO benchmark reaches mAP50-95 ≈ 0.37. Our <b>0.789 is roughly 2× higher</b> — card recognition is an easier task than COCO: the classes are stylistically consistent, the marks are distinctive, and the background is controlled.">Dla kontekstu — YOLOv8n na benchmarku COCO osiąga mAP50-95 ≈ 0,37. Nasze <b>0,789 jest około 2× wyższe</b>: rozpoznawanie kart jest łatwiejsze niż COCO — klasy są stylistycznie spójne, symbole charakterystyczne, a tło kontrolowane.</p>
+            <p data-en="On the physical Raspberry Pi with the grayscale camera, all 52 cards are recognised at <b>90–95% confidence</b>, with no more red-vs-black split. The full pipeline — capture, YOLO, tracker, announcer — runs at about <b>5 FPS</b>, which is plenty for a person placing cards one at a time.">Na fizycznym Raspberry Pi z kamerą monochromatyczną wszystkie 52 karty rozpoznawane są z pewnością <b>90–95%</b>, bez podziału na czerwone i czarne. Cały pipeline — capture, YOLO, tracker, announcer — działa z prędkością około <b>5 FPS</b>, co w zupełności wystarcza, gdy człowiek podkłada karty pojedynczo.</p>
+          </div>
+          <div class="card reveal">
+            <div class="card-head"><span data-en="Ran flawlessly">Działało bezbłędnie</span><span class="pin">✓</span></div>
+            <div style="padding:.4rem .9rem 1rem">
+              <div class="audio-cat"><span class="c" data-en="76 Polish MP3 files — no glitches">76 polskich plików MP3 — bez glitchy</span></div>
+              <div class="audio-cat"><span class="c" data-en="OLED renders Polish + ♥ ♦ ♣ ♠ via DejaVu Sans">OLED renderuje polskie znaki + ♥ ♦ ♣ ♠ (DejaVu Sans)</span></div>
+              <div class="audio-cat"><span class="c" data-en="Display auto-detect: OLED → LCD → HDMI">Auto-detekcja wyświetlacza: OLED → LCD → HDMI</span></div>
+              <div class="audio-cat"><span class="c" data-en="3-second stabilisation proved enough in practice">Stabilizacja 3 s wystarcza w praktyce</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DEMO -->
+    <section class="sec" id="demo">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">07</span>
+          <h2 data-en="Demo flow">Przebieg demo</h2>
+          <span class="sub" data-en="what a scan feels like">jak wygląda jedno skanowanie</span>
+        </div>
+        <div class="demo-grid">
+          <div class="reveal">
+            <ol class="flow">
+              <li><span class="st" data-en="Boot">Start</span><span class="say" data-en="systemd starts <code>main.py</code>; camera, detector, audio and OLED init.">systemd uruchamia <code>main.py</code>; init kamery, detektora, audio i OLED.</span></li>
+              <li><span class="st" data-en="Greeting">Powitanie</span><span class="say" data-en="<span class='q'>&ldquo;Welcome&rdquo;</span> → <span class='q'>&ldquo;Let&rsquo;s begin&rdquo;</span> → <span class='q'>&ldquo;Please place a card&rdquo;</span>"><span class="q">„Witaj”</span> → <span class="q">„Rozpoczynamy”</span> → <span class="q">„Proszę podstawić kartę”</span></span></li>
+              <li><span class="st" data-en="Card placed">Karta podstawiona</span><span class="say" data-en="YOLO detects the corner indices; two of the same class → confirmed. <span class='q'>&ldquo;Scanning&rdquo;</span>.">YOLO wykrywa indeksy w rogach; dwie tej samej klasy → potwierdzenie. <span class="q">„Skanuję kartę”</span>.</span></li>
+              <li><span class="st" data-en="Stabilise (3 s)">Stabilizacja (3 s)</span><span class="say" data-en="OLED shows the candidate + a 0–100% progress bar. If the class changes → reset (anti-noise).">OLED pokazuje kandydata + pasek 0–100%. Jeśli klasa się zmieni → reset (anti-noise).</span></li>
+              <li><span class="st" data-en="Announce">Ogłoszenie</span><span class="say"><span class="q" data-en="&ldquo;Card recognised&rdquo;">„Karta rozpoznana”</span> + <span class="q" data-en="card name">nazwa karty</span> (<code>krol_kier.mp3</code>)</span></li>
+              <li><span class="st" data-en="Repeat &amp; next">Powtórka i następna</span><span class="say" data-en="After 2 s the name repeats; after 2 s more: <span class='q'>&ldquo;Next card, please&rdquo;</span>.">Po 2 s powtórka nazwy; po kolejnych 2 s: <span class="q">„Proszę o następną kartę”</span>.</span></li>
+              <li><span class="st" data-en="Remove → loop">Zabranie → pętla</span><span class="say" data-en="Card removed → &ldquo;Waiting for a card&rdquo; → back to step 3. A different card starts a new scan immediately.">Karta zabrana → „Czekam na kartę” → powrót do kroku 3. Inna karta od razu startuje nowe skanowanie.</span></li>
+              <li><span class="st">Ctrl+C</span><span class="say"><span class="q" data-en="&ldquo;Thank you&rdquo;">„Dziękuję”</span> → <span class="q" data-en="&ldquo;See you&rdquo;">„Do zobaczenia”</span> → OLED clear</span></li>
+            </ol>
+          </div>
+
+          <div class="oled-wrap reveal">
+            <div class="oled">
+              <div class="frame">
+                <div class="rs">K<span class="h">&hearts;</span></div>
+                <div class="cf">92%</div>
+                <div class="bar">████████████░░░░</div>
+              </div>
+              <div class="oled-cap">OLED SSD1306 · 128×64 · I2C 0x3C</div>
+            </div>
+            <div class="audio-note">
+              <div class="audio-cat"><span class="n">52</span><span class="c">cards/</span><span class="p" data-en="card names">nazwy kart</span></div>
+              <div class="audio-cat"><span class="n">7</span><span class="c">statusy/</span><span class="p" data-en="recognised, scanning…">rozpoznana, skanuje…</span></div>
+              <div class="audio-cat"><span class="n">4</span><span class="c">instrukcje/</span><span class="p" data-en="waiting, place…">czekam, podstaw…</span></div>
+              <div class="audio-cat"><span class="n">7</span><span class="c">bledy/</span><span class="p" data-en="unreadable…">nieczytelna…</span></div>
+              <div class="audio-cat"><span class="n">6</span><span class="c">intro/</span><span class="p" data-en="welcome, thanks…">witaj, dziekuje…</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Adnotacja MUSI zaznaczyć, że opis powyżej dotyczy wersji polskojęzycznej —
+             inaczej przeczyłaby cytowanym wyżej komunikatom („Witaj", krol_kier.mp3)
+             i strona kłóciłaby się sama ze sobą. -->
+        <p class="note reveal">
+          <b data-en="Note">Adnotacja</b>
+          <span data-en="The walkthrough above describes the Polish-language build the project was developed on. For the purposes of this CV the language of the system's spoken messages was switched to English; the rest of the interface — the OLED display among others — stays in Polish.">Przebieg powyżej opisuje wersję polskojęzyczną, na której projekt powstał. Na potrzeby CV język komunikatów systemu został zmieniony na angielski; reszta interfejsu — m.in. ekran OLED — pozostaje polska.</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- MODULES + STACK -->
+    <section class="sec" id="kod">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">08</span>
+          <h2 data-en="Code &amp; stack">Kod i stack</h2>
+          <span class="sub"><code>src/</code> · <code>app/</code> · deploy</span>
+        </div>
+        <div class="mods">
+          <div class="mod reveal"><div class="fn">camera.py</div><div class="d" data-en="Cross-platform camera wrapper: picamera2 on Pi, cv2 fallback on PC.">Wieloplatformowy wrapper kamery: picamera2 na Pi, cv2 fallback na PC.</div></div>
+          <div class="mod reveal"><div class="fn">detector.py</div><div class="d" data-en="YOLOv8 wrapper with Test-Time Augmentation; returns label + conf + bbox.">Wrapper YOLOv8 z TTA; zwraca label + conf + bbox.</div></div>
+          <div class="mod reveal"><div class="fn">color_aware.py</div><div class="d" data-en="HSV symbol-colour check; asymmetric confidence boost / penalty.">Sprawdzanie koloru symbolu w HSV; asymetryczny boost / kara pewności.</div></div>
+          <div class="mod reveal"><div class="fn">index_tracker.py</div><div class="d" data-en="Confirms a card from ≥2 corner indices in one frame (~150 ms).">Potwierdza kartę z ≥2 indeksów w jednej klatce (~150 ms).</div></div>
+          <div class="mod reveal"><div class="fn">announcer.py</div><div class="d" data-en="Seven-state machine coordinating voice and display.">Siedmiostanowa maszyna koordynująca głos i wyświetlacz.</div></div>
+          <div class="mod reveal"><div class="fn">audio_player.py</div><div class="d" data-en="pygame mixer with in-memory MP3 cache (&lt;1 ms replays).">pygame mixer z cache MP3 w pamięci (powtórki &lt;1 ms).</div></div>
+          <div class="mod reveal"><div class="fn">display.py</div><div class="d" data-en="One interface, three backends: OLED → LCD → HDMI auto-detect.">Jeden interfejs, trzy backendy: auto-detekcja OLED → LCD → HDMI.</div></div>
+          <div class="mod reveal"><div class="fn">card_labels.py</div><div class="d" data-en="Central table: Roboflow code → Polish name, Unicode suit, audio slug.">Centralna tablica: kod Roboflow → polska nazwa, symbol, slug audio.</div></div>
+          <div class="mod reveal"><div class="fn">mode_yolo.py</div><div class="d" data-en="The main loop wiring every component together.">Główna pętla spinająca wszystkie komponenty.</div></div>
+        </div>
+        <div class="stackrow reveal">
+          <span><b>Python</b> 3.11 / 3.13</span>
+          <span><b>Ultralytics</b> YOLOv8</span>
+          <span><b>PyTorch</b> 2.8 · CUDA</span>
+          <span><b>OpenCV</b></span>
+          <span><b>NumPy</b></span>
+          <span><b>pygame</b></span>
+          <span><b>luma.oled</b></span>
+          <span><b>Pillow</b></span>
+          <span><b>Roboflow</b></span>
+          <span><b>systemd</b> · bash</span>
+          <span><b>NCNN</b> export</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLOSE -->
+    <section class="close wrap">
+      <span class="eyebrow reveal" style="justify-content:center" data-en="From dataset to a talking box">Od zbioru danych do gadającego pudełka</span>
+      <h2 class="reveal" data-en="An end-to-end ML system,<br>not a notebook.">Kompletny system ML,<br>a nie notebook.</h2>
+      <div class="cta-row reveal">
+        <a class="btn ghost" href="./index.html">
+          <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
+          <span data-en="Back to portfolio">Wróć do portfolio</span>
+        </a>
+        <a class="btn ghost" href="mailto:dawid.majewski.it@gmail.com">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          dawid.majewski.it@gmail.com
+        </a>
+        <a class="btn ghost" href="https://github.com/dawidmajewskii" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" style="fill:currentColor;stroke:none"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.05-.02-2.06-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.39 1.24-3.23-.13-.3-.54-1.53.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.88.12 3.18.77.84 1.24 1.92 1.24 3.23 0 4.62-2.81 5.64-5.49 5.94.43.37.81 1.1.81 2.22 0 1.6-.01 2.9-.01 3.29 0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5Z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap row">
+        <span>© 2026 Dawid Majewski</span>
+        <span data-en="Card recognition system · ML course project · team of 6">System rozpoznawania kart · projekt z UM · zespół 6 osób</span>
+        <a href="./index.html">← dawidmajewskiit.pl</a>
+      </div>
+    </footer>
+  </main>
+
+<script>
+  var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- respect reduced motion: don't auto-play the looping video (controls remain, so it stays playable) ----
+  (function(){
+    if(!REDUCE) return;
+    document.querySelectorAll('video[autoplay]').forEach(function(v){
+      v.removeAttribute('autoplay');
+      try{ v.pause(); }catch(e){}
+    });
+  })();
+
+  // ---- sound toggle: autoplay must be muted, so let the visitor turn audio on and hear the narrated demo ----
+  (function(){
+    var v = document.querySelector('.hud video');
+    var b = document.getElementById('soundBtn');
+    if(!v || !b) return;
+    b.addEventListener('click', function(){
+      v.muted = !v.muted;
+      b.classList.toggle('is-on', !v.muted);
+      b.setAttribute('aria-pressed', String(!v.muted));
+      if(!v.muted){
+        // first time enabling sound: restart so the Polish narration plays from the beginning
+        if(!b.dataset.played){ try{ v.currentTime = 0; }catch(e){} b.dataset.played = '1'; }
+        var p = v.play(); if(p && p.catch) p.catch(function(){});
+      }
+    });
+  })();
+
+  // ---- language toggle (shares the portfolio's localStorage key) ----
+  (function(){
+    var btn = document.getElementById('langBtn');
+    var els = document.querySelectorAll('[data-en]');
+    var pl = [];
+    els.forEach(function(el){ pl.push(el.innerHTML); });
+    var cur = 'pl';
+    function apply(lang){
+      els.forEach(function(el,i){
+        el.innerHTML = (lang==='en') ? el.getAttribute('data-en') : pl[i];
+      });
+      document.documentElement.lang = lang;
+      btn.querySelector('[data-role=pl]').classList.toggle('active', lang==='pl');
+      btn.querySelector('[data-role=en]').classList.toggle('active', lang==='en');
+      cur = lang;
+      try{ localStorage.setItem('cv-lang', lang); }catch(e){}
+    }
+    btn.addEventListener('click', function(){ apply(cur==='en'?'pl':'en'); });
+    var saved=null; try{ saved=localStorage.getItem('cv-lang'); }catch(e){}
+    apply(saved==='en'?'en':'pl');
+  })();
+
+  // ---- scroll reveal ----
+  (function(){
+    var items = document.querySelectorAll('.reveal');
+    if(REDUCE){ items.forEach(function(i){ i.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var sibs = Array.prototype.slice.call(e.target.parentNode.children).filter(function(n){return n.classList.contains('reveal');});
+          var pos = sibs.indexOf(e.target);
+          e.target.style.transitionDelay = (Math.max(0,pos)*70)+'ms';
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    },{threshold:.14, rootMargin:'0px 0px -8% 0px'});
+    items.forEach(function(i){ io.observe(i); });
+  })();
+
+  // ---- pipeline nodes light up in sequence when the pipeline scrolls in ----
+  (function(){
+    var pipe = document.getElementById('pipeline');
+    if(!pipe) return;
+    var stages = pipe.querySelectorAll('.stage');
+    if(REDUCE){ stages.forEach(function(s){ s.classList.add('lit'); }); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          stages.forEach(function(s,i){ setTimeout(function(){ s.classList.add('lit'); }, i*180); });
+          io.disconnect();
+        }
+      });
+    },{threshold:.25});
+    io.observe(pipe);
+  })();
+
+  // ---- confidence meters fill when scrolled into view ----
+  (function(){
+    var fills = document.querySelectorAll('.meter .fill[data-w]');
+    if(!fills.length) return;
+    if(REDUCE){ fills.forEach(function(f){ f.style.width = f.getAttribute('data-w')+'%'; }); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var f = e.target;
+          setTimeout(function(){ f.style.width = f.getAttribute('data-w')+'%'; }, 120);
+          io.unobserve(f);
+        }
+      });
+    },{threshold:.4});
+    fills.forEach(function(f){ io.observe(f); });
+  })();
+
+  // ---- draw the training chart line when it scrolls in ----
+  (function(){
+    var trend = document.getElementById('trend');
+    if(!trend) return;
+    if(REDUCE) return;
+    var len = trend.getTotalLength();
+    trend.style.strokeDasharray = len;
+    trend.style.strokeDashoffset = len;
+    trend.style.transition = 'stroke-dashoffset 1.8s ease';
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ trend.style.strokeDashoffset = 0; io.disconnect(); }
+      });
+    },{threshold:.4});
+    io.observe(trend);
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Dawid Majewski — CV</title>
+<meta name="author" content="Dawid Majewski">
+<meta name="description" content="CV — Dawid Majewski. Student informatyki II stopnia (SI i uczenie maszynowe), infrastruktura IT, sieci, ERP.">
+<style>
+  /* ================================================================
+     FONTY: LOKALNE, NIE GOOGLE FONTS — TO NIE JEST KWESTIA GUSTU.
+     Google Fonts serwuje kroje w subsetach (latin + latin-ext), więc polskie
+     znaki pochodzą Z INNEGO PLIKU niż reszta wyrazu. Skia (silnik PDF Chrome)
+     zapisuje wtedy subset latin-ext jako font Type3 bez mapowania Unicode —
+     ZMIERZONE: "Wyrażam zgodę" wychodzi z PDF-a jako "Wyra ż am zgod ę",
+     "Doświadczenie" jako "Do ś wiadczenie". Parser ATS nie dopasuje ani jednego
+     polskiego słowa kluczowego, a klauzula RODO przestaje być wyszukiwalna.
+     Pełne, lokalne pliki TTF osadzają się jako Type0 z poprawnym ToUnicode.
+     Bricolage Grotesque jest fontem ZMIENNYM — Chrome eksportuje go do Type3
+     nawet lokalnie, dlatego w ./fonts/ leżą jego STATYCZNE instancje
+     (fontTools, opsz/wght przypięte). Nie podmieniać tego na <link>. */
+  @font-face{ font-family:"Plex"; src:url("./fonts/IBMPlexSans-Regular.ttf") format("truetype"); font-weight:400; font-style:normal; font-display:block }
+  @font-face{ font-family:"Plex"; src:url("./fonts/IBMPlexSans-SemiBold.ttf") format("truetype"); font-weight:600; font-style:normal; font-display:block }
+  @font-face{ font-family:"Plex"; src:url("./fonts/IBMPlexSans-Bold.ttf") format("truetype"); font-weight:700; font-style:normal; font-display:block }
+  @font-face{ font-family:"PlexMono"; src:url("./fonts/IBMPlexMono-Regular.ttf") format("truetype"); font-weight:400; font-style:normal; font-display:block }
+  @font-face{ font-family:"PlexMono"; src:url("./fonts/IBMPlexMono-Medium.ttf") format("truetype"); font-weight:500; font-style:normal; font-display:block }
+  @font-face{ font-family:"BricDisplay"; src:url("./fonts/Bricolage-Display750.ttf") format("truetype"); font-weight:400 800; font-style:normal; font-display:block }
+  @font-face{ font-family:"BricHead"; src:url("./fonts/Bricolage-Head650.ttf") format("truetype"); font-weight:400 800; font-style:normal; font-display:block }
+
+  @page{ size:A4; margin:0 }
+  *{ box-sizing:border-box; margin:0; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact }
+
+  :root{
+    /* paleta 1:1 ze strony (index.html) */
+    --paper:#F7F5F1;
+    --panel:#FDFCFA;
+    --inset:#F1EDE5;
+    --mat:#E6DFD3;
+    --text:#16252B;
+    --muted:#47595E;
+    --muted-2:#566A6E;
+    --amber:#96590E;        /* TEKST: 5.17:1 na papierze */
+    --amber-line:#B0770D;   /* WYŁĄCZNIE grafika >=2px. Nigdy tekst. */
+    --mint:#0E7351;
+    --line:rgba(22,37,43,.10);
+    --line-strong:rgba(22,37,43,.20);
+    --display:"BricDisplay",system-ui,sans-serif;
+    --head:"BricHead",system-ui,sans-serif;
+    --body:"Plex","IBM Plex Sans",system-ui,sans-serif;
+    --mono:"PlexMono","IBM Plex Mono",ui-monospace,monospace;
+  }
+
+  html,body{ background:var(--paper) }
+  body{
+    font-family:var(--body);
+    color:var(--text);
+    font-size:9.36pt;
+    line-height:1.3;
+    /* dzielenie wyrazów i ligatury WYŁĄCZONE: jedno i drugie wstawia do strumienia
+       PDF glify, których parser ATS nie odwzoruje z powrotem na czyste słowo */
+    hyphens:none; -webkit-hyphens:none;
+    overflow-wrap:normal; word-break:normal;
+    font-variant-ligatures:none;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; text-decoration:none }
+
+  .page{
+    width:210mm; height:296.6mm;   /* NIE 297mm: pełna wysokość zaokrągla się w górę
+                                      i Chrome dorzuca pustą drugą stronę */
+    overflow:hidden; position:relative;
+    padding:7mm 12mm 5mm 12mm;
+    background:var(--paper);
+  }
+
+  /* ---------- szyna indeksów + jedna kolumna treści ----------
+     Jedna kolumna to decyzja pod ATS: prosty parser czyta PDF liniowo,
+     a układ dwukolumnowy potrafi przepleść sidebar z treścią główną. */
+  .row{ display:grid; grid-template-columns:12mm 1fr; column-gap:3mm }
+  .rail{ font-family:var(--mono); font-size:7.7pt; font-weight:500; color:var(--amber); letter-spacing:.06em; padding-top:1.5pt }
+  .rail .tick{ display:block; width:11mm; height:2px; background:var(--amber-line); margin-top:3pt; opacity:.55 }
+
+  /* ---------- nagłówek ---------- */
+  .head{ display:grid; grid-template-columns:1fr 19mm; column-gap:5mm; align-items:start; padding-bottom:3pt; border-bottom:1.5px solid var(--line-strong) }
+  .name{ font-family:var(--display); font-size:22.88pt; font-weight:750; letter-spacing:-.01em; line-height:1.05; color:var(--text) }
+  .name .surname{ color:var(--amber) }
+  .headline{ font-size:9.88pt; font-weight:500; color:var(--muted); margin-top:2pt; line-height:1.3 }
+  .meta{ font-family:var(--mono); font-size:7.28pt; color:var(--muted-2); letter-spacing:.01em; margin-top:4pt; line-height:1.45 }
+  .meta a{ color:var(--muted-2) }
+  .meta .k{ color:var(--text); font-weight:500 }
+  .meta .status{ color:var(--mint); font-weight:500 }
+
+  /* Portret leży na białym tle studyjnym (zmierzone ~#FDFDFD), papier to #F7F5F1 —
+     kontrast 1.07:1. Bez narysowanej krawędzi głowa PŁYWA. Stąd mata + obrys + pasery. */
+  .shot{ position:relative; width:19mm; padding:1mm; background:var(--mat) }
+  .shot img{ display:block; width:17mm; height:22.7mm; object-fit:cover; object-position:50% 12%; border:.5px solid var(--line-strong) }
+  .shot .c{ position:absolute; width:4mm; height:4mm; border:1.5px solid var(--amber-line) }
+  .shot .tl{ top:-1.4mm; left:-1.4mm; border-right:0; border-bottom:0 }
+  .shot .tr{ top:-1.4mm; right:-1.4mm; border-left:0; border-bottom:0 }
+  .shot .bl{ bottom:-1.4mm; left:-1.4mm; border-right:0; border-top:0 }
+  .shot .br{ bottom:-1.4mm; right:-1.4mm; border-left:0; border-top:0 }
+
+  /* ---------- sekcje ---------- */
+  section{ margin-top:4.2pt }
+  h2{
+    font-family:var(--mono); font-size:8.74pt; font-weight:500; text-transform:uppercase;
+    letter-spacing:.03em; color:var(--text);
+    padding-bottom:1.6pt; margin-bottom:3.2pt; border-bottom:1px solid var(--line-strong);
+  }
+  p.lead{ color:var(--muted) }
+
+  .item{ margin-top:3.6pt }
+  .item:first-child{ margin-top:0 }
+  /* Data JEST wtopiona w blok tytułu (float), a nie osobnym boxem obok niego.
+     Powód jest wyłącznie parserowy: przy dwóch osobnych boxach pdfminer w domyślnym
+     trybie boxes_flow przenosił wąski box z prawej pod NASTĘPNY nagłówek sekcji —
+     ZMIERZONE: w wersji EN "2023–present" lądowało pod "PROJECTS". Wygląd bez zmian. */
+  .item-h{ display:block; overflow:hidden }
+  .role{ font-size:10.19pt; font-weight:600; color:var(--text); line-height:1.25 }
+  .when{ float:right; margin-left:6mm; font-family:var(--mono); font-size:7.8pt;
+    font-weight:400; color:var(--muted-2); white-space:nowrap }
+  .org{ font-size:9.26pt; color:var(--muted); margin-top:.5pt }
+  ul{ list-style:disc; margin:2.5pt 0 0 4mm }
+  li{ color:var(--muted); margin-bottom:1.2pt; padding-left:1mm }
+  li:last-child{ margin-bottom:0 }
+
+  /* ---------- projekt: jedyny panel na stronie ----------
+     Hierarchia, nie dekoracja: to jest najmocniejszy dowód w tym CV. */
+  .proj{ background:var(--panel); border:1px solid var(--line); border-left:2px solid var(--amber-line); padding:4pt 6pt }
+  .proj .ctx{ font-size:8.74pt; color:var(--muted-2); margin-top:1pt; line-height:1.25 }
+  .proj ul{ margin-top:1pt }
+
+  /* Pas metryk: JEDYNY element „graficzny", w całości z prawdziwego tekstu —
+     żadnego SVG, żadnego obrazu, wszystko wyciągalne przez ATS. */
+  .metrics{ display:flex; margin:2pt 0 1.5pt; border:1px solid var(--line-strong); background:var(--inset) }
+  .metric{ flex:1; padding:2pt 3pt; border-right:1px solid var(--line-strong) }
+  .metric:last-child{ border-right:0 }
+  .m-val{ font-family:var(--head); font-size:10.92pt; font-weight:700; color:var(--text); letter-spacing:-.01em; line-height:1.1 }
+  .m-lab{ font-family:var(--mono); font-size:6.34pt; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-2); margin-top:.8pt; line-height:1.2 }
+  /* "mAP" (mean Average Precision) — wersaliki robią z tego nieistniejące "MAP".
+     Dokładnie po tym detalu osoba z ML poznaje, czy kandydat rozumie, co mierzy. */
+  .m-lab.exact{ text-transform:none; letter-spacing:.02em }
+
+  .stack{ font-family:var(--mono); font-size:7.59pt; color:var(--muted-2); margin-top:3.5pt; padding-top:3pt; border-top:1px solid var(--line); line-height:1.4 }
+  .stack b{ color:var(--text); font-weight:500 }
+
+  .edu{ display:grid; grid-template-columns:1fr; row-gap:2pt }
+
+  .skl{ display:grid; grid-template-columns:33mm 1fr; column-gap:3mm; row-gap:2.0pt }
+  .skl dt{ font-family:var(--mono); font-size:7.18pt; text-transform:uppercase; color:var(--amber); padding-top:1pt }
+  .skl dd{ font-size:8.74pt; color:var(--muted) }
+
+  /* ---------- klauzule ----------
+     Dwa ODDZIELNE akapity, nie jedno oświadczenie: zgoda musi być granularna
+     (art. 7 RODO). Pierwsza — obowiązkowa, bo CV zawiera zdjęcie i zainteresowania,
+     czyli dane spoza katalogu art. 22(1) §1 Kodeksu pracy. Druga — dobrowolna,
+     na przyszłe rekrutacje. 6.6pt: czytelne; mikrodruk bywa podważany jako brak
+     świadomej zgody. */
+  .rodo{
+    position:absolute; left:12mm; right:12mm; bottom:5mm;
+    padding-top:3pt; border-top:1px solid var(--line);
+    font-size:7.28pt; line-height:1.3; color:#5E6E72;   /* 7pt to DOLNA granica z wytycznych:
+        mikrodruk daje się podważyć jako brak świadomej zgody. Nie zmniejszać. */
+  }
+  .rodo p+p{ margin-top:2.5pt }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="head">
+    <div>
+      <h1 class="name">Dawid <span class="surname">Majewski</span></h1>
+      <div class="headline" data-en="MSc Computer Science student · AI &amp; Machine Learning">Student informatyki II stopnia · AI i uczenie maszynowe</div>
+      <div class="meta">
+        <div><span class="k">E-mail:</span> <a href="mailto:dawid.majewski.it@gmail.com">dawid.majewski.it@gmail.com</a> &nbsp;·&nbsp; <span class="k" data-en="Mobile:">Tel.:</span> <a href="tel:+48607250449">+48 607 250 449</a></div>
+        <div><span class="k" data-en="Location:">Lokalizacja:</span> <span data-en="Poznań / Łęka Mała, Poland">Poznań / Łęka Mała, Polska</span> &nbsp;·&nbsp; <span class="k">Portfolio:</span> <a href="https://dawidmajewskiit.pl">dawidmajewskiit.pl</a></div>
+        <div><span class="k">GitHub:</span> <a href="https://github.com/dawidmajewskii">github.com/dawidmajewskii</a> &nbsp;·&nbsp; <span class="k">LinkedIn:</span> <a href="https://www.linkedin.com/in/dawid-majewski-012080421/">linkedin.com/in/dawid-majewski-012080421</a></div>
+      </div>
+    </div>
+    <div class="shot">
+      <img src="./Img/dm-portrait-672.jpg" alt="Dawid Majewski — zdjęcie portretowe" data-en-alt="Dawid Majewski — portrait photograph">
+      <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+    </div>
+  </header>
+
+  <section class="row">
+    <div class="rail">01<span class="tick"></span></div>
+    <div>
+      <h2 data-en="Profile">Profil</h2>
+      <p class="lead" data-en="MSc Computer Science student at Merito University Wrocław, specialising in artificial intelligence and machine learning; BSc (network security) completed in 2026. I built my IT foundation in the IT department of a manufacturing plant — helpdesk, IT and network infrastructure, ERP support for production and business processes — and I currently coordinate procurement and sales: B2B platforms, logistics, supplier data. In ML my interest is deployment: what happens after training, when the model has to run on real hardware.">Student informatyki II stopnia na Uniwersytecie Merito we Wrocławiu, specjalność sztuczna inteligencja i uczenie maszynowe; studia I stopnia (bezpieczeństwo sieci informatycznych) ukończone w 2026 r. Praktykę IT zdobyłem w dziale IT zakładu produkcyjnego — helpdesk, utrzymanie infrastruktury i sieci, wsparcie procesów w systemach ERP — a obecnie koordynuję zaopatrzenie i sprzedaż, pracując na co dzień z platformami B2B, logistyką i danymi od dostawców. W ML interesuje mnie strona wdrożeniowa: to, co dzieje się po treningu, gdy model musi działać na realnym sprzęcie.</p>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="rail">02<span class="tick"></span></div>
+    <div>
+      <h2 data-en="Professional experience">Doświadczenie zawodowe</h2>
+
+      <div class="item">
+        <div class="item-h">
+          <div class="role" data-en="IT Department Intern"><span class="when" data-en="2025 · internship, 3 months">2025 · staż, 3 miesiące</span>Stażysta, Dział IT</div>
+        </div>
+        <div class="org" data-en="Leszczyńska Fabryka Pomp (pump manufacturer) — Leszno">Leszczyńska Fabryka Pomp — Leszno</div>
+        <ul>
+          <li data-en="Provided user technical support (helpdesk) and hardware troubleshooting.">Prowadziłem wsparcie techniczne użytkowników (helpdesk) i diagnostykę problemów sprzętowych.</li>
+          <li data-en="Administered and maintained the plant's IT and network infrastructure.">Administrowałem infrastrukturą IT i siecią zakładu oraz utrzymywałem je na bieżąco.</li>
+          <li data-en="Supported production and business processes in ERP systems.">Wspierałem procesy produkcyjne i biznesowe w systemach ERP.</li>
+          <li data-en="Configured workstations and prepared hardware for rollout.">Konfigurowałem stanowiska robocze i przygotowywałem sprzęt do wdrożenia.</li>
+        </ul>
+      </div>
+
+      <div class="item">
+        <div class="item-h">
+          <div class="role" data-en="Procurement &amp; Sales Coordinator"><span class="when" data-en="2023–present">2023–obecnie</span>Koordynator ds. zaopatrzenia i sprzedaży</div>
+        </div>
+        <div class="org" data-en="FISHKA — Pet &amp; Fishing Store — Rawicz">FISHKA — Market Zoologiczno-Wędkarski — Rawicz</div>
+        <ul>
+          <li data-en="Run B2B purchasing platforms: orders, price lists and supplier data.">Obsługuję platformy zakupowe B2B: zamówienia, cenniki i dane od dostawców.</li>
+          <li data-en="Manage logistics and stock — from purchase order to shelf availability.">Zarządzam procesami logistycznymi i stanem towaru — od zamówienia po dostępność na półce.</li>
+          <li data-en="Build and maintain supplier relationships; provide professional customer service.">Buduję i utrzymuję relacje z dostawcami; prowadzę profesjonalną obsługę klienta.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="rail">03<span class="tick"></span></div>
+    <div>
+      <h2 data-en="Projects">Projekty</h2>
+      <div class="proj">
+        <div class="item-h">
+          <div class="role" data-en="Playing-card recognition system (YOLOv8n on Raspberry Pi 4)"><span class="when">dawidmajewskiit.pl/karty</span>System rozpoznawania kart do gry (YOLOv8n na Raspberry Pi 4)</div>
+        </div>
+        <div class="ctx" data-en="Six-person team project, Machine Learning course, MSc programme, 2026. My area: the Raspberry Pi deployment path and the recognition pipeline.">Projekt zespołowy (6 osób), przedmiot Uczenie Maszynowe, studia magisterskie, 2026. Mój obszar: wdrożenie na Raspberry Pi i pipeline rozpoznawania.</div>
+
+        <div class="metrics">
+          <div class="metric">
+            <div class="m-val">52</div>
+            <div class="m-lab" data-en="Card classes">Klasy kart</div>
+          </div>
+          <div class="metric">
+            <div class="m-val" data-en="0.789">0,789</div>
+            <div class="m-lab exact">mAP50-95</div>
+          </div>
+          <div class="metric">
+            <div class="m-val">90–95%</div>
+            <div class="m-lab" data-en="Real-card confidence">Pewność w praktyce</div>
+          </div>
+          <div class="metric">
+            <div class="m-val">~5&nbsp;FPS</div>
+            <div class="m-lab" data-en="On Raspberry Pi 4">Na Raspberry Pi 4</div>
+          </div>
+          <div class="metric">
+            <div class="m-val" data-en="24,233">24&nbsp;233</div>
+            <div class="m-lab" data-en="Images in dataset">Zdjęć w zbiorze</div>
+          </div>
+        </div>
+
+        <ul>
+          <li data-en="Deployed a fine-tuned YOLOv8n model to a Raspberry Pi 4: all inference on-device, no cloud, ~5 FPS end to end; a systemd service boots the Pi headless.">Wdrożyłem dostrojony model YOLOv8n na Raspberry Pi 4: cała inferencja lokalnie, bez chmury, ~5 FPS end-to-end; usługa systemd startuje urządzenie bez klawiatury i monitora.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="rail">04<span class="tick"></span></div>
+    <div>
+      <h2 data-en="Education">Wykształcenie</h2>
+      <div class="edu">
+        <div class="item">
+          <div class="item-h">
+            <div class="role" data-en="Computer Science — Artificial Intelligence &amp; Machine Learning"><span class="when" data-en="2026–present · in progress">2026–obecnie · w toku</span>Informatyka — sztuczna inteligencja i uczenie maszynowe</div>
+          </div>
+          <div class="org" data-en="Merito University Wrocław · Master's degree, part-time">Uniwersytet Merito we Wrocławiu · studia II stopnia (magisterskie), niestacjonarne</div>
+        </div>
+        <div class="item">
+          <div class="item-h">
+            <div class="role" data-en="Computer Science — Network Security"><span class="when" data-en="2022–2026 · completed">2022–2026 · ukończone</span>Informatyka — bezpieczeństwo sieci informatycznych</div>
+          </div>
+          <div class="org" data-en="Merito University Poznań · Bachelor's degree, part-time">Uniwersytet Merito w Poznaniu · studia I stopnia, niestacjonarne</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="rail">05<span class="tick"></span></div>
+    <div>
+      <h2 data-en="Skills">Umiejętności</h2>
+      <dl class="skl">
+        <dt data-en="Programming &amp; data">Programowanie i dane</dt>
+        <dd>Python · SQL · Power BI</dd>
+
+        <dt data-en="IT infra &amp; networks">IT i sieci</dt>
+        <dd data-en="Helpdesk · operating systems · virtualization · workstation setup · hardware maintenance · LAN/WAN · network administration · diagnostics">Helpdesk&nbsp;· systemy operacyjne&nbsp;· wirtualizacja&nbsp;· konfiguracja stanowisk&nbsp;· utrzymanie sprzętu&nbsp;· LAN/WAN&nbsp;· administracja sieci&nbsp;· diagnostyka</dd>
+
+        <dt data-en="Business systems">Systemy biznesowe</dt>
+        <dd data-en="ERP · B2B purchasing platforms · Microsoft 365 · Google Workspace">ERP · platformy zakupowe B2B · Microsoft 365 · Google Workspace</dd>
+
+        <dt data-en="Web &amp; tooling">Web i narzędzia</dt>
+        <dd>HTML · CSS · JavaScript · Git · GitHub · Figma</dd>
+
+        <dt data-en="Additional">Dodatkowe</dt>
+        <dd data-en="Analytical thinking · problem-solving · teamwork · category B driving licence">Analityczne podejście · rozwiązywanie problemów · praca zespołowa · prawo jazdy kat. B</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="rail">06<span class="tick"></span></div>
+    <div>
+      <h2 data-en="Languages &amp; interests">Języki i zainteresowania</h2>
+      <dl class="skl">
+        <dt data-en="Languages">Języki</dt>
+        <dd data-en="Polish — native · English — B2">Polski — ojczysty · Angielski — B2</dd>
+
+        <dt data-en="Interests">Zainteresowania</dt>
+        <dd data-en="Electronics and hardware prototyping — most recently a bait boat, from schematic to first launch · front-end without frameworks · fishing">Elektronika i prototypowanie sprzętu — ostatnio własna łódź zanętowa, od schematu po wodowanie&nbsp;· front-end bez frameworków&nbsp;· wędkarstwo</dd>
+      </dl>
+    </div>
+  </section>
+
+  <div class="rodo">
+    <p data-en="I consent to the processing of the personal data contained in this CV that go beyond the scope set out in Article 22¹ § 1 of the Polish Labour Code — in particular my image (photograph) and information about my interests — by a prospective employer or other entity conducting recruitment, to whom I have voluntarily provided this document or who has downloaded it from my website, for the purpose of carrying out the recruitment process for the position I am applying for (Article 6(1)(a) GDPR). I provide these data voluntarily and on my own initiative; I may withdraw my consent at any time by contacting the controller, and such withdrawal does not affect the lawfulness of processing carried out before the withdrawal (Article 7(3) GDPR).">Wyrażam zgodę na przetwarzanie moich danych osobowych zawartych w&nbsp;niniejszym CV wykraczających poza zakres określony w&nbsp;art.&nbsp;22¹ §&nbsp;1 Kodeksu pracy — w&nbsp;szczególności mojego wizerunku (zdjęcia) oraz informacji o&nbsp;zainteresowaniach — przez potencjalnego pracodawcę lub inny podmiot prowadzący rekrutację, któremu dobrowolnie przekazałem ten dokument albo który pobrał go z&nbsp;mojej strony internetowej, w&nbsp;celu przeprowadzenia procesu rekrutacji na stanowisko, na które aplikuję (art.&nbsp;6 ust.&nbsp;1 lit.&nbsp;a&nbsp;RODO). Dane te podaję dobrowolnie i&nbsp;z&nbsp;własnej inicjatywy; zgodę mogę wycofać w&nbsp;każdym czasie, kontaktując się z&nbsp;administratorem, a&nbsp;wycofanie zgody nie wpływa na zgodność z&nbsp;prawem przetwarzania dokonanego przed jej wycofaniem (art.&nbsp;7 ust.&nbsp;3 RODO).</p>
+    <p data-en="I further give my separate and voluntary consent to the processing of the personal data contained in this CV by the entity that received or downloaded it, also for the purposes of future recruitment processes conducted by that entity, for a period no longer than 12 months from the date the document was received or downloaded (Article 6(1)(a) GDPR). This consent is independent of my consent for the current recruitment and may be withdrawn at any time.">Wyrażam ponadto odrębną i&nbsp;dobrowolną zgodę na przetwarzanie moich danych osobowych zawartych w&nbsp;tym CV przez podmiot, który je otrzymał lub pobrał, także na potrzeby przyszłych procesów rekrutacyjnych prowadzonych przez ten podmiot, przez okres nie dłuższy niż 12&nbsp;miesięcy od dnia otrzymania lub pobrania dokumentu (art.&nbsp;6 ust.&nbsp;1 lit.&nbsp;a&nbsp;RODO). Zgoda ta jest niezależna od zgody na bieżącą rekrutację i&nbsp;mogę ją wycofać w&nbsp;każdym czasie.</p>
+  </div>
+
+</div>
+
+<script>
+/* PL domyślnie; ?lang=en podmienia treść. Ten sam mechanizm co na stronie
+   (data-en), więc obie wersje językowe żyją w JEDNYM pliku źródłowym. */
+(function(){
+  if(new URLSearchParams(location.search).get('lang') !== 'en') return;
+  document.querySelectorAll('[data-en]').forEach(function(el){
+    el.innerHTML = el.getAttribute('data-en');
+  });
+  document.querySelectorAll('[data-en-alt]').forEach(function(el){
+    el.setAttribute('alt', el.getAttribute('data-en-alt'));
+  });
+  document.documentElement.lang = 'en';
+  document.title = 'Dawid Majewski — Curriculum Vitae';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dawid Majewski — Informatyka · ERP · AI</title>
+<meta name="description" content="Dawid Majewski — student informatyki (specjalizacja AI) z doświadczeniem w helpdesku, infrastrukturze IT, sieciach i systemach ERP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ---------- POWIERZCHNIE: papier techniczny, nie biel ---------- */
+    --ink:#F7F5F1;          /* strona. NIE #FFF — czysta biel męczy oczy       */
+    --panel:#FDFCFA;        /* karta/panel — o włos JAŚNIEJSZY od papieru      */
+    --panel-2:#F1EDE5;      /* wgłębienie: .skill, pasek statusu               */
+    --mat:#E6DFD3;          /* passe-partout pod portretem — JEDYNY element
+                               ciemniejszy od papieru (1.22:1)                 */
+
+    /* ---------- LINIE (ciemne — stare jasnomiętowe znikają na bieli) ------- */
+    --line:rgba(22,37,43,.10);        /* hairline + siatka 64px                */
+    --line-strong:rgba(22,37,43,.20); /* obramowania kart                      */
+    --sep:#566A6E;          /* --line-strong był NADUŻYWANY jako kolor TEKSTU
+                               w .extra .sep („/"). Rozdzielone.               */
+
+    /* ---------- TUSZ ---------- */
+    --text:#16252B;         /* 14.46:1 na papierze                             */
+    --muted:#47595E;        /*  6.75:1 — proza, .thesis, .about, .job li       */
+    --muted-2:#566A6E;      /*  5.24:1 — najmniejszy mono nadal zdaje AA       */
+
+    /* ---------- AKCENTY ---------- */
+    --amber:#96590E;        /* TEKST (5.17:1) *i* WYPEŁNIENIE (z bielą 5.63:1).
+                               Stary #F0A63C dawał na papierze 1.89:1.         */
+    --amber-hover:#7A4809;  /* hover CIEMNIEJE, nie jaśnieje (z bielą 7.61:1)  */
+    --amber-line:#B0770D;   /* WYŁĄCZNIE grafika >=2px: 3.51:1. NIGDY tekst.   */
+    --amber-soft:rgba(240,166,60,.14);/* wash -> #F6EAD8; --amber na nim 4.74:1*/
+    --mint:#0E7351;         /* status jako TEKST. 5.37:1                       */
+    --mint-line:#12916B;    /* kropki/paski/pulse. 3.65:1                      */
+    --mint-soft:rgba(18,145,107,.12);
+
+    /* ---------- CIENIE: papier, nie brud. Nigdy rgba(0,0,0,...) ----------- */
+    --sh-1:0 1px 2px rgba(22,37,43,.05),0 10px 26px -18px rgba(22,37,43,.18);
+    --sh-2:0 2px 6px rgba(22,37,43,.06),0 22px 46px -26px rgba(22,37,43,.26);
+
+    --display:"Bricolage Grotesque",system-ui,sans-serif;
+    --body:"IBM Plex Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --maxw:1080px;
+  }
+
+  /* ===== WYSPA CIEMNA: chrom nad materiałem, nie nad stroną =====
+     .feat-media jest ciemna DLATEGO, CO ZAWIERA (zdjęcie/wideo), a nie z powodu
+     motywu. Lokalne tokeny sprawiają, że .rec, .play, .pgloss i .corner
+     zachowują oryginalne, jasne wartości BEZ ANI JEDNEJ zmiany w ich regułach. */
+  .feat-media{
+    --text:#E7EDEB;
+    --muted:#8FA8A5;
+    --muted-2:#7E9490;
+    --line:rgba(180,214,210,.14);
+    --line-strong:rgba(180,214,210,.24);
+    --amber:#F0A63C;
+    --amber-line:#F0A63C;
+    --amber-hover:#F0A63C;
+    --mint:#57D4A8;
+    --mint-line:#57D4A8;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--body);
+    background:var(--ink);
+    color:var(--text);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 0%,transparent 70%);
+    mask-image:radial-gradient(120% 90% at 50% 0%,#000 0%,transparent 70%);
+    /* #000 powyżej to STOP MASKI ALFA, nie widzialny kolor — nie zamieniać.
+       Siatka rysuje się przez var(--line): ciemny tusz przy 10% alfy potrzebuje
+       podbicia, inaczej znika i ginie cały „inżynierski" charakter strony. */
+    opacity:.55;
+  }
+  #net{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--amber);color:#fff}   /* #111 na nowym bursztynie = 3.36:1 */
+
+  /* ---------- console top bar ---------- */
+  .console{
+    position:sticky;top:0;z-index:50;
+    display:flex;align-items:center;gap:1.25rem;
+    padding:.55rem clamp(1rem,4vw,2.5rem);
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;
+    color:var(--muted);
+    background:rgba(247,245,241,.92);   /* prawie nieprzezroczysty: jasny pasek nad
+                                          ciemną wyspą przy .82 by się rozmył */
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line-strong);   /* jasny pasek na jasnym tle
+                                                     traci krawędź — musi ją nieść border */
+  }
+  .console .brand{color:var(--text);font-weight:600;letter-spacing:.02em}
+  .console .dot{color:var(--mint)}
+  .console nav{margin-left:auto;display:flex;gap:1.4rem}
+  .console nav a{position:relative;transition:color .2s}
+  .console nav a:hover,.console nav a:focus-visible{color:var(--amber)}
+  .lang-toggle{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;
+    background:none;border:1px solid var(--line-strong);color:var(--muted-2);
+    padding:.32rem .5rem;border-radius:3px;cursor:pointer;
+    display:inline-flex;gap:.35rem;align-items:center;transition:border-color .2s;
+  }
+  .lang-toggle:hover,.lang-toggle:focus-visible{border-color:var(--amber)}
+  .lang-toggle .active{color:var(--amber);font-weight:600}
+  .console .clock{color:var(--muted-2);min-width:6.5ch;text-align:right}
+  /* Siódma pozycja („Zainteresowania") przestała się mieścić: pasek łamał się na dwie
+     linie i wypychał stronę w poziomie. Zamiast chować NAWIGACJĘ (najcenniejszą rzecz
+     w tym pasku) już na laptopach, najpierw znikają rzeczy dekoracyjne — zegar i status.
+     Kolejność poświęcania: zegar -> „SYSTEM ONLINE" -> dopiero na końcu linki. */
+  @media(max-width:1280px){
+    .console .clock{display:none}
+  }
+  @media(max-width:1150px){
+    .console .status,.console .dot{display:none}
+  }
+  @media(max-width:1000px){
+    .console nav{display:none}
+    .lang-toggle{margin-left:auto}
+  }
+
+  /* ---------- layout shell ---------- */
+  main{position:relative;z-index:1}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+  section{scroll-margin-top:70px}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--amber);
+    display:inline-flex;align-items:center;gap:.6rem;
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--amber);display:inline-block}
+
+  /* ---------- hero ---------- */
+  .hero{
+    display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(2rem,5vw,4rem);
+    align-items:center;
+    padding-top:clamp(3.5rem,9vw,7rem);padding-bottom:clamp(3rem,7vw,5rem);
+  }
+  .hero h1{
+    font-family:var(--display);
+    font-weight:750;
+    font-size:clamp(3.2rem,10vw,7rem);
+    line-height:.92;letter-spacing:-.02em;
+    margin:1.3rem 0 1.4rem;
+  }
+  .hero h1 .last{color:var(--muted);display:block}
+  .thesis{font-size:clamp(1.02rem,1.6vw,1.2rem);color:var(--muted);max-width:34ch;margin-bottom:2rem}
+  .thesis b{color:var(--text);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:.6rem}
+  .chip{
+    font-family:var(--mono);font-size:.8rem;
+    display:inline-flex;align-items:center;gap:.5rem;
+    padding:.5rem .85rem;border:1px solid var(--line-strong);border-radius:2px;
+    color:var(--text);transition:border-color .2s,color .2s,background .2s;
+  }
+  .chip svg{width:14px;height:14px;stroke:var(--amber);fill:none;stroke-width:1.6}
+  .chip:hover,.chip:focus-visible{border-color:var(--amber);background:var(--amber-soft)}
+  /* PEŁNE wypełnienie: bursztyn na washu dawał tylko 4.74:1, a to najważniejsze
+     CTA na stronie. Solid = 5.63:1. Hover CIEMNIEJE — na jasnej stronie hover
+     w stronę tła czyta się jako „nieaktywne". */
+  .chip-dl{border-color:var(--amber);background:var(--amber);color:#fff}
+  .chip-dl svg{stroke:#fff}
+  .chip-dl:hover,.chip-dl:focus-visible{background:var(--amber-hover);border-color:var(--amber-hover);color:#fff}
+  .chip-dl:hover svg,.chip-dl:focus-visible svg{stroke:#fff}
+  .chip svg.brand,.btn svg.brand,.foot-links svg.brand{fill:currentColor;stroke:none}
+
+  /* status panel */
+  .panel{
+    border:1px solid var(--line-strong);border-radius:4px;
+    background:var(--panel);   /* NIEPRZEZROCZYSTY: półprzezroczysta karta nad
+                                  przerysowanym grafitowym canvasem pozwoliłaby
+                                  ruchomej siatce pełzać pod tekstem */
+    overflow:hidden;
+    box-shadow:var(--sh-1);
+  }
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:.7rem .95rem;border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2);
+  }
+  .panel-head .live{display:inline-flex;align-items:center;gap:.45rem;color:var(--mint)}
+  .pulse{width:8px;height:8px;border-radius:50%;background:var(--mint-line);position:relative}
+  .pulse::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:var(--mint-line);opacity:.35;animation:pulse 2s ease-out infinite}
+  @keyframes pulse{0%{transform:scale(.6);opacity:.5}100%{transform:scale(2.4);opacity:0}}
+  /* auto 1fr auto = indeks, nazwa, tag. Środkowa kolumna (dawne .bars — paski
+     poziomu) zniknęła razem z nimi: patrz komentarz przy panelu w <body>. */
+  .mod{
+    display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.9rem;
+    padding:.72rem .95rem;border-bottom:1px solid var(--line);
+    font-size:.9rem;
+  }
+  .mod:last-child{border-bottom:0}
+  .mod .idx{font-family:var(--mono);font-size:.66rem;color:var(--muted-2);letter-spacing:.08em}
+  .mod .name{font-weight:500}
+  .mod .tag{font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;color:var(--muted-2);text-transform:uppercase;text-align:right}
+  .mod.main .idx{color:var(--amber)}
+  .mod.main .tag{color:var(--amber)}
+
+  /* ---------- sections ---------- */
+  .sec{padding:clamp(3rem,7vw,5.5rem) 0;border-top:1px solid var(--line)}
+  .sec-head{display:flex;align-items:baseline;gap:1rem;margin-bottom:2.6rem;flex-wrap:wrap}
+  .sec-head .idx{font-family:var(--mono);font-size:.78rem;color:var(--muted-2);letter-spacing:.1em}
+  .sec-head h2{font-family:var(--display);font-weight:650;font-size:clamp(1.7rem,3.4vw,2.4rem);letter-spacing:-.01em}
+
+  .about{max-width:62ch;font-size:clamp(1.05rem,1.5vw,1.22rem);color:var(--muted)}
+  /* Do tej pory .about miało tylko .lead + JEDEN akapit, więc odstęp między akapitami
+     nigdy nie był potrzebny — przy drugim skleiłyby się w jeden blok. Marginesy
+     sąsiadujących bloków się zlewają, więc 1.4rem pod .lead zostaje bez zmian. */
+  .about p+p{margin-top:1rem}
+  .about b{color:var(--text);font-weight:600}
+  .about .lead{font-size:clamp(1.25rem,2.2vw,1.6rem);line-height:1.4;color:var(--text);margin-bottom:1.4rem;font-weight:500}
+  .about .lead .amber{color:var(--amber)}
+
+  /* ---------- portret / karta ID (sekcja 01) ---------- */
+  /* Świadomie NIE nazwane .panel/.edu-card/.skill/.proj — to cztery selektory,
+     które łapie skrypt tilt (na dole pliku), a .tilt::after to biały radialny
+     rozbłysk na z-index 5, który przy każdym hoverze przejechałby po twarzy. */
+  .about-grid{
+    display:grid;grid-template-columns:minmax(0,1fr) 300px;
+    column-gap:clamp(2rem,5vw,3.5rem);
+    row-gap:0;                 /* NIE `gap`: .sec-head ma margin-bottom:2.6rem,
+                                  a odstępy gridu nie zlewają się z marginesami —
+                                  row-gap zrobiłby w sekcji 01 przerwę ~98px
+                                  zamiast 42px jak w sekcjach 02–05. */
+    align-items:start;
+  }
+  .about-grid .sec-head{grid-column:1/-1}
+
+  .id-card{
+    margin:0;border:1px solid var(--line-strong);border-radius:4px;overflow:hidden;
+    background:var(--panel);
+    box-shadow:var(--sh-1);
+    transition:border-color .25s ease,box-shadow .25s ease;
+  }
+  .id-card:hover{
+    border-color:var(--amber-line);
+    box-shadow:var(--sh-2);            /* poświata bursztynowa USUNIĘTA */
+  }
+
+  /* PASSE-PARTOUT.
+     Zdjęcie ma z powrotem ORYGINALNE, BIAŁE tło studyjne (pliki są nieprzezroczyste).
+     ZMIERZONE: górna/lewa/prawa krawędź zdjęcia = #FDFDFD, papier = #F7F5F1 -> 1.07:1.
+     Bez oprawy głowa PŁYWA — granicy trzeba NARYSOWAĆ, tonalnie jej nie ma.
+     Mata jest CIEMNIEJSZA od papieru (1.22:1) i od zdjęcia (1.30:1) — jako jedyny
+     element na stronie. Dzięki temu zdjęcie czyta się jako WPUSZCZONE w kartę,
+     a nie naklejone, a biel odzyskuje sens: to oświetlone tło studyjne na podkładzie. */
+  .id-frame{
+    position:relative;overflow:hidden;
+    padding:12px;                      /* bez paddingu mata nie istnieje */
+    background:var(--mat);
+  }
+  .id-frame picture{display:block;position:relative;z-index:1}
+  .id-frame img{display:block;width:100%;height:auto;aspect-ratio:3/4;
+    position:relative;z-index:1;border-radius:2px}
+
+  /* Pierścień + winieta NA fotografii.
+     MUSI być na ::after, a NIE box-shadow:inset na <img>: dla elementu ZASTĄPIONEGO
+     piksele obrazu malują się NAD tłem i cieniem wewnętrznym, więc inset na <img>
+     byłby zasłonięty. Element abs. pozycjonowany liczy offset od PADDING-BOXa,
+     więc inset:12px trafia dokładnie w krawędź zdjęcia.
+     Pierścień 1px = NOŚNY: to jest krawędź kadru i to on legitymizuje dwa twarde
+     cięcia, w których ramiona wychodzą poza kadr (75,4% / 83,2% wysokości).
+     DÓŁ jest inny niż reszta: koszula (zmierzone rgb ~200,219,246) dochodzi do OBU
+     dolnych rogów, więc dolna winieta + wypełniony pasek statusu dają jej PODŁOGĘ.
+     Twarz (broda na 61,9%) nie jest dotykana — rozmycia są ujemne i płytkie. */
+  .id-frame::after{
+    content:"";position:absolute;inset:12px;z-index:2;pointer-events:none;border-radius:2px;
+    box-shadow:
+      inset 0 0 0 1px rgba(22,37,43,.20),          /* KRAWĘDŹ KADRU — nie usuwać */
+      inset 0 14px 24px -20px rgba(22,37,43,.26),  /* góra: osadza biel w macie */
+      inset 0 -18px 30px -22px rgba(22,37,43,.24); /* dół: gasi rozpływanie koszuli */
+  }
+
+  /* Znaczniki pasera. --amber #96590E: 4.25:1 na macie, 5.53:1 na bieli zdjęcia.
+     Stary #F0A63C dawał na zdjęciu 2.02:1 — zniknąłby dokładnie tam, gdzie jest
+     najważniejszy. Offset 6px: ramię 20px przecina 12px maty i wchodzi w zdjęcie,
+     spinając odbitkę z podkładem. */
+  .id-frame .corner{position:absolute;width:20px;height:20px;
+    border:2px solid var(--amber);z-index:3;pointer-events:none}
+  .id-frame .corner.tl{top:6px;left:6px;border-right:0;border-bottom:0}
+  .id-frame .corner.tr{top:6px;right:6px;border-left:0;border-bottom:0}
+  .id-frame .corner.bl{bottom:6px;left:6px;border-right:0;border-top:0}
+  .id-frame .corner.br{bottom:6px;right:6px;border-left:0;border-top:0}
+
+  /* PODŁOGA KARTY: wypełniony pasek + mocniejsza linia górna. */
+  .id-status{
+    display:flex;align-items:center;justify-content:space-between;gap:.9rem;
+    padding:.7rem .95rem;border-top:1px solid var(--line-strong);
+    background:var(--panel-2);
+    font-family:var(--mono);font-size:.68rem;
+  }
+  .id-status .k{letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .id-status .v{display:inline-flex;align-items:center;gap:.45rem;color:var(--mint);white-space:nowrap}
+  .id-status .pulse{flex:0 0 8px}   /* .pulse to element flex 8px bez basis — inaczej spłaszcza się w elipsę */
+
+  /* experience timeline */
+  .timeline{display:flex;flex-direction:column;gap:0}
+  .job{
+    display:grid;grid-template-columns:auto 1fr;gap:1.6rem;
+    padding:1.8rem 0;border-top:1px solid var(--line);position:relative;
+  }
+  .job:first-child{border-top:0;padding-top:0}
+  .rail{display:flex;flex-direction:column;align-items:center;padding-top:.35rem}
+  .rail .st{width:12px;height:12px;border-radius:50%;border:2px solid var(--muted-2)}
+  .rail .st.active{border-color:var(--mint-line);background:var(--mint-line)}   /* POŚWIATA USUNIĘTA:
+      sygnałem jest teraz WYPEŁNIONA mięta vs pusty grafitowy pierścień — mocniejsze niż bloom */
+  .rail .stem{width:1px;flex:1;background:var(--line);margin-top:.5rem;min-height:20px}
+  .job-body .meta{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:var(--muted-2);text-transform:uppercase;margin-bottom:.5rem;display:flex;gap:.9rem;flex-wrap:wrap}
+  .job-body .meta .now{color:var(--mint)}
+  .job-body h3{font-family:var(--display);font-weight:600;font-size:clamp(1.15rem,2.2vw,1.45rem);letter-spacing:-.01em}
+  .job-body .co{color:var(--amber);font-weight:600;font-size:.98rem;margin:.15rem 0 1rem;font-family:var(--body)}
+  .job-body ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;max-width:60ch}
+  .job-body li{position:relative;padding-left:1.4rem;color:var(--muted);font-size:.97rem}
+  .job-body li::before{content:"›";position:absolute;left:0;color:var(--amber);font-family:var(--mono)}
+
+  /* education */
+  .edu{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+  .edu-card{
+    border:1px solid var(--line-strong);border-radius:4px;padding:1.5rem;
+    background:var(--panel);transition:border-color .25s,transform .25s;
+  }
+  .edu-card .yr{font-family:var(--mono);font-size:.74rem;color:var(--amber);letter-spacing:.08em}
+  .edu-card h3{font-family:var(--display);font-weight:600;font-size:1.18rem;margin:.7rem 0 .35rem;line-height:1.15}
+  .edu-card .prog{color:var(--text);font-weight:500;font-size:.95rem}
+  .edu-card .spec{color:var(--muted);font-size:.9rem;margin-top:.2rem}
+  .edu-card .lvl{font-family:var(--mono);font-size:.68rem;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em;margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--line)}
+
+  /* projects */
+  .proj-group{margin-bottom:2.4rem}
+  .proj-group:last-child{margin-bottom:0}
+  .grp-label{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2);
+    display:flex;align-items:center;gap:.9rem;margin-bottom:1.2rem}
+  .grp-label::after{content:"";flex:1;height:1px;background:var(--line)}
+  .proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem}
+  .proj{position:relative;border:1px solid var(--line-strong);border-radius:4px;padding:1.5rem;
+    background:var(--panel);   /* NIEPRZEZROCZYSTY — .proj jest celem .tilt i leży nad canvasem */
+    display:flex;flex-direction:column}
+  .proj h3{font-family:var(--display);font-weight:600;font-size:1.2rem;letter-spacing:-.01em;margin:.9rem 0 .5rem;padding-right:5.5rem}
+  .proj p{color:var(--muted);font-size:.94rem;flex:1}
+  .pstatus{position:absolute;top:1.5rem;right:1.5rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+    padding:.28rem .55rem;border-radius:2px;border:1px solid var(--line-strong);color:var(--muted-2)}
+  .pstatus.live{color:var(--mint);border-color:var(--mint-line);background:var(--mint-soft)}
+  .ptags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.1rem}
+  .ptags span{font-family:var(--mono);font-size:.72rem;padding:.28rem .55rem;border:1px solid var(--line-strong);border-radius:2px;color:var(--muted)}
+  .plink{font-family:var(--mono);font-size:.78rem;color:var(--amber);margin-top:1.1rem;align-self:flex-start;
+    border-bottom:1px solid transparent;transition:border-color .2s}
+  .plink:hover,.plink:focus-visible{border-color:var(--amber)}
+
+  /* featured project (flagship) */
+  .feat{
+    display:grid;grid-template-columns:.92fr 1.08fr;gap:0;
+    border:1px solid var(--line-strong);border-radius:6px;overflow:hidden;
+    background:var(--panel);
+    box-shadow:var(--sh-1);
+  }
+  /* ZOSTAJE CIEMNA — to kaseta pod zdjęciem/wideo, ciemna z FIZYKI, nie z motywu.
+     Blok tokenów na tym samym selektorze (u góry pliku) sprawia, że .rec, .play,
+     .pgloss i .corner poniżej działają bez ANI JEDNEJ zmiany. */
+  .feat-media{position:relative;display:block;background:#0E1A1F;overflow:hidden;min-height:240px}
+  .feat-media video,.feat-media img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;display:block}
+  /* hardware.jpg to Raspberry Pi w BIAŁEJ obudowie: jasny bursztyn na białych pikselach
+     to 2.02:1 — błąd obecny już w motywie ciemnym. Ciemna otoczka daje 7.06:1 na
+     DOWOLNYM pikselu. box-shadow:inset by tu nie zadziałał: <img>/<video> mają
+     object-fit:cover, a cień wewnętrzny maluje się POD treścią elementu zastąpionego. */
+  .feat-media .corner{position:absolute;width:20px;height:20px;border:2px solid var(--amber);z-index:3;pointer-events:none;
+    filter:drop-shadow(0 0 2px rgba(6,20,26,.9))}
+  .feat-media .corner.tl{top:12px;left:12px;border-right:0;border-bottom:0}
+  .feat-media .corner.tr{top:12px;right:12px;border-left:0;border-bottom:0}
+  .feat-media .corner.bl{bottom:12px;left:12px;border-right:0;border-top:0}
+  .feat-media .corner.br{bottom:12px;right:12px;border-left:0;border-top:0}
+  .feat-media .rec{position:absolute;top:16px;left:16px;z-index:4;font-family:var(--mono);font-size:.62rem;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--amber);background:rgba(6,20,26,.72);
+    border:1px solid var(--line);border-radius:3px;padding:.28rem .5rem;backdrop-filter:blur(4px)}
+  .feat-media .rec::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--amber);margin-right:.4rem;vertical-align:middle;animation:blink 1.4s steps(2) infinite}
+  @keyframes blink{50%{opacity:.3}}
+  .feat-media .play{position:absolute;inset:0;display:grid;place-items:center;z-index:4;pointer-events:none}
+  .feat-media .play span{width:56px;height:56px;border-radius:50%;background:rgba(6,20,26,.5);
+    border:1px solid var(--line-strong);display:grid;place-items:center;backdrop-filter:blur(4px);
+    transition:transform .25s,background .25s}
+  .feat-media .play svg{width:20px;height:20px;fill:var(--text);margin-left:3px;transition:fill .25s}
+  .feat:hover .feat-media .play span{transform:scale(1.08);background:rgba(240,166,60,.92)}
+  .feat:hover .feat-media .play svg{fill:#101a12}
+  .feat-media .pgloss{position:absolute;left:0;right:0;bottom:16px;z-index:4;text-align:center;
+    font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--text);pointer-events:none;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+  .feat-body{padding:clamp(1.4rem,2.6vw,2.1rem);display:flex;flex-direction:column}
+  .feat-eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--mint);display:inline-flex;align-items:center;gap:.5rem}
+  .feat-eyebrow .d{width:7px;height:7px;border-radius:50%;background:var(--mint)}
+  .feat-body h3{font-family:var(--display);font-weight:650;font-size:clamp(1.3rem,2.4vw,1.7rem);
+    letter-spacing:-.01em;margin:.7rem 0 .55rem}
+  .feat-body>p{color:var(--muted);font-size:.96rem;max-width:52ch}
+  .feat-metrics{display:flex;flex-wrap:wrap;gap:1.4rem;margin:1.25rem 0 .1rem}
+  .feat-metrics .fm{display:flex;flex-direction:column}
+  .feat-metrics .fm b{font-family:var(--display);font-weight:700;font-size:1.25rem;letter-spacing:-.02em;color:var(--text)}
+  .feat-metrics .fm span{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--muted-2);margin-top:.2rem}
+  .feat-body .ptags{margin-top:1.1rem}
+  .feat-cta{margin-top:auto;padding-top:1.35rem}
+  .btn-case{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:.82rem;
+    background:var(--amber);color:#fff;font-weight:600;padding:.72rem 1.2rem;border-radius:3px;transition:all .2s}
+  .btn-case:hover,.btn-case:focus-visible{background:var(--amber-hover);transform:translateY(-2px)}
+  .btn-case svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+  @media(max-width:760px){
+    .feat{grid-template-columns:1fr}
+    .feat-media video,.feat-media img{aspect-ratio:16/10}
+  }
+
+  /* skills */
+  .skills{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+  .skill{
+    border:1px solid var(--line);border-radius:4px;padding:1.4rem;background:var(--panel-2);
+    transition:border-color .25s,background .25s;
+  }
+  .skill .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:.5rem}
+  .skill .k svg{width:15px;height:15px;stroke:var(--amber);fill:none;stroke-width:1.5}
+  .skill h3{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:.8rem 0 .5rem}
+  .skill p{color:var(--muted);font-size:.92rem}
+  .tags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.1rem}
+  .tags span{font-family:var(--mono);font-size:.72rem;padding:.28rem .55rem;border:1px solid var(--line-strong);border-radius:2px;color:var(--muted)}
+
+  .extra{display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:1.6rem;align-items:center;font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+  .extra .lang{display:flex;align-items:center;gap:.6rem}
+  .extra b{color:var(--text);font-weight:600}
+  .extra .sep{color:var(--sep)}   /* --line-strong to HAIRLINE używany jako KOLOR TEKSTU —
+                                     glify „/" to prawdziwy DOM. Stara wartość: 1.50:1. */
+
+  /* zainteresowania */
+  /* .sub — podtytuł sekcji. Istniał w karty.html, w index.html go nie było. */
+  .sec-head .sub{font-family:var(--mono);font-size:.72rem;color:var(--muted-2);letter-spacing:.06em;margin-left:auto}
+  .hobbies{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(1.2rem,2.5vw,2rem)}
+  /* Bez tła i bez ramki — tylko linia u góry. Zainteresowania to KONTEKST, nie
+     kompetencja: gdyby dostały taki sam wypełniony kafelek jak sekcja 05, czytałyby
+     się jako równorzędne z Pythonem i ERP. Hairline mówi „to samo pismo, inna waga". */
+  .hobby{border-top:1px solid var(--line-strong);padding-top:1.1rem}
+  /* min-height = dwie linie: „Elektronika i prototypowanie" zawija się, a bez rezerwy
+     miejsca jego <h3> spadałby niżej niż w pozostałych kolumnach i rząd by się rozjeżdżał. */
+  .hobby .k{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--amber);display:flex;align-items:center;gap:.5rem;min-height:2.4em;line-height:1.35}
+  .hobby .k svg{width:15px;height:15px;stroke:var(--amber);fill:none;stroke-width:1.5;flex:none}
+  .hobby h3{font-family:var(--display);font-weight:600;font-size:1.06rem;margin:.75rem 0 .45rem;line-height:1.25}
+  .hobby p{color:var(--muted);font-size:.92rem}
+
+  /* contact */
+  .contact{text-align:center;padding:clamp(3.5rem,8vw,6rem) 0}
+  .contact .eyebrow{justify-content:center}
+  .contact h2{font-family:var(--display);font-weight:700;font-size:clamp(2.2rem,6vw,4rem);line-height:1;letter-spacing:-.02em;margin:1.4rem 0}
+  .contact .big{display:inline-block;color:var(--amber);border-bottom:2px solid transparent;transition:border-color .2s}
+  .contact .big:hover,.contact .big:focus-visible{border-color:var(--amber)}
+  .cta-row{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin-top:2rem}
+  .btn{
+    font-family:var(--mono);font-size:.85rem;letter-spacing:.03em;
+    display:inline-flex;align-items:center;gap:.6rem;
+    padding:.85rem 1.4rem;border-radius:3px;transition:all .2s;
+  }
+  .btn.primary{background:var(--amber);color:#fff;font-weight:600}
+  .btn.primary:hover,.btn.primary:focus-visible{background:var(--amber-hover);transform:translateY(-2px)}
+  .btn.ghost{border:1px solid var(--line-strong);color:var(--text)}
+  .btn.ghost:hover,.btn.ghost:focus-visible{border-color:var(--amber);color:var(--amber)}
+  .btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+  footer{border-top:1px solid var(--line);padding:2.5rem 0;font-family:var(--mono);font-size:.68rem;color:var(--muted-2);line-height:1.7}
+  footer .row{display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.2rem}
+  footer .rodo{max-width:70ch;opacity:1;font-size:.64rem}   /* opacity MNOŻY się na tokenie:
+      .7 x --muted-2 daje 2.85:1 dla paragrafu prawnego 0.64rem. Żadna paleta tego nie naprawi. */
+  .foot-links{display:flex;gap:1.1rem;flex-wrap:wrap}
+  .foot-links a{color:var(--muted);transition:color .2s}
+  .foot-links a:hover,.foot-links a:focus-visible{color:var(--amber)}
+
+  /* 3D tilt + glare */
+  .tilt{position:relative;overflow:hidden;transform-style:preserve-3d;will-change:transform;
+    transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s ease}
+  .tilt.on{box-shadow:var(--sh-2),0 0 0 1px var(--line-strong)}
+  /* ROZBŁYSK -> CIEŃ. To inwersja SEMANTYCZNA, nie korekta wartości: biały refleks
+     specular jest właściwy dla BŁYSZCZĄCEJ CIEMNEJ powierzchni; na białej stronie jest
+     w 100% niewidoczny i cały efekt 3D po cichu umiera. Matowy papier nie ma połysku —
+     jego sygnałem jest CIENIOWANIE: czysto pod kursorem, lekki grafit w rogach najdalszych
+     od niego. JS ustawiający --mx/--my nie wymaga zmian. */
+  .tilt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:5;
+    background:radial-gradient(circle at var(--mx,50%) var(--my,50%),
+      rgba(22,37,43,0) 0%,rgba(22,37,43,0) 38%,rgba(22,37,43,.07) 100%);
+    opacity:0;transition:opacity .3s ease}
+  .tilt.on::after{opacity:1}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+
+  /* ---------- responsive ---------- */
+  @media(max-width:860px){
+    .hero{grid-template-columns:1fr}
+    .edu,.skills,.proj-grid{grid-template-columns:1fr}
+    .skills{gap:.9rem}
+    .about-grid{grid-template-columns:1fr}
+    .id-card{max-width:320px;margin-top:2.6rem}
+    .hobbies{grid-template-columns:1fr 1fr}
+    .sec-head .sub{margin-left:0;flex-basis:100%}   /* inaczej podtytuł ściska nagłówek */
+  }
+  @media(max-width:600px){
+    .hobbies{grid-template-columns:1fr}
+    .job{grid-template-columns:1fr}
+    .rail{flex-direction:row;align-items:center;gap:.6rem;padding-top:0;margin-bottom:.3rem}
+    .rail .stem{display:none}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;scroll-behavior:auto!important}
+    .reveal{opacity:1;transform:none;transition:none}
+  }
+
+  /* ---------- print / export to PDF ---------- */
+  /* Napisany OD ZERA pod motyw JASNY. Stary blok istniał, żeby COFAĆ motyw ciemny:
+     body{color:#111} jest teraz NO-OPem, border-color:#ccc NADPISYWAŁOBY własny
+     (lepszy) hairline motywu, a{color:#111} ZABIJAŁO każdy bursztynowy link,
+     a #b06f10 to tylko 4.10:1 na bieli — nawet nie zdaje AA.
+     Zostaje WYŁĄCZNIE układ + rzeczy, których przeglądarka sama nie zrobi. */
+  @media print{
+    body{background:#fff}
+    /* --text/--muted/--muted-2/--amber/--mint są już drukowalne na bieli
+       (14.46 / 6.75 / 5.24 / 5.17 / 5.37 : 1). Nie ruszamy ich. */
+    body::before,#net,.console,.pulse,.pulse::after,.cta-row,.chips{display:none}
+    .panel,.id-card,.feat,.edu-card,.skill,.proj,.tilt{box-shadow:none!important}
+    .tilt::after{display:none}
+
+    /* PRZEGLĄDARKI NIE DRUKUJĄ TŁA. Każda kontrolka z WYPEŁNIENIEM bursztynowym
+       i BIAŁYM tekstem wydrukowałaby się jako biel na bieli. .btn-case siedzi
+       w .feat-cta (nie w .cta-row), więc NIE jest ukryty — musi zostać obrysowany. */
+    .btn-case,.chip-dl,.btn.primary{
+      background:none!important;color:var(--amber)!important;
+      border:1px solid var(--amber)!important;
+    }
+    .btn-case svg,.chip-dl svg,.btn.primary svg{stroke:var(--amber)!important;fill:none!important}
+
+    /* WYSPA CIEMNA W DRUKU: tło #0E1A1F zostanie porzucone, więc cały jasny chrom
+       wydrukowałby się bielą na bieli. Zdjęcie ZOSTAJE — <img> drukuje się normalnie. */
+    .feat-media{background:none!important;min-height:0}
+    .feat-media .corner,.feat-media .rec,.feat-media .play,.feat-media .pgloss{display:none}
+
+    /* UWAGA — ZALEŻNOŚĆ OD KOLEJNOŚCI: strona A4 ma ~794px CSS, więc
+       @media(max-width:860px) TEŻ się łapie przy druku. Ten blok wygrywa tylko
+       dlatego, że jest później przy tej samej specyficzności — musi więc
+       nadpisać każdą własność ustawioną tam (grid-template-columns, max-width,
+       margin-top). Nie zamieniać tych bloków miejscami. */
+    .reveal{opacity:1!important;transform:none!important}   /* bez tego wszystko, do czego
+                                                               użytkownik nie doscrollował,
+                                                               drukuje się PUSTE (opacity:0) */
+    .about-grid{grid-template-columns:minmax(0,1fr) 150px;column-gap:1.4rem}
+    .id-card{max-width:150px;margin-top:0;break-inside:avoid;page-break-inside:avoid}
+
+    /* Mata to KOLOR TŁA — przeglądarka i tak go porzuci, a padding zostawiłby pustą
+       12px rynnę i ścisnął zdjęcie ze 150px do 126px. W druku: zero paddingu. */
+    .id-frame{padding:0;background:#fff}
+    .id-frame::after,.id-frame .corner{display:none}   /* zdjęcie do CV bez celownika */
+
+    /* Karta ma w druku 150px, a rząd statusu jest flexem w jednej linii z
+       white-space:nowrap — „Otwarty na oferty" wychodziło poza kartę i było obcinane
+       przez overflow:hidden. W druku dwie linie; white-space:normal JEST KONIECZNE —
+       samo display:block na rodzicu tego NIE naprawia. */
+    .id-status{display:block;background:none;border-top-color:var(--line-strong)}
+    .id-status .k{display:block;margin-bottom:.15rem}
+    .id-status .v{white-space:normal}
+    .id-status .pulse{display:none}
+
+    .sec,.job,.edu-card,.skill,.panel,.feat,.hobby{break-inside:avoid;page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+  <canvas id="net" aria-hidden="true"></canvas>
+
+  <div class="console">
+    <span class="brand">dawidmajewskiit.pl</span>
+    <span class="dot">●</span>
+    <span class="status">SYSTEM ONLINE</span>
+    <nav>
+      <a href="#o-mnie" data-en="About">O mnie</a>
+      <a href="#doswiadczenie" data-en="Experience">Doświadczenie</a>
+      <a href="#projekty" data-en="Projects">Projekty</a>
+      <a href="#wyksztalcenie" data-en="Education">Wykształcenie</a>
+      <a href="#umiejetnosci" data-en="Skills">Umiejętności</a>
+      <a href="#zainteresowania" data-en="Interests">Zainteresowania</a>
+      <a href="#kontakt" data-en="Contact">Kontakt</a>
+    </nav>
+    <button class="lang-toggle" id="langBtn" type="button" aria-label="Zmień język / Change language">
+      <span data-role="pl">PL</span><span>/</span><span data-role="en">EN</span>
+    </button>
+    <span class="clock" id="clock">--:--:--</span>
+  </div>
+
+  <main>
+    <!-- HERO -->
+    <header class="wrap hero" id="top">
+      <div class="reveal">
+        <span class="eyebrow" data-en="CS Student · AI &amp; Machine Learning">Student informatyki · SI i uczenie maszynowe</span>
+        <h1>Dawid<span class="last">Majewski</span></h1>
+        <p class="thesis" data-en="I'm heading into <b>artificial intelligence and machine learning</b> — and I know IT from the ground up: helpdesk, networks and <b>ERP systems</b>.">Idę w stronę <b>sztucznej inteligencji i uczenia maszynowego</b> — a praktykę IT znam od podszewki: helpdesk, sieci i <b>systemy ERP</b>.</p>
+        <div class="chips">
+          <a class="chip" href="mailto:dawid.majewski.it@gmail.com">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            dawid.majewski.it@gmail.com
+          </a>
+          <a class="chip" href="tel:+48607250449">
+            <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
+            +48 607 250 449
+          </a>
+          <span class="chip">
+            <svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            Poznań / Łęka Mała
+          </span>
+          <a class="chip" href="https://github.com/dawidmajewskii" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" class="brand"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.05-.02-2.06-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.39 1.24-3.23-.13-.3-.54-1.53.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.88.12 3.18.77.84 1.24 1.92 1.24 3.23 0 4.62-2.81 5.64-5.49 5.94.43.37.81 1.1.81 2.22 0 1.6-.01 2.9-.01 3.29 0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5Z"/></svg>
+            GitHub
+          </a>
+          <a class="chip" href="https://www.linkedin.com/in/dawid-majewski-012080421/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" class="brand"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+            LinkedIn
+          </a>
+          <a class="chip chip-dl" href="./CV/CV_Dawid_Majewski.pdf" data-en-href="./CV/CV_Dawid_Majewski_EN.pdf" download>
+            <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+            <span data-en="Download CV (PDF)">Pobierz CV (PDF)</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Paski poziomu (5/5, 4/5...) zostały USUNIĘTE świadomie. Były deklaracją
+           biegłości, a Dawid — jako student — takiej deklaracji nie składa. Panel
+           mówi teraz CZYM się zajmuje i co jest specjalizacją, a nie JAK dobry jest.
+           Numeracja mono utrzymuje „konsolowy" rytm, którego pilnowały paski. -->
+      <div class="panel reveal" aria-label="Obszary i narzędzia">
+        <div class="panel-head">
+          <span data-en="Areas &amp; tools">Obszary i narzędzia</span>
+          <span class="live"><span class="pulse"></span> LIVE</span>
+        </div>
+        <div class="mod main">
+          <span class="idx">01</span>
+          <span class="name" data-en="Artificial Intelligence &amp; Machine Learning">Sztuczna inteligencja i uczenie maszynowe</span>
+          <span class="tag" data-en="Specialization">Specjalizacja</span>
+        </div>
+        <div class="mod">
+          <span class="idx">02</span>
+          <span class="name">Microsoft 365</span>
+        </div>
+        <div class="mod">
+          <span class="idx">03</span>
+          <span class="name" data-en="Relational databases">Relacyjne bazy danych</span>
+        </div>
+        <div class="mod">
+          <span class="idx">04</span>
+          <span class="name" data-en="IT infrastructure">Infrastruktura IT</span>
+        </div>
+        <div class="mod">
+          <span class="idx">05</span>
+          <span class="name">Figma</span>
+        </div>
+        <div class="mod">
+          <span class="idx">06</span>
+          <span class="name">Power BI</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- O MNIE -->
+    <section class="sec" id="o-mnie">
+      <div class="wrap about-grid">
+        <div class="sec-head reveal">
+          <span class="idx">01</span>
+          <h2 data-en="About">O mnie</h2>
+        </div>
+        <div class="about reveal">
+          <p class="lead" data-en="I study Computer Science at MSc level, specializing in <span class='amber'>artificial intelligence and machine learning</span>.">Studiuję informatykę na II stopniu, specjalność <span class="amber">sztuczna inteligencja i uczenie maszynowe</span>.</p>
+          <p data-en="I got my IT experience in the IT department of a manufacturing plant: <b>helpdesk, infrastructure, networks and ERP systems</b>. Alongside my studies I work in procurement and sales, where B2B platforms and supplier data are part of the daily routine.">Doświadczenie IT zbierałem w dziale IT zakładu produkcyjnego: <b>helpdesk, infrastruktura, sieci i systemy ERP</b>. Równolegle do studiów pracuję przy zaopatrzeniu i sprzedaży, gdzie platformy B2B i dane od dostawców to codzienność.</p>
+          <p data-en="In AI what interests me is the deployment side — the part after the training. In a university team project I was responsible for getting a YOLOv8 detector to run on a Raspberry Pi and for the recognition pipeline. After hours I solder and build hardware; the last thing I built from scratch was a bait boat.">W AI interesuje mnie strona wdrożeniowa — to, co dzieje się po treningu. W zespołowym projekcie na studiach odpowiadałem za uruchomienie detektora <b>YOLOv8 na Raspberry Pi</b> i za pipeline rozpoznawania. Po godzinach lutuję i buduję sprzęt — ostatnią rzeczą, którą złożyłem od zera, była łódź zanętowa.</p>
+        </div>
+
+        <!-- data-en tylko na liściach <span> w <figcaption>. Żaden przodek <img>
+             go nie ma, więc podmiana innerHTML przez przełącznik języka nigdy nie
+             usunie węzła zdjęcia ani nie wymusi ponownego dekodowania. -->
+        <figure class="id-card reveal">
+          <div class="id-frame">
+            <picture>
+              <source type="image/avif"
+                      srcset="./Img/dm-portrait-336.avif 336w, ./Img/dm-portrait-672.avif 672w"
+                      sizes="(max-width:860px) 320px, 300px">
+              <source type="image/webp"
+                      srcset="./Img/dm-portrait-336.webp 336w, ./Img/dm-portrait-672.webp 672w"
+                      sizes="(max-width:860px) 320px, 300px">
+              <!-- JPEG jako uniwersalny fallback. Zdjęcie nie ma już kanału alfa,
+                   więc fallback nic nie kosztuje (wcześniej wracałby biały prostokąt). -->
+              <img src="./Img/dm-portrait-336.jpg"
+                   srcset="./Img/dm-portrait-336.jpg 336w, ./Img/dm-portrait-672.jpg 672w"
+                   sizes="(max-width:860px) 320px, 300px"
+                   width="336" height="448"
+                   decoding="async" fetchpriority="low"
+                   alt="Dawid Majewski — portret zawodowy"
+                   data-en-alt="Dawid Majewski — professional headshot">
+            </picture>
+            <span class="corner tl" aria-hidden="true"></span>
+            <span class="corner tr" aria-hidden="true"></span>
+            <span class="corner bl" aria-hidden="true"></span>
+            <span class="corner br" aria-hidden="true"></span>
+          </div>
+          <figcaption class="id-status">
+            <span class="k" data-en="Availability">Dostępność</span>
+            <span class="v"><span class="pulse"></span><span data-en="Open to offers">Otwarty na oferty</span></span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- DOŚWIADCZENIE -->
+    <section class="sec" id="doswiadczenie">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">02</span>
+          <h2 data-en="Experience">Doświadczenie</h2>
+        </div>
+        <div class="timeline">
+
+          <article class="job reveal">
+            <div class="rail"><span class="st active"></span><span class="stem"></span></div>
+            <div class="job-body">
+              <div class="meta"><span class="now" data-en="● Current">● Obecnie</span><span data-en="2023 — present">2023 — obecnie</span><span>Rawicz</span></div>
+              <h3 data-en="Procurement &amp; Sales Coordinator">Koordynator ds. zaopatrzenia i sprzedaży</h3>
+              <div class="co" data-en="FISHKA — Pet &amp; Fishing Store">FISHKA — Market Zoologiczno-Wędkarski</div>
+              <ul>
+                <li data-en="Managing B2B purchasing platforms">Obsługa platform zakupowych B2B</li>
+                <li data-en="Managing logistics processes and inventory">Zarządzanie procesami logistycznymi i towarem</li>
+                <li data-en="Building and maintaining supplier relationships">Budowanie i utrzymywanie relacji z dostawcami</li>
+                <li data-en="Professional customer service">Profesjonalna obsługa klienta</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="job reveal">
+            <div class="rail"><span class="st"></span></div>
+            <div class="job-body">
+              <div class="meta"><span data-en="Internship · 3 months">Staż · 3 miesiące</span><span>2025</span><span>Leszno</span></div>
+              <h3 data-en="IT Department Internship">Staż w Dziale IT</h3>
+              <div class="co">Leszczyńska Fabryka Pomp</div>
+              <ul>
+                <li data-en="User technical support (Helpdesk) and hardware troubleshooting">Wsparcie techniczne użytkowników (Helpdesk) i rozwiązywanie problemów sprzętowych</li>
+                <li data-en="Administration and day-to-day maintenance of IT and network infrastructure">Administracja oraz bieżące utrzymanie infrastruktury IT i sieci</li>
+                <li data-en="Supporting production and business processes using ERP systems">Wsparcie procesów produkcyjnych i biznesowych przy użyciu systemów ERP</li>
+                <li data-en="Configuring workstations and preparing equipment">Konfiguracja stanowisk roboczych i przygotowywanie sprzętu</li>
+              </ul>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJEKTY -->
+    <section class="sec" id="projekty">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">03</span>
+          <h2 data-en="Projects">Projekty</h2>
+        </div>
+
+        <div class="proj-group reveal">
+          <div class="grp-label"><span data-en="Featured project · Machine Learning">Projekt wyróżniony · Uczenie Maszynowe</span></div>
+
+          <article class="feat">
+            <a class="feat-media" href="./karty.html" aria-label="Otwórz case study: System rozpoznawania kart do gry">
+              <span class="corner tl"></span><span class="corner tr"></span>
+              <span class="corner bl"></span><span class="corner br"></span>
+              <span class="rec">DEMO · Pi 4</span>
+              <img src="./Img/hardware.jpg" alt="Zbudowane urządzenie: Raspberry Pi z okablowaniem, głośnik i akumulator w białej obudowie" style="pointer-events:none">
+              <span class="pgloss" data-en="watch the demo">obejrzyj demo</span>
+              <span class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
+            </a>
+            <div class="feat-body">
+              <span class="feat-eyebrow"><span class="d"></span><span data-en="University · ML course · 2026">Studia · projekt z UM · 2026</span></span>
+              <h3 data-en="Playing-card recognition system">System rozpoznawania kart do gry</h3>
+              <p data-en="Real-time recognition of all 52 cards on a Raspberry Pi 4. A fine-tuned YOLOv8n model, a grayscale camera and a Polish voice assistant that reads each card aloud — all inference on-device, no cloud.">Rozpoznawanie 52 kart w czasie rzeczywistym na Raspberry Pi 4. Dostrojony model YOLOv8n, kamera w trybie mono i polski asystent głosowy, który odczytuje każdą kartę — cała inferencja lokalnie, bez chmury.</p>
+              <div class="feat-metrics">
+                <span class="fm"><b>52</b><span data-en="card classes">klasy kart</span></span>
+                <span class="fm"><b>0.789</b><span>mAP50-95</span></span>
+                <span class="fm"><b>90–95%</b><span data-en="real-world">w praktyce</span></span>
+                <span class="fm"><b>~5 FPS</b><span data-en="on Pi 4">na Pi 4</span></span>
+              </div>
+              <div class="ptags"><span>YOLOv8n</span><span>Raspberry Pi 4</span><span>PyTorch</span><span>OpenCV</span><span>Python</span><span>systemd</span></div>
+              <div class="feat-cta">
+                <a class="btn-case" href="./karty.html">
+                  <span data-en="Read the case study">Zobacz case study</span>
+                  <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- WYKSZTAŁCENIE -->
+    <section class="sec" id="wyksztalcenie">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">04</span>
+          <h2 data-en="Education">Wykształcenie</h2>
+        </div>
+        <div class="edu">
+          <div class="edu-card reveal">
+            <span class="yr" data-en="2026 — present">2026 — obecnie</span>
+            <h3>Uniwersytet Merito we Wrocławiu</h3>
+            <div class="prog" data-en="Computer Science">Informatyka</div>
+            <div class="spec" data-en="Specialization: Artificial Intelligence &amp; Machine Learning">Specjalność: Sztuczna Inteligencja i Uczenie Maszynowe</div>
+            <div class="lvl" data-en="Master's degree · part-time">Studia II stopnia · niestacjonarne</div>
+          </div>
+          <div class="edu-card reveal">
+            <span class="yr">2022 — 2026</span>
+            <h3>Uniwersytet Merito w Poznaniu</h3>
+            <div class="prog" data-en="Computer Science">Informatyka</div>
+            <div class="spec" data-en="Specialization: Network Security">Specjalność: Bezpieczeństwo sieci informatycznych</div>
+            <div class="lvl" data-en="Bachelor's degree · part-time">Studia I stopnia · niestacjonarne</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UMIEJĘTNOŚCI -->
+    <section class="sec" id="umiejetnosci">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">05</span>
+          <h2 data-en="Skills">Umiejętności</h2>
+        </div>
+        <div class="skills">
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><path d="M8 17l-5-5 5-5M16 7l5 5-5 5M13 4l-2 16"/></svg><span data-en="Programming &amp; data">Programowanie i dane</span></span>
+            <h3 data-en="Analysis &amp; automation">Analiza i automatyzacja</h3>
+            <p data-en="Python for scripting and machine learning, SQL for querying relational data, Power BI for turning it into a report someone can actually read.">Python do skryptów i uczenia maszynowego, SQL do odpytywania danych relacyjnych, Power BI do zamiany ich w raport, który da się przeczytać.</p>
+            <div class="tags"><span>Python</span><span>MySQL</span><span>Power BI</span></div>
+          </div>
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4zM4 10h16"/><path d="M7 8h.01M9.5 8h.01"/></svg><span data-en="Web &amp; tooling">Web i narzędzia</span></span>
+            <h3 data-en="Front-end &amp; workflow">Front-end i warsztat</h3>
+            <p data-en="Building interfaces with HTML, CSS and JavaScript; versioning in Git, designing in Figma before touching the code.">Budowanie interfejsów w HTML, CSS i JavaScript; wersjonowanie w Git, projektowanie w Figmie zanim powstanie kod.</p>
+            <div class="tags"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub</span><span>Figma</span></div>
+          </div>
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></svg><span data-en="IT Infrastructure">Infrastruktura IT</span></span>
+            <h3 data-en="Systems &amp; hardware">Systemy i sprzęt</h3>
+            <p data-en="Infrastructure maintenance, virtualization and hardware management in a production environment.">Utrzymanie infrastruktury, wirtualizacja i zarządzanie sprzętem w środowisku produkcyjnym.</p>
+            <div class="tags"><span data-en="Operating systems">Systemy operacyjne</span><span data-en="Virtualization">Wirtualizacja</span><span>Helpdesk</span></div>
+          </div>
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M5 8v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M12 13v3"/></svg><span data-en="Computer networks">Sieci komputerowe</span></span>
+            <h3>LAN / WAN</h3>
+            <p data-en="Administration and diagnostics of local and wide-area networks.">Administracja i diagnostyka sieci lokalnych i rozległych.</p>
+            <div class="tags"><span data-en="Administration">Administracja</span><span data-en="Diagnostics">Diagnostyka</span><span>LAN/WAN</span></div>
+          </div>
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M6.6 7.1 10 10.2M17.4 7.1 14 10.2M6.6 16.9 10 13.8M17.4 16.9 14 13.8"/></svg><span data-en="Degree specialization">Specjalizacja studiów</span></span>
+            <h3 data-en="AI &amp; machine learning">Sztuczna inteligencja i uczenie maszynowe</h3>
+            <!-- BEZ deklaracji biegłości i BEZ powielania case study (sekcja 03 opisuje
+                 projekt szczegółowo). Kafelek mówi: kierunek studiów + jak się uczę. -->
+            <p data-en="The specialization of my MSc — the area I'm growing into, and I'm still learning it. I do that hands-on: what interests me most is the moment a model stops being code in a notebook and starts running on real hardware.">Specjalizacja moich studiów II stopnia — obszar, w którym się rozwijam i którego wciąż się uczę. Uczę się go w praktyce: najbardziej interesuje mnie moment, w którym model przestaje być kodem w notatniku i zaczyna działać na realnym sprzęcie.</p>
+            <div class="tags"><span data-en="Machine learning">Uczenie maszynowe</span><span>YOLOv8</span></div>
+          </div>
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span data-en="Office tools">Narzędzia biurowe</span></span>
+            <h3 data-en="Productivity suites">Pakiety produktywności</h3>
+            <p data-en="Fluent with office and cloud environments.">Biegła obsługa środowisk biurowych i chmurowych.</p>
+            <div class="tags"><span>Microsoft 365</span><span>Google Workspace</span></div>
+          </div>
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M15 11a3 3 0 1 0 0-6M3 20c0-3 2.5-5 6-5s6 2 6 5M15 15c3 0 6 2 6 5"/></svg><span data-en="Soft skills">Kompetencje miękkie</span></span>
+            <h3 data-en="Way of working">Sposób pracy</h3>
+            <p data-en="Analytical approach and a problem-solving mindset within a team.">Analityczne podejście i nastawienie na rozwiązywanie problemów w zespole.</p>
+            <div class="tags"><span data-en="Analytics">Analityka</span><span>Problem-solving</span><span data-en="Teamwork">Praca zespołowa</span></div>
+          </div>
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="11" rx="2"/><path d="M3 11h18M7 15h3"/></svg><span data-en="Additional">Dodatkowe</span></span>
+            <h3 data-en="Languages &amp; licenses">Języki i uprawnienia</h3>
+            <div class="extra" data-en="<span class='lang'><b>Polish</b> native</span><span class='sep'>/</span><span class='lang'><b>English</b> B2</span><span class='sep'>/</span><span class='lang'><b>Driving license</b> cat. B</span>">
+              <span class="lang"><b>Polski</b> ojczysty</span>
+              <span class="sep">/</span>
+              <span class="lang"><b>Angielski</b> B2</span>
+              <span class="sep">/</span>
+              <span class="lang"><b>Prawo jazdy</b> kat. B</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ZAINTERESOWANIA -->
+    <!-- Celowo LŻEJSZE wizualnie niż karty w Umiejętnościach (hairline zamiast
+         wypełnionej karty): to kontekst, a nie kompetencja — nie może konkurować
+         o uwagę z sekcją 05. -->
+    <section class="sec" id="zainteresowania">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="idx">06</span>
+          <h2 data-en="Interests">Zainteresowania</h2>
+          <span class="sub" data-en="what I build when nobody is grading it">co buduję, kiedy nikt tego nie ocenia</span>
+        </div>
+        <div class="hobbies">
+
+          <div class="hobby reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><path d="M7.5 12c0-3.1 3.8-5.6 8-5.6 2.6 0 4.9 1 6.3 2.5-.9 1-1.4 2-1.4 3.1s.5 2.1 1.4 3.1c-1.4 1.5-3.7 2.5-6.3 2.5-4.2 0-8-2.5-8-5.6Z"/><path d="M7.5 12 2.5 8v8l5-4Z"/><path d="M17.5 10.6h.01"/></svg><span data-en="Fishing">Wędkarstwo</span></span>
+            <h3 data-en="Patience and persistence">Cierpliwość i konsekwencja</h3>
+            <p data-en="Hours of analysis and preparation — the spot, the gear, the conditions — and many more hours of waiting. What wins here is the plan and sticking to it, not luck.">Godziny analizy i przygotowania — łowisko, sprzęt, warunki — i jeszcze więcej godzin czekania. Wygrywa plan i konsekwencja w dążeniu do celu, nie szczęście.</p>
+          </div>
+
+          <div class="hobby reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M10 8V5M14 8V5M10 19v-3M14 19v-3M8 10H5M8 14H5M19 10h-3M19 14h-3"/></svg><span data-en="Electronics &amp; hardware prototyping">Elektronika i prototypowanie</span></span>
+            <h3 data-en="A bait boat, built from zero">Łódź zanętowa od zera</h3>
+            <p data-en="Soldering, circuits, wiring. The last one: my own bait boat — from the schematic, through the electronics and the drive, to the first launch. Same kind of work as the Raspberry Pi project, only without a grade at the end.">Lutowanie, układy, okablowanie. Ostatni projekt: własna łódź zanętowa — od schematu, przez elektronikę i napęd, po pierwsze wodowanie. Ten sam rodzaj pracy, co przy Raspberry Pi, tylko bez oceny na koniec.</p>
+          </div>
+
+          <div class="hobby reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 13l-2 2 2 2M14 13l2 2-2 2"/></svg><span data-en="Web development">Tworzenie stron</span></span>
+            <h3 data-en="Front-end without frameworks">Front-end bez frameworków</h3>
+            <p data-en="HTML, CSS and plain JavaScript. I learn the web the way I learn hardware — by building the thing, not by reading about it.">HTML, CSS i czysty JavaScript. Sieci uczę się tak samo jak sprzętu — budując rzecz, a nie czytając o niej.</p>
+          </div>
+
+          <div class="hobby reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 15a5 5 0 0 1 5 5"/><circle cx="5" cy="19" r="1.4"/><path d="M14 4h6v6"/><path d="M20 4l-7 7"/></svg><span data-en="Technology">Nowinki technologiczne</span></span>
+            <h3 data-en="What is new, and what it is for">Co nowego i po co</h3>
+            <p data-en="I follow what is happening in AI, embedded and hardware — mostly to check what can actually be built with it.">Śledzę, co dzieje się w AI, embedded i sprzęcie — głównie po to, żeby sprawdzić, co da się z tego naprawdę zbudować.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- KONTAKT -->
+    <section class="sec contact" id="kontakt">
+      <div class="wrap">
+        <span class="eyebrow reveal" data-en="Open to new challenges in IT">Otwarty na nowe wyzwania w IT</span>
+        <h2 class="reveal" data-en="Let's talk —<br><a class='big' href='mailto:dawid.majewski.it@gmail.com'>write to me</a>">Porozmawiajmy —<br><a class="big" href="mailto:dawid.majewski.it@gmail.com">napisz do mnie</a></h2>
+        <div class="cta-row reveal">
+          <a class="btn primary" href="mailto:dawid.majewski.it@gmail.com">
+            <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+            dawid.majewski.it@gmail.com
+          </a>
+          <a class="btn ghost" href="tel:+48607250449">
+            <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
+            +48 607 250 449
+          </a>
+          <a class="btn ghost" href="./CV/CV_Dawid_Majewski.pdf" data-en-href="./CV/CV_Dawid_Majewski_EN.pdf" download>
+            <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+            <span data-en="Download CV (PDF)">Pobierz CV (PDF)</span>
+          </a>
+          <a class="btn ghost" href="https://github.com/dawidmajewskii" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" class="brand"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.05-.02-2.06-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.39 1.24-3.23-.13-.3-.54-1.53.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.88.12 3.18.77.84 1.24 1.92 1.24 3.23 0 4.62-2.81 5.64-5.49 5.94.43.37.81 1.1.81 2.22 0 1.6-.01 2.9-.01 3.29 0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5Z"/></svg>
+            GitHub
+          </a>
+          <a class="btn ghost" href="https://www.linkedin.com/in/dawid-majewski-012080421/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" class="brand"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+            LinkedIn
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <div class="row">
+          <span>© 2026 Dawid Majewski</span>
+          <span class="foot-links">
+            <a href="https://github.com/dawidmajewskii" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://www.linkedin.com/in/dawid-majewski-012080421/" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="mailto:dawid.majewski.it@gmail.com">E-mail</a>
+          </span>
+          <span>Poznań / Łęka Mała · PL</span>
+        </div>
+        <p class="rodo" data-en="I hereby consent to the processing of my personal data for the purposes necessary to carry out the recruitment process (in accordance with the Personal Data Protection Act of 10 May 2018 (Journal of Laws 2018, item 1000) and Regulation (EU) 2016/679 of the European Parliament and of the Council (GDPR)).">Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych do realizacji procesu rekrutacji (zgodnie z ustawą z dnia 10 maja 2018 roku o ochronie danych osobowych (Dz. U. z 2018, poz. 1000) oraz zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO)).</p>
+      </div>
+    </footer>
+  </main>
+
+<script>
+  var REDUCE=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var CAN_HOVER=window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  // ---- language toggle (PL / EN) ----
+  (function(){
+    var btn=document.getElementById('langBtn');
+    var els=document.querySelectorAll('[data-en]');
+    var pl=[];
+    els.forEach(function(el){pl.push(el.innerHTML);});
+    var cur='pl';
+    function apply(lang){
+      els.forEach(function(el,i){
+        el.innerHTML = (lang==='en') ? el.getAttribute('data-en') : pl[i];
+      });
+      // atrybutu alt nie da się przetłumaczyć przez innerHTML — osobne przejście
+      document.querySelectorAll('[data-en-alt]').forEach(function(el){
+        if(el.getAttribute('data-pl-alt')===null) el.setAttribute('data-pl-alt', el.getAttribute('alt')||'');
+        el.setAttribute('alt', (lang==='en') ? el.getAttribute('data-en-alt') : el.getAttribute('data-pl-alt'));
+      });
+      // to samo dla href: przycisk „Pobierz CV" musi podać PLIK w języku, który
+      // użytkownik właśnie czyta. Sam <span> w środku tłumaczy się przez data-en,
+      // ale link prowadziłby dalej do polskiego PDF-a.
+      document.querySelectorAll('[data-en-href]').forEach(function(el){
+        if(el.getAttribute('data-pl-href')===null) el.setAttribute('data-pl-href', el.getAttribute('href')||'');
+        el.setAttribute('href', (lang==='en') ? el.getAttribute('data-en-href') : el.getAttribute('data-pl-href'));
+      });
+      document.documentElement.lang = lang;
+      btn.querySelector('[data-role=pl]').classList.toggle('active',lang==='pl');
+      btn.querySelector('[data-role=en]').classList.toggle('active',lang==='en');
+      cur=lang;
+      try{localStorage.setItem('cv-lang',lang);}catch(e){}
+    }
+    btn.addEventListener('click',function(){apply(cur==='en'?'pl':'en');});
+    var saved=null; try{saved=localStorage.getItem('cv-lang');}catch(e){}
+    apply(saved==='en'?'en':'pl');
+  })();
+
+  // ---- live 3D network background (nodes = hosts, lines = links) ----
+  (function(){
+    var c=document.getElementById('net'); if(!c) return;
+    var ctx=c.getContext('2d');
+    var dpr=Math.min(window.devicePixelRatio||1,2);
+    var w,h,nodes=[],mouse={x:-9999,y:-9999},raf;
+    function resize(){
+      w=c.width=Math.floor(innerWidth*dpr);
+      h=c.height=Math.floor(innerHeight*dpr);
+      c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';
+    }
+    function build(){
+      resize();
+      var count=Math.max(24,Math.min(80,Math.floor(innerWidth*innerHeight/17000)));
+      nodes=[];
+      for(var i=0;i<count;i++){
+        nodes.push({
+          x:Math.random()*w,y:Math.random()*h,
+          vx:(Math.random()-.5)*.22*dpr,vy:(Math.random()-.5)*.22*dpr,
+          r:(Math.random()*1.6+.8)*dpr
+        });
+      }
+    }
+    var LINK=150*dpr, MOUSE_R=190*dpr;
+    function frame(){
+      ctx.clearRect(0,0,w,h);
+      for(var i=0;i<nodes.length;i++){
+        var n=nodes[i];
+        n.x+=n.vx;n.y+=n.vy;
+        if(n.x<0||n.x>w)n.vx*=-1;
+        if(n.y<0||n.y>h)n.vy*=-1;
+        for(var j=i+1;j<nodes.length;j++){
+          var m=nodes[j],dx=n.x-m.x,dy=n.y-m.y,d=Math.sqrt(dx*dx+dy*dy);
+          if(d<LINK){
+            var a=(1-d/LINK)*.24;                    /* było .16 — ciemny tusz na papierze
+                                                        potrzebuje WIĘCEJ alfy niż jasny na ciemnym */
+            ctx.strokeStyle='rgba(34,72,80,'+a+')';  /* głęboki grafit-teal, nie blada mięta */
+            ctx.lineWidth=dpr*.7;                    /* było .6 — cienka ciemna linia gubi się w AA */
+            ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(m.x,m.y);ctx.stroke();
+          }
+        }
+        var mdx=n.x-mouse.x,mdy=n.y-mouse.y,md=Math.sqrt(mdx*mdx+mdy*mdy);
+        if(md<MOUSE_R){
+          var ma=(1-md/MOUSE_R)*.40;                 /* było .5 — ciemna linia na bieli jest
+                                                        agresywniejsza, więc mnożnik W DÓŁ */
+          ctx.strokeStyle='rgba(150,89,14,'+ma+')';  /* ochra --amber, nie jasny bursztyn:
+                                                        #F0A63C przy 50% na bieli = żółte błoto */
+          ctx.lineWidth=dpr*.8;
+          ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(mouse.x,mouse.y);ctx.stroke();
+          n.x-=mdx/md*.4;n.y-=mdy/md*.4;
+        }
+        ctx.fillStyle='rgba(30,70,80,.34)';          /* alfa W DÓŁ z .55: ciemna kropka na
+                                                        papierze przy .55 to ciężki grys */
+        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
+      }
+      raf=requestAnimationFrame(frame);
+    }
+    build();
+    if(REDUCE){ frame(); cancelAnimationFrame(raf); }
+    else frame();
+    addEventListener('resize',build,{passive:true});
+    if(CAN_HOVER){
+      addEventListener('pointermove',function(e){mouse.x=e.clientX*dpr;mouse.y=e.clientY*dpr;},{passive:true});
+      addEventListener('pointerleave',function(){mouse.x=mouse.y=-9999;});
+    }
+  })();
+
+  // ---- 3D tilt on cards ----
+  (function(){
+    if(!CAN_HOVER||REDUCE) return;
+    document.querySelectorAll('.panel,.edu-card,.skill,.proj').forEach(function(el){
+      el.classList.add('tilt');
+      el.addEventListener('pointermove',function(e){
+        var r=el.getBoundingClientRect();
+        var px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+        var rx=(py-.5)*-9, ry=(px-.5)*11;
+        el.style.transform='perspective(900px) rotateX('+rx.toFixed(2)+'deg) rotateY('+ry.toFixed(2)+'deg) translateZ(8px)';
+        el.style.setProperty('--mx',(px*100).toFixed(1)+'%');
+        el.style.setProperty('--my',(py*100).toFixed(1)+'%');
+        el.classList.add('on');
+      });
+      el.addEventListener('pointerleave',function(){el.style.transform='';el.classList.remove('on');});
+    });
+  })();
+
+  // ---- magnetic primary button ----
+  (function(){
+    if(!CAN_HOVER||REDUCE) return;
+    document.querySelectorAll('.btn.primary').forEach(function(b){
+      b.addEventListener('pointermove',function(e){
+        var r=b.getBoundingClientRect();
+        var x=e.clientX-r.left-r.width/2, y=e.clientY-r.top-r.height/2;
+        b.style.transform='translate('+(x*.3).toFixed(1)+'px,'+(y*.4).toFixed(1)+'px)';
+      });
+      b.addEventListener('pointerleave',function(){b.style.transform='';});
+    });
+  })();
+
+  // ---- live console clock ----
+  (function(){
+    var el=document.getElementById('clock');
+    function tick(){
+      var d=new Date();
+      var p=function(n){return String(n).padStart(2,'0');};
+      el.textContent=p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+    }
+    tick();setInterval(tick,1000);
+  })();
+
+  // ---- staggered reveal on scroll ----
+  (function(){
+    var items=document.querySelectorAll('.reveal');
+    if(REDUCE){items.forEach(function(i){i.classList.add('in');});return;}
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var sibs=Array.prototype.slice.call(e.target.parentNode.children).filter(function(n){return n.classList.contains('reveal');});
+          var pos=sibs.indexOf(e.target);
+          e.target.style.transitionDelay=(Math.max(0,pos)*90)+'ms';
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    items.forEach(function(i){io.observe(i);});
+  })();
+</script>
+</body>
+</html>

@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <title>Dawid Majewski — CV</title>
 <meta name="author" content="Dawid Majewski">
+<!-- cv.html jest ŹRÓDŁEM dla tools/build_cv.py, nie stroną do czytania: nic do niego
+     nie linkuje, a body ma sztywne 210mm, więc na telefonie wygląda jak kartka.
+     Bez tego tagu Google indeksuje go obok właściwego CV/CV_Dawid_Majewski.pdf
+     i pokazuje w wynikach brzydszy duplikat. Chrome w --headless --print-to-pdf
+     tego nie interpretuje, więc build_cv.py działa bez zmian. -->
+<meta name="robots" content="noindex">
 <meta name="description" content="CV — Dawid Majewski. Student informatyki II stopnia (SI i uczenie maszynowe), infrastruktura IT, sieci, ERP.">
 <style>
   /* ================================================================
@@ -198,7 +204,7 @@
 
       <div class="item">
         <div class="item-h">
-          <div class="role" data-en="IT Department Intern"><span class="when" data-en="2025 · internship, 3 months">2025 · staż, 3 miesiące</span>Stażysta, Dział IT</div>
+          <div class="role"><span class="when" data-en="2025 · internship, 3 months">2025 · staż, 3 miesiące</span><span data-en="IT Department Intern">Stażysta, Dział IT</span></div>
         </div>
         <div class="org" data-en="Leszczyńska Fabryka Pomp (pump manufacturer) — Leszno">Leszczyńska Fabryka Pomp — Leszno</div>
         <ul>
@@ -211,13 +217,13 @@
 
       <div class="item">
         <div class="item-h">
-          <div class="role" data-en="Procurement &amp; Sales Coordinator"><span class="when" data-en="2023–present">2023–obecnie</span>Koordynator ds. zaopatrzenia i sprzedaży</div>
+          <div class="role"><span class="when" data-en="2023–present">2023–obecnie</span><span data-en="Procurement &amp; Sales Coordinator">Koordynator ds. zaopatrzenia i sprzedaży</span></div>
         </div>
         <div class="org" data-en="FISHKA — Pet &amp; Fishing Store — Rawicz">FISHKA — Market Zoologiczno-Wędkarski — Rawicz</div>
         <ul>
           <li data-en="Run B2B purchasing platforms: orders, price lists and supplier data.">Obsługuję platformy zakupowe B2B: zamówienia, cenniki i dane od dostawców.</li>
-          <li data-en="Manage logistics and stock — from purchase order to shelf availability.">Zarządzam procesami logistycznymi i stanem towaru — od zamówienia po dostępność na półce.</li>
-          <li data-en="Build and maintain supplier relationships; provide professional customer service.">Buduję i utrzymuję relacje z dostawcami; prowadzę profesjonalną obsługę klienta.</li>
+          <li data-en="I decide what to order and when, so nothing runs out and the small stockroom does not overflow.">Sam decyduję, co i kiedy zamówić — tak, żeby towaru nie zabrakło, a mały magazyn się nie zapchał.</li>
+          <li data-en="I deal with customers and suppliers — by phone, by e-mail and in person.">Obsługuję klientów i dostawców — telefonicznie, mailowo i bezpośrednio.</li>
         </ul>
       </div>
     </div>
@@ -229,7 +235,7 @@
       <h2 data-en="Projects">Projekty</h2>
       <div class="proj">
         <div class="item-h">
-          <div class="role" data-en="Playing-card recognition system (YOLOv8n on Raspberry Pi 4)"><span class="when">dawidmajewskiit.pl/karty</span>System rozpoznawania kart do gry (YOLOv8n na Raspberry Pi 4)</div>
+          <div class="role"><span class="when">dawidmajewskiit.pl/karty</span><span data-en="Playing-card recognition system (YOLOv8n on Raspberry Pi 4)">System rozpoznawania kart do gry (YOLOv8n na Raspberry Pi 4)</span></div>
         </div>
         <div class="ctx" data-en="Six-person team project, Machine Learning course, MSc programme, 2026. My area: the Raspberry Pi deployment path and the recognition pipeline.">Projekt zespołowy (6 osób), przedmiot Uczenie Maszynowe, studia magisterskie, 2026. Mój obszar: wdrożenie na Raspberry Pi i pipeline rozpoznawania.</div>
 
@@ -270,13 +276,13 @@
       <div class="edu">
         <div class="item">
           <div class="item-h">
-            <div class="role" data-en="Computer Science — Artificial Intelligence &amp; Machine Learning"><span class="when" data-en="2026–present · in progress">2026–obecnie · w toku</span>Informatyka — sztuczna inteligencja i uczenie maszynowe</div>
+            <div class="role"><span class="when" data-en="2026–present · in progress">2026–obecnie · w toku</span><span data-en="Computer Science — Artificial Intelligence &amp; Machine Learning">Informatyka — sztuczna inteligencja i uczenie maszynowe</span></div>
           </div>
           <div class="org" data-en="Merito University Wrocław · Master's degree, part-time">Uniwersytet Merito we Wrocławiu · studia II stopnia (magisterskie), niestacjonarne</div>
         </div>
         <div class="item">
           <div class="item-h">
-            <div class="role" data-en="Computer Science — Network Security"><span class="when" data-en="2022–2026 · completed">2022–2026 · ukończone</span>Informatyka — bezpieczeństwo sieci informatycznych</div>
+            <div class="role"><span class="when" data-en="2022–2026 · completed">2022–2026 · ukończone</span><span data-en="Computer Science — Network Security">Informatyka — bezpieczeństwo sieci informatycznych</span></div>
           </div>
           <div class="org" data-en="Merito University Poznań · Bachelor's degree, part-time">Uniwersytet Merito w Poznaniu · studia I stopnia, niestacjonarne</div>
         </div>

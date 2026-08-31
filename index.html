@@ -5,6 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dawid Majewski — Informatyka · ERP · AI</title>
 <meta name="description" content="Dawid Majewski — student informatyki (specjalizacja AI) z doświadczeniem w helpdesku, infrastrukturze IT, sieciach i systemach ERP.">
+<link rel="canonical" href="https://dawidmajewskiit.pl/">
+<!-- hreflang wskazuje na ?lang=en, bo dopiero od teraz wersja angielska MA adres.
+     Wcześniej język siedział wyłącznie w localStorage: przekład 103 elementów
+     istniał, ale nie dało się go ani wysłać linkiem, ani zaindeksować. -->
+<link rel="alternate" hreflang="pl" href="https://dawidmajewskiit.pl/">
+<link rel="alternate" hreflang="en" href="https://dawidmajewskiit.pl/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://dawidmajewskiit.pl/">
+<!-- Open Graph: portfolio rozsyła się WKLEJAJĄC LINK — na LinkedInie, w Slacku, w mailu.
+     Bez tych tagów scraper nie ma czego pokazać i wychodzi szary prostokąt z gołym URL-em
+     obok cudzych kart z podglądem. og:image MUSI być adresem bezwzględnym: scrapery nie
+     rozwiązują ścieżek względnych. Tytuł i opis są PRZEPISANE z <title>/<meta description>,
+     żeby podgląd nie obiecywał niczego, czego nie mówi sama strona. -->
+<meta property="og:type" content="profile">
+<meta property="og:url" content="https://dawidmajewskiit.pl/">
+<meta property="og:site_name" content="dawidmajewskiit.pl">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="Dawid Majewski — Informatyka · ERP · AI">
+<meta property="og:description" content="Student informatyki (specjalizacja AI) z doświadczeniem w helpdesku, infrastrukturze IT, sieciach i systemach ERP.">
+<meta property="og:image" content="https://dawidmajewskiit.pl/Img/og-home.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dawid Majewski — informatyka, ERP, AI">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Favikona inline: zero dodatkowego zapytania i zero pliku do zgubienia.
+     Kolory to --paper i --amber ze strony; # musi być zapisane jako %23. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='10' fill='%23F7F5F1'/><text x='32' y='45' font-family='ui-monospace,monospace' font-size='30' font-weight='700' text-anchor='middle' fill='%2396590E'>DM</text></svg>">
+<meta name="theme-color" content="#F7F5F1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -504,6 +531,10 @@
   .reveal.in{opacity:1;transform:none}
 
   :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+  /* .feat ma overflow:hidden (kaseta z zaokrąglonym rogiem), więc pierścień fokusa
+     rysowany NA ZEWNĄTRZ zostaje odcięty i link do case study wygląda przy tabowaniu
+     na nieaktywny. Dla tego jednego elementu rysujemy go DO ŚRODKA. */
+  .feat-media:focus-visible{outline-offset:-4px}
 
   /* ---------- responsive ---------- */
   @media(max-width:860px){
@@ -537,7 +568,11 @@
     body{background:#fff}
     /* --text/--muted/--muted-2/--amber/--mint są już drukowalne na bieli
        (14.46 / 6.75 / 5.24 / 5.17 / 5.37 : 1). Nie ruszamy ich. */
-    body::before,#net,.console,.pulse,.pulse::after,.cta-row,.chips{display:none}
+    /* .chips ZOSTAJE. To jedyne miejsce na tej stronie, gdzie e-mail i telefon są
+       TEKSTEM — ukrycie ich razem z .cta-row dawało wydruk portfolio bez jednej
+       danej kontaktowej. .cta-row znika, bo powtarza te same dane wielkimi
+       przyciskami. .chip-dl (bursztyn na bieli) jest już obsłużony niżej. */
+    body::before,#net,.console,.pulse,.pulse::after,.cta-row{display:none}
     .panel,.id-card,.feat,.edu-card,.skill,.proj,.tilt{box-shadow:none!important}
     .tilt::after{display:none}
 
@@ -583,6 +618,12 @@
     .sec,.job,.edu-card,.skill,.panel,.feat,.hobby{break-inside:avoid;page-break-inside:avoid}
   }
 </style>
+<noscript>
+  <!-- .reveal startuje z opacity:0 i dostaje .in dopiero od IntersectionObservera.
+       Bez JS-a była to strona pusta — autor zabezpieczył ten przypadek przy druku
+       i przy prefers-reduced-motion, ale nie przy wyłączonym skrypcie. -->
+  <style>.reveal{opacity:1!important;transform:none!important}</style>
+</noscript>
 </head>
 <body>
 
@@ -613,7 +654,7 @@
       <div class="reveal">
         <span class="eyebrow" data-en="CS Student · AI &amp; Machine Learning">Student informatyki · SI i uczenie maszynowe</span>
         <h1>Dawid<span class="last">Majewski</span></h1>
-        <p class="thesis" data-en="I'm heading into <b>artificial intelligence and machine learning</b> — and I know IT from the ground up: helpdesk, networks and <b>ERP systems</b>.">Idę w stronę <b>sztucznej inteligencji i uczenia maszynowego</b> — a praktykę IT znam od podszewki: helpdesk, sieci i <b>systemy ERP</b>.</p>
+        <p class="thesis" data-en="I'm heading into <b>artificial intelligence and machine learning</b> . My IT experience comes from an internship in a manufacturing plant&rsquo;s IT department: helpdesk, networks and <b>ERP systems</b>.">Idę w stronę <b>sztucznej inteligencji i uczenia maszynowego</b> . Praktykę IT mam ze stażu w dziale IT zakładu produkcyjnego: helpdesk, sieci i <b>systemy ERP</b>.</p>
         <div class="chips">
           <a class="chip" href="mailto:dawid.majewski.it@gmail.com">
             <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
@@ -688,8 +729,8 @@
         </div>
         <div class="about reveal">
           <p class="lead" data-en="I study Computer Science at MSc level, specializing in <span class='amber'>artificial intelligence and machine learning</span>.">Studiuję informatykę na II stopniu, specjalność <span class="amber">sztuczna inteligencja i uczenie maszynowe</span>.</p>
-          <p data-en="I got my IT experience in the IT department of a manufacturing plant: <b>helpdesk, infrastructure, networks and ERP systems</b>. Alongside my studies I work in procurement and sales, where B2B platforms and supplier data are part of the daily routine.">Doświadczenie IT zbierałem w dziale IT zakładu produkcyjnego: <b>helpdesk, infrastruktura, sieci i systemy ERP</b>. Równolegle do studiów pracuję przy zaopatrzeniu i sprzedaży, gdzie platformy B2B i dane od dostawców to codzienność.</p>
-          <p data-en="In AI what interests me is the deployment side — the part after the training. In a university team project I was responsible for getting a YOLOv8 detector to run on a Raspberry Pi and for the recognition pipeline. After hours I solder and build hardware; the last thing I built from scratch was a bait boat.">W AI interesuje mnie strona wdrożeniowa — to, co dzieje się po treningu. W zespołowym projekcie na studiach odpowiadałem za uruchomienie detektora <b>YOLOv8 na Raspberry Pi</b> i za pipeline rozpoznawania. Po godzinach lutuję i buduję sprzęt — ostatnią rzeczą, którą złożyłem od zera, była łódź zanętowa.</p>
+          <p data-en="Alongside my studies I work in a small trading company, in procurement and sales.">Równolegle do studiów pracuję w kilkuosobowej firmie handlowej, przy zaopatrzeniu i sprzedaży.</p>
+          <p data-en="In AI what interests me is the deployment side — the part after the training. In a university team project I was responsible for getting a YOLOv8 detector to run on a Raspberry Pi and for the recognition pipeline.">W AI interesuje mnie strona wdrożeniowa — to, co dzieje się po treningu. W zespołowym projekcie na studiach odpowiadałem za uruchomienie detektora <b>YOLOv8 na Raspberry Pi</b> i za pipeline rozpoznawania.</p>
         </div>
 
         <!-- data-en tylko na liściach <span> w <figcaption>. Żaden przodek <img>
@@ -744,9 +785,9 @@
               <div class="co" data-en="FISHKA — Pet &amp; Fishing Store">FISHKA — Market Zoologiczno-Wędkarski</div>
               <ul>
                 <li data-en="Managing B2B purchasing platforms">Obsługa platform zakupowych B2B</li>
-                <li data-en="Managing logistics processes and inventory">Zarządzanie procesami logistycznymi i towarem</li>
-                <li data-en="Building and maintaining supplier relationships">Budowanie i utrzymywanie relacji z dostawcami</li>
-                <li data-en="Professional customer service">Profesjonalna obsługa klienta</li>
+                <li data-en="Ordering and stock — I decide what to order and when">Zamówienia i stany magazynowe — decyduję, co i kiedy zamówić</li>
+                <li data-en="Price lists and supplier data in Excel">Cenniki i dane od dostawców w Excelu</li>
+                <li data-en="Customer service and supplier contact">Obsługa klientów i kontakt z dostawcami</li>
               </ul>
             </div>
           </article>
@@ -791,9 +832,9 @@
               <span class="play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
             </a>
             <div class="feat-body">
-              <span class="feat-eyebrow"><span class="d"></span><span data-en="University · ML course · 2026">Studia · projekt z UM · 2026</span></span>
+              <span class="feat-eyebrow"><span class="d"></span><span data-en="University · team of 6 · ML course · 2026">Studia · projekt zespołowy (6 osób) · 2026</span></span>
               <h3 data-en="Playing-card recognition system">System rozpoznawania kart do gry</h3>
-              <p data-en="Real-time recognition of all 52 cards on a Raspberry Pi 4. A fine-tuned YOLOv8n model, a grayscale camera and a Polish voice assistant that reads each card aloud — all inference on-device, no cloud.">Rozpoznawanie 52 kart w czasie rzeczywistym na Raspberry Pi 4. Dostrojony model YOLOv8n, kamera w trybie mono i polski asystent głosowy, który odczytuje każdą kartę — cała inferencja lokalnie, bez chmury.</p>
+              <p data-en="Real-time recognition of all 52 cards on a Raspberry Pi 4. A fine-tuned YOLOv8n model, a grayscale camera and a Polish voice assistant that reads each card aloud — all inference on-device, no cloud. My area: the Raspberry Pi deployment and the recognition pipeline.">Rozpoznawanie 52 kart w czasie rzeczywistym na Raspberry Pi 4. Dostrojony model YOLOv8n, kamera w trybie mono i polski asystent głosowy, który odczytuje każdą kartę — cała inferencja lokalnie, bez chmury. Mój obszar: wdrożenie na Raspberry Pi i pipeline rozpoznawania.</p>
               <div class="feat-metrics">
                 <span class="fm"><b>52</b><span data-en="card classes">klasy kart</span></span>
                 <span class="fm"><b>0.789</b><span>mAP50-95</span></span>
@@ -866,7 +907,7 @@
           <div class="skill reveal">
             <span class="k"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></svg><span data-en="IT Infrastructure">Infrastruktura IT</span></span>
             <h3 data-en="Systems &amp; hardware">Systemy i sprzęt</h3>
-            <p data-en="Infrastructure maintenance, virtualization and hardware management in a production environment.">Utrzymanie infrastruktury, wirtualizacja i zarządzanie sprzętem w środowisku produkcyjnym.</p>
+            <p data-en="Workstation setup, hardware maintenance and virtualization — from my internship in a manufacturing plant&rsquo;s IT department.">Konfiguracja stanowisk, utrzymanie sprzętu i wirtualizacja — ze stażu w dziale IT zakładu produkcyjnego.</p>
             <div class="tags"><span data-en="Operating systems">Systemy operacyjne</span><span data-en="Virtualization">Wirtualizacja</span><span>Helpdesk</span></div>
           </div>
 
@@ -882,21 +923,21 @@
             <h3 data-en="AI &amp; machine learning">Sztuczna inteligencja i uczenie maszynowe</h3>
             <!-- BEZ deklaracji biegłości i BEZ powielania case study (sekcja 03 opisuje
                  projekt szczegółowo). Kafelek mówi: kierunek studiów + jak się uczę. -->
-            <p data-en="The specialization of my MSc — the area I'm growing into, and I'm still learning it. I do that hands-on: what interests me most is the moment a model stops being code in a notebook and starts running on real hardware.">Specjalizacja moich studiów II stopnia — obszar, w którym się rozwijam i którego wciąż się uczę. Uczę się go w praktyce: najbardziej interesuje mnie moment, w którym model przestaje być kodem w notatniku i zaczyna działać na realnym sprzęcie.</p>
+            <p data-en="The specialization of my MSc — the area I'm still learning.">Specjalizacja moich studiów II stopnia — obszar, którego się uczę.</p>
             <div class="tags"><span data-en="Machine learning">Uczenie maszynowe</span><span>YOLOv8</span></div>
           </div>
 
           <div class="skill reveal">
             <span class="k"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span data-en="Office tools">Narzędzia biurowe</span></span>
             <h3 data-en="Productivity suites">Pakiety produktywności</h3>
-            <p data-en="Fluent with office and cloud environments.">Biegła obsługa środowisk biurowych i chmurowych.</p>
+            <p data-en="I use Microsoft 365 and Google Workspace day to day.">Na co dzień pracuję w Microsoft 365 i Google Workspace.</p>
             <div class="tags"><span>Microsoft 365</span><span>Google Workspace</span></div>
           </div>
 
           <div class="skill reveal">
             <span class="k"><svg viewBox="0 0 24 24"><path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M15 11a3 3 0 1 0 0-6M3 20c0-3 2.5-5 6-5s6 2 6 5M15 15c3 0 6 2 6 5"/></svg><span data-en="Soft skills">Kompetencje miękkie</span></span>
             <h3 data-en="Way of working">Sposób pracy</h3>
-            <p data-en="Analytical approach and a problem-solving mindset within a team.">Analityczne podejście i nastawienie na rozwiązywanie problemów w zespole.</p>
+            <p data-en="A six-person team project at university, and daily contact with customers and suppliers at work.">Projekt zespołowy na studiach (6 osób) i codzienny kontakt z klientami oraz dostawcami w pracy.</p>
             <div class="tags"><span data-en="Analytics">Analityka</span><span>Problem-solving</span><span data-en="Teamwork">Praca zespołowa</span></div>
           </div>
 
@@ -932,19 +973,19 @@
           <div class="hobby reveal">
             <span class="k"><svg viewBox="0 0 24 24"><path d="M7.5 12c0-3.1 3.8-5.6 8-5.6 2.6 0 4.9 1 6.3 2.5-.9 1-1.4 2-1.4 3.1s.5 2.1 1.4 3.1c-1.4 1.5-3.7 2.5-6.3 2.5-4.2 0-8-2.5-8-5.6Z"/><path d="M7.5 12 2.5 8v8l5-4Z"/><path d="M17.5 10.6h.01"/></svg><span data-en="Fishing">Wędkarstwo</span></span>
             <h3 data-en="Patience and persistence">Cierpliwość i konsekwencja</h3>
-            <p data-en="Hours of analysis and preparation — the spot, the gear, the conditions — and many more hours of waiting. What wins here is the plan and sticking to it, not luck.">Godziny analizy i przygotowania — łowisko, sprzęt, warunki — i jeszcze więcej godzin czekania. Wygrywa plan i konsekwencja w dążeniu do celu, nie szczęście.</p>
+            <p data-en="Hours of analysis and preparation — the spot, the gear, the conditions — and many more hours of waiting.">Godziny analizy i przygotowania — łowisko, sprzęt, warunki — i jeszcze więcej godzin czekania.</p>
           </div>
 
           <div class="hobby reveal">
             <span class="k"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M10 8V5M14 8V5M10 19v-3M14 19v-3M8 10H5M8 14H5M19 10h-3M19 14h-3"/></svg><span data-en="Electronics &amp; hardware prototyping">Elektronika i prototypowanie</span></span>
             <h3 data-en="A bait boat, built from zero">Łódź zanętowa od zera</h3>
-            <p data-en="Soldering, circuits, wiring. The last one: my own bait boat — from the schematic, through the electronics and the drive, to the first launch. Same kind of work as the Raspberry Pi project, only without a grade at the end.">Lutowanie, układy, okablowanie. Ostatni projekt: własna łódź zanętowa — od schematu, przez elektronikę i napęd, po pierwsze wodowanie. Ten sam rodzaj pracy, co przy Raspberry Pi, tylko bez oceny na koniec.</p>
+            <p data-en="Soldering, circuits, wiring. The last one: my own bait boat — from the schematic, through the electronics and the drive, to the first launch.">Lutowanie, układy, okablowanie. Ostatni projekt: własna łódź zanętowa — od schematu, przez elektronikę i napęd, po pierwsze wodowanie.</p>
           </div>
 
           <div class="hobby reveal">
             <span class="k"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 13l-2 2 2 2M14 13l2 2-2 2"/></svg><span data-en="Web development">Tworzenie stron</span></span>
             <h3 data-en="Front-end without frameworks">Front-end bez frameworków</h3>
-            <p data-en="HTML, CSS and plain JavaScript. I learn the web the way I learn hardware — by building the thing, not by reading about it.">HTML, CSS i czysty JavaScript. Sieci uczę się tak samo jak sprzętu — budując rzecz, a nie czytając o niej.</p>
+            <p data-en="HTML, CSS and plain JavaScript, no frameworks — this site runs on it.">HTML, CSS i czysty JavaScript, bez frameworków — na tym stoi ta strona.</p>
           </div>
 
           <div class="hobby reveal">
@@ -960,7 +1001,7 @@
     <!-- KONTAKT -->
     <section class="sec contact" id="kontakt">
       <div class="wrap">
-        <span class="eyebrow reveal" data-en="Open to new challenges in IT">Otwarty na nowe wyzwania w IT</span>
+        <span class="eyebrow reveal" data-en="Looking for my first job in IT">Szukam pierwszej pracy w IT</span>
         <h2 class="reveal" data-en="Let's talk —<br><a class='big' href='mailto:dawid.majewski.it@gmail.com'>write to me</a>">Porozmawiajmy —<br><a class="big" href="mailto:dawid.majewski.it@gmail.com">napisz do mnie</a></h2>
         <div class="cta-row reveal">
           <a class="btn primary" href="mailto:dawid.majewski.it@gmail.com">
@@ -1036,9 +1077,27 @@
       cur=lang;
       try{localStorage.setItem('cv-lang',lang);}catch(e){}
     }
-    btn.addEventListener('click',function(){apply(cur==='en'?'pl':'en');});
+    // Kolejność źródeł języka: ?lang= w URL-u > localStorage > polski.
+    // URL musi być pierwszy I zapisywalny, inaczej angielskiej wersji nie da się
+    // nikomu wysłać ani zaindeksować — cały przekład siedzi w atrybutach data-en,
+    // a atrybuty nie są treścią, którą widzi wyszukiwarka.
+    function fromUrl(){
+      try{ return new URLSearchParams(location.search).get('lang'); }catch(e){ return null; }
+    }
+    function writeUrl(lang){
+      if(!window.history||!history.replaceState) return;
+      try{
+        var u=new URL(location.href);
+        if(lang==='en') u.searchParams.set('lang','en'); else u.searchParams.delete('lang');
+        history.replaceState(null,'',u.pathname+u.search+u.hash);
+      }catch(e){}
+    }
+    btn.addEventListener('click',function(){
+      var next=(cur==='en'?'pl':'en'); apply(next); writeUrl(next);
+    });
     var saved=null; try{saved=localStorage.getItem('cv-lang');}catch(e){}
-    apply(saved==='en'?'en':'pl');
+    var q=fromUrl();
+    apply(q==='en' ? 'en' : (q==='pl' ? 'pl' : (saved==='en'?'en':'pl')));
   })();
 
   // ---- live 3D network background (nodes = hosts, lines = links) ----
@@ -1142,6 +1201,9 @@
   // ---- live console clock ----
   (function(){
     var el=document.getElementById('clock');
+    // Bez tego guardu usunięcie zegara z markupu rzuca wyjątek, a że ten blok stoi
+    // PRZED blokiem .reveal — cała strona zostaje z opacity:0, czyli pusta.
+    if(!el) return;
     function tick(){
       var d=new Date();
       var p=function(n){return String(n).padStart(2,'0');};

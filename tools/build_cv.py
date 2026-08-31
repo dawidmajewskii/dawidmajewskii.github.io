@@ -49,7 +49,11 @@ BUILDS = [
         # every one of these must survive text extraction, diacritics intact
         "checks": ["Wyrażam zgodę", "Doświadczenie", "Umiejętności", "Wykształcenie",
                    "dawid.majewski.it@gmail.com", "607 250 449", "YOLOv8n", "Raspberry Pi",
-                   "ERP", "Python", "Merito", "art. 6 ust. 1 lit. a RODO"],
+                   "ERP", "Python", "Merito", "art. 6 ust. 1 lit. a RODO",
+                   # DATES — see the note on the EN build below. A CV whose roles have no
+                   # dates is worthless, and nothing else in this audit would notice.
+                   "2025 · staż", "2023–obecnie", "2026–obecnie", "2022–2026",
+                   "dawidmajewskiit.pl/karty"],
     },
     {
         "lang": "en",
@@ -61,9 +65,22 @@ BUILDS = [
         "keywords": ("Dawid Majewski, CV, resume, computer science, artificial intelligence, "
                      "machine learning, YOLOv8, Raspberry Pi, Python, SQL, Power BI, ERP, helpdesk, "
                      "IT infrastructure, LAN/WAN, Microsoft 365, junior IT"),
+        # THE DATES ARE HERE FOR A REASON — DO NOT DROP THEM.
+        # The EN build is produced by swapping innerHTML on every [data-en] node. A [data-en]
+        # element nested INSIDE another [data-en] element is destroyed before its own turn
+        # comes: the parent's innerHTML assignment removes it from the document, and the loop
+        # then writes to a node that is no longer attached. That is exactly what happened to
+        # <span class="when"> inside <div class="role" data-en="...">: every date and the case
+        # study URL silently vanished from the English PDF while the Polish one was fine, and
+        # this audit passed the whole time because it only checked for words. Fix applied in
+        # cv.html: data-en moved off .role onto its own inner <span>, so no [data-en] contains
+        # another. These checks are the regression test for that class of bug — if one of them
+        # ever prints MISS, look for a [data-en] that has swallowed a child.
         "checks": ["I consent to the processing", "Professional experience", "Education",
                    "dawid.majewski.it@gmail.com", "607 250 449", "YOLOv8n", "Raspberry Pi",
-                   "ERP", "Python", "Merito", "Article 6(1)(a) GDPR"],
+                   "ERP", "Python", "Merito", "Article 6(1)(a) GDPR",
+                   "2025 · internship", "2023–present", "2026–present", "2022–2026",
+                   "dawidmajewskiit.pl/karty"],
     },
 ]
 

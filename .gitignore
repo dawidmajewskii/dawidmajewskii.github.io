@@ -5,3 +5,20 @@ Img/CV_Dawid_Majewski*.pdf
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# CV pisane pod KONKRETNĄ ofertę nie mogą trafić do publicznego repo — reguła
+# powyżej łapała je tylko wewnątrz Img/, więc ten sam plik zapisany do korzenia
+# wchodził do commita. Odwracamy domyślność: żaden PDF ani plik cv-* nie wchodzi,
+# dopóki nie zostanie wpuszczony imiennie.
+*.pdf
+!CV/CV_Dawid_Majewski.pdf
+!CV/CV_Dawid_Majewski_EN.pdf
+cv-*.html
+list-*.html
+
+# oryginały zdjęć: portrait_prep.py czyta Img/Dawid_Majewski.jpg z DYSKU,
+# ale wersja 1,4 MB z EXIF-em nie ma czego szukać pod publicznym adresem
+Img/Dawid_Majewski.jpg
+
+# bajt w bajt duplikat hardware.jpg, nieuzywany przez zadna strone
+Img/Zdjęcie_Puszki.jpg

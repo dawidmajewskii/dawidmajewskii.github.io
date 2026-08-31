@@ -5,6 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>System rozpoznawania kart · Dawid Majewski</title>
 <meta name="description" content="Case study: rozpoznawanie kart do gry w czasie rzeczywistym na Raspberry Pi 4 — YOLOv8n, 52 klasy, audio PL. Projekt z Uczenia Maszynowego.">
+<link rel="canonical" href="https://dawidmajewskiit.pl/karty.html">
+<link rel="alternate" hreflang="pl" href="https://dawidmajewskiit.pl/karty.html">
+<link rel="alternate" hreflang="en" href="https://dawidmajewskiit.pl/karty.html?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://dawidmajewskiit.pl/karty.html">
+<!-- Case study jest tą podstroną, którą najczęściej wysyła się osobno — tu podgląd
+     linku waży jeszcze więcej niż na stronie głównej. Tytuł i opis przepisane
+     z <title>/<meta description>, żeby karta nie obiecywała nic ponad stronę. -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://dawidmajewskiit.pl/karty.html">
+<meta property="og:site_name" content="dawidmajewskiit.pl">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="System rozpoznawania kart · Dawid Majewski">
+<meta property="og:description" content="Case study: rozpoznawanie kart do gry w czasie rzeczywistym na Raspberry Pi 4 — YOLOv8n, 52 klasy, audio PL. Projekt z Uczenia Maszynowego.">
+<meta property="og:image" content="https://dawidmajewskiit.pl/Img/og-karty.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rozpoznawanie kart do gry na Raspberry Pi 4 — YOLOv8n, 52 klasy">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='10' fill='%23F7F5F1'/><text x='32' y='45' font-family='ui-monospace,monospace' font-size='30' font-weight='700' text-anchor='middle' fill='%2396590E'>DM</text></svg>">
+<meta name="theme-color" content="#F7F5F1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -543,6 +563,10 @@
       break-inside:avoid;page-break-inside:avoid}
   }
 </style>
+<noscript>
+  <!-- 58 elementów .reveal startuje z opacity:0. Bez JS-a case study był pustą stroną. -->
+  <style>.reveal{opacity:1!important;transform:none!important}</style>
+</noscript>
 </head>
 <body>
 
@@ -612,8 +636,8 @@
                  niezależnie od tego, co faktycznie działo się w kadrze. Prawdziwe wyniki
                  modelu są w sekcji „Wyniki" — tam są zmierzone, a nie narysowane. -->
             <video src="./Img/raspberry-cards-v2.mp4" poster="./Img/hardware.jpg"
-                   aria-label="Nagranie działającego systemu rozpoznawania kart na Raspberry Pi 4"
-                   autoplay muted loop playsinline preload="metadata" controls></video>
+                   aria-label="Nagranie działającego systemu rozpoznawania kart na Raspberry Pi 4" data-en-aria="Recording of the card recognition system running on a Raspberry Pi 4"
+                   muted loop playsinline preload="none" controls></video>
           </div>
           <!-- Adnotacja MUSI stać POZA .hud: wewnątrz obowiązuje zakres tokenów ciemnej
                wyspy (jasny tekst), a .hud ma overflow:hidden — tekst by zniknął. -->
@@ -647,7 +671,7 @@
         </div>
         <div class="ov-grid">
           <div class="prose reveal">
-            <p data-en="A six-person team project for the <b>Machine Learning</b> course (Master's programme, summer 2026). The brief was open; we chose the hardest, most tangible option: <b>recognise playing cards in real time and deploy it to an embedded device</b> — not a notebook, a physical box you can hold.">Projekt zespołowy (6 osób) na przedmiot <b>Uczenie Maszynowe</b> (studia magisterskie, semestr letni 2026). Temat był dowolny — wybraliśmy najbardziej namacalny: <b>rozpoznawać karty do gry w czasie rzeczywistym i wdrożyć to na urządzenie embedded</b> — nie w notebooku, tylko w fizycznym pudełku, które trzymasz w ręku.</p>
+            <p data-en="A six-person team project for the <b>Machine Learning</b> course (Master's programme, summer 2026). The brief was open; we chose the most tangible option: <b>recognise playing cards in real time and deploy it to an embedded device</b> — not a notebook, a physical box you can hold.">Projekt zespołowy (6 osób) na przedmiot <b>Uczenie Maszynowe</b> (studia magisterskie, semestr letni 2026). Temat był dowolny — wybraliśmy najbardziej namacalny: <b>rozpoznawać karty do gry w czasie rzeczywistym i wdrożyć to na urządzenie embedded</b> — nie w notebooku, tylko w fizycznym pudełku, które trzymasz w ręku.</p>
             <p data-en="Everything runs locally on the Pi: the camera captures a frame, a fine-tuned YOLOv8n model detects the card, a state machine decides when it is sure, and a Polish voice announces it while a tiny OLED shows the rank, suit and confidence. No cloud, no internet needed at runtime.">Wszystko dzieje się lokalnie na Pi: kamera łapie klatkę, dostrojony model YOLOv8n wykrywa kartę, maszyna stanów decyduje, kiedy jest pewna, a polski głos ją ogłasza — równolegle mały wyświetlacz OLED pokazuje figurę, kolor i pewność. Bez chmury, bez internetu w trakcie działania.</p>
             <p data-en="My focus in the team spanned the deployment path on the Raspberry Pi and the recognition pipeline — getting the trained model to behave the same on real, physical cards as it did on the validation set.">Mój obszar w zespole obejmował ścieżkę wdrożenia na Raspberry Pi oraz pipeline rozpoznawania — doprowadzenie modelu do tego, by na prawdziwych, fizycznych kartach zachowywał się tak samo dobrze jak na zbiorze walidacyjnym.</p>
           </div>
@@ -677,11 +701,11 @@
         </div>
         <div class="hw-grid">
           <div class="reveal">
-            <div class="hud wide" aria-label="Wnętrze urządzenia — Raspberry Pi, głośnik i akumulator w obudowie">
+            <div class="hud wide" aria-label="Wnętrze urządzenia — Raspberry Pi, głośnik i akumulator w obudowie" data-en-aria="Inside the device — Raspberry Pi, speaker and battery in the enclosure">
               <span class="corner tl"></span><span class="corner tr"></span>
               <span class="corner bl"></span><span class="corner br"></span>
               <span class="hud-tag spec" data-en="the build">montaż</span>
-              <img src="Img/hardware.jpg" alt="Wnętrze urządzenia: Raspberry Pi z okablowaniem, głośnik i akumulator LiPo w białej obudowie">
+              <img src="Img/hardware.jpg" alt="Wnętrze urządzenia: Raspberry Pi z okablowaniem, głośnik i akumulator LiPo w białej obudowie" data-en-alt="Inside the device: a Raspberry Pi with wiring, a speaker and a LiPo battery in a white enclosure">
             </div>
             <div class="callout">
               <div class="t" data-en="Engineering decision · grayscale mode">Decyzja inżynierska · tryb gray</div>
@@ -831,7 +855,7 @@
             <span class="cs" data-en="single metric · higher is better">jedna metryka · wyżej = lepiej</span>
           </div>
           <div class="chart">
-            <svg viewBox="0 0 720 320" role="img" aria-label="Wykres mAP50-95: wzrost z 0.356 do 0.770 w treningu v1, spadek do 0.635 na starcie fine-tuningu i wzrost do 0.789 w v2">
+            <svg viewBox="0 0 720 320" role="img" aria-label="Wykres mAP50-95: wzrost z 0.356 do 0.770 w treningu v1, spadek do 0.635 na starcie fine-tuningu i wzrost do 0.789 w v2" data-en-aria="mAP50-95 chart: rising from 0.356 to 0.770 in v1 training, dropping to 0.635 at the start of fine-tuning and rising to 0.789 in v2">
               <!-- fine-tune phase band -->
               <rect class="phaseband" x="520.8" y="40" width="169.2" height="230"></rect>
               <!-- gridlines + y labels -->
@@ -884,7 +908,7 @@
           <p class="prose" style="font-size:.86rem;color:var(--muted-2);margin-top:.6rem;max-width:none" data-en="The dip at epoch 41 is the aggressive colour augmentation kicking in during fine-tuning — the model briefly gets &ldquo;confused&rdquo; on the harder examples, then recovers past its previous best.">Spadek na epoce 41 to moment włączenia agresywnej augmentacji kolorów w fine-tuningu — model na chwilę „głupieje” na trudniejszych przykładach, po czym przebija swój poprzedni rekord.</p>
         </div>
 
-        <h3 style="font-family:var(--display);font-weight:600;font-size:1.3rem;margin:2.4rem 0 .3rem" class="reveal" data-en="A story worth telling: domain shift">Historia warta opowiedzenia: domain shift</h3>
+        <h3 style="font-family:var(--display);font-weight:600;font-size:1.3rem;margin:2.4rem 0 .3rem" class="reveal" data-en="Domain shift: the training deck vs. the cards we bought">Domain shift: talia treningowa a karty, które kupiliśmy</h3>
         <p class="prose reveal" style="margin-bottom:.4rem" data-en="The v1 model scored beautifully on the validation set — but on the <b>physical cards we actually bought</b>, red cards were only recognised with 30–50% confidence and often mixed up. The training deck simply had a narrower range of reds than reality. Instead of collecting a new dataset, we fine-tuned with <b>3× stronger hue augmentation</b> so the model would learn &ldquo;a King is a King regardless of the exact shade of red.&rdquo;">Model v1 miał świetne metryki na zbiorze walidacyjnym — ale na <b>fizycznych kartach, które faktycznie kupiliśmy</b>, czerwone karty rozpoznawane były z pewnością tylko 30–50% i często myliły się między sobą. Talia treningowa miała po prostu węższy zakres czerwieni niż rzeczywistość. Zamiast zbierać nowy zbiór, zrobiliśmy fine-tuning z <b>3× mocniejszą augmentacją odcienia</b>, by model nauczył się, że „Król to Król niezależnie od dokładnego odcienia czerwonego”.</p>
 
         <div class="ba">
@@ -1051,7 +1075,7 @@
     <!-- CLOSE -->
     <section class="close wrap">
       <span class="eyebrow reveal" style="justify-content:center" data-en="From dataset to a talking box">Od zbioru danych do gadającego pudełka</span>
-      <h2 class="reveal" data-en="An end-to-end ML system,<br>not a notebook.">Kompletny system ML,<br>a nie notebook.</h2>
+      <h2 class="reveal" data-en="Model, hardware and deployment —<br>a six-person team project.">Model, sprzęt i wdrożenie —<br>projekt zespołowy, 6 osób.</h2>
       <div class="cta-row reveal">
         <a class="btn ghost" href="./index.html">
           <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>
@@ -1080,13 +1104,21 @@
 <script>
   var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ---- respect reduced motion: don't auto-play the looping video (controls remain, so it stays playable) ----
+  // ---- autoodtwarzanie demo: tylko na szerokim ekranie ----
+  // Plik ma 14,8 MB (1920x1080, 67 s). Z atrybutem autoplay podpowiedź preload jest
+  // MARTWA — specyfikacja mówi wprost, że autoplay ją unieważnia, bo materiał i tak
+  // musi się buforować, a `loop` konsumuje go w kółko. Efekt: telefon pobierał
+  // kilkanaście megabajtów, zanim ktokolwiek przeczytał pierwsze zdanie case study,
+  // z kadru widząc i tak ~42% szerokości klatki.
+  // Dlatego: w markupie preload="none" i zero autoplay, a ruch w hero włączamy
+  // dopiero tam, gdzie jest i szerokość, i zwykle łącze — desktop bez reduced-motion.
+  // Na telefonie zostaje plakat, tag „LIVE · Pi 4" i przycisk odtwarzania.
   (function(){
-    if(!REDUCE) return;
-    document.querySelectorAll('video[autoplay]').forEach(function(v){
-      v.removeAttribute('autoplay');
-      try{ v.pause(); }catch(e){}
-    });
+    var v = document.querySelector('.hud video'); if(!v) return;
+    if(REDUCE) return;
+    if(!window.matchMedia('(min-width: 880px)').matches) return;
+    v.preload = 'auto';
+    var p = v.play(); if(p && p.catch) p.catch(function(){});
   })();
 
   // ---- sound toggle: autoplay must be muted, so let the visitor turn audio on and hear the narrated demo ----
@@ -1117,15 +1149,42 @@
       els.forEach(function(el,i){
         el.innerHTML = (lang==='en') ? el.getAttribute('data-en') : pl[i];
       });
+      // Atrybutów nie da się podmienić przez innerHTML — osobne przejścia.
+      // Bez nich strona deklarowała lang="en", a czytnik ekranu dostawał polskie
+      // opisy zdjęcia, wideo i wykresu.
+      document.querySelectorAll('[data-en-alt]').forEach(function(el){
+        if(el.getAttribute('data-pl-alt')===null) el.setAttribute('data-pl-alt', el.getAttribute('alt')||'');
+        el.setAttribute('alt', (lang==='en') ? el.getAttribute('data-en-alt') : el.getAttribute('data-pl-alt'));
+      });
+      document.querySelectorAll('[data-en-aria]').forEach(function(el){
+        if(el.getAttribute('data-pl-aria')===null) el.setAttribute('data-pl-aria', el.getAttribute('aria-label')||'');
+        el.setAttribute('aria-label', (lang==='en') ? el.getAttribute('data-en-aria') : el.getAttribute('data-pl-aria'));
+      });
       document.documentElement.lang = lang;
       btn.querySelector('[data-role=pl]').classList.toggle('active', lang==='pl');
       btn.querySelector('[data-role=en]').classList.toggle('active', lang==='en');
       cur = lang;
       try{ localStorage.setItem('cv-lang', lang); }catch(e){}
     }
-    btn.addEventListener('click', function(){ apply(cur==='en'?'pl':'en'); });
+    // ?lang= w URL-u ma pierwszeństwo przed localStorage — dopiero to daje
+    // angielskiej wersji własny adres, który da się wysłać i zaindeksować.
+    function fromUrl(){
+      try{ return new URLSearchParams(location.search).get('lang'); }catch(e){ return null; }
+    }
+    function writeUrl(lang){
+      if(!window.history||!history.replaceState) return;
+      try{
+        var u=new URL(location.href);
+        if(lang==='en') u.searchParams.set('lang','en'); else u.searchParams.delete('lang');
+        history.replaceState(null,'',u.pathname+u.search+u.hash);
+      }catch(e){}
+    }
+    btn.addEventListener('click', function(){
+      var next=(cur==='en'?'pl':'en'); apply(next); writeUrl(next);
+    });
     var saved=null; try{ saved=localStorage.getItem('cv-lang'); }catch(e){}
-    apply(saved==='en'?'en':'pl');
+    var q=fromUrl();
+    apply(q==='en' ? 'en' : (q==='pl' ? 'pl' : (saved==='en'?'en':'pl')));
   })();
 
   // ---- scroll reveal ----

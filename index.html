@@ -37,42 +37,33 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* ---------- POWIERZCHNIE: papier techniczny, nie biel ---------- */
-    --ink:#F7F5F1;          /* strona. NIE #FFF — czysta biel męczy oczy       */
-    --panel:#FDFCFA;        /* karta/panel — o włos JAŚNIEJSZY od papieru      */
-    --panel-2:#F1EDE5;      /* wgłębienie: .skill, pasek statusu               */
-    --mat:#E6DFD3;          /* passe-partout pod portretem — JEDYNY element
-                               ciemniejszy od papieru (1.22:1)                 */
-
-    /* ---------- LINIE (ciemne — stare jasnomiętowe znikają na bieli) ------- */
-    --line:rgba(22,37,43,.10);        /* hairline + siatka 64px                */
-    --line-strong:rgba(22,37,43,.20); /* obramowania kart                      */
-    --sep:#566A6E;          /* --line-strong był NADUŻYWANY jako kolor TEKSTU
-                               w .extra .sep („/"). Rozdzielone.               */
-
-    /* ---------- TUSZ ---------- */
-    --text:#16252B;         /* 14.46:1 na papierze                             */
-    --muted:#47595E;        /*  6.75:1 — proza, .thesis, .about, .job li       */
-    --muted-2:#566A6E;      /*  5.24:1 — najmniejszy mono nadal zdaje AA       */
-
-    /* ---------- AKCENTY ---------- */
-    --amber:#96590E;        /* TEKST (5.17:1) *i* WYPEŁNIENIE (z bielą 5.63:1).
-                               Stary #F0A63C dawał na papierze 1.89:1.         */
-    --amber-hover:#7A4809;  /* hover CIEMNIEJE, nie jaśnieje (z bielą 7.61:1)  */
-    --amber-line:#B0770D;   /* WYŁĄCZNIE grafika >=2px: 3.51:1. NIGDY tekst.   */
-    --amber-soft:rgba(240,166,60,.14);/* wash -> #F6EAD8; --amber na nim 4.74:1*/
-    --mint:#0E7351;         /* status jako TEKST. 5.37:1                       */
-    --mint-line:#12916B;    /* kropki/paski/pulse. 3.65:1                      */
-    --mint-soft:rgba(18,145,107,.12);
-
-    /* ---------- CIENIE: papier, nie brud. Nigdy rgba(0,0,0,...) ----------- */
-    --sh-1:0 1px 2px rgba(22,37,43,.05),0 10px 26px -18px rgba(22,37,43,.18);
-    --sh-2:0 2px 6px rgba(22,37,43,.06),0 22px 46px -26px rgba(22,37,43,.26);
+    /* Neutralne powierzchnie i stonowany bursztynowy akcent. */
+    --ink:#F5F6F8;
+    --panel:#FFFFFF;
+    --panel-2:#F0F2F5;
+    --mat:#FFFFFF;
+    --line:#E2E6EB;
+    --line-strong:#D5DBE3;
+    --sep:#5C6873;
+    --text:#202A32;
+    --muted:#52606C;
+    --muted-2:#5C6873;
+    --amber:#966019;
+    --amber-hover:#774A11;
+    --amber-line:#966019;
+    --amber-soft:rgba(150,96,25,.08);
+    --mint:#0E7351;
+    --mint-line:#12916B;
+    --mint-soft:rgba(18,145,107,.08);
+    --radius-lg:18px;
+    --radius-sm:10px;
+    --sh-1:0 2px 5px rgba(32,42,50,.025),0 8px 24px rgba(32,42,50,.045);
+    --sh-2:0 4px 10px rgba(32,42,50,.04),0 12px 30px rgba(32,42,50,.06);
 
     --display:"Bricolage Grotesque",system-ui,sans-serif;
     --body:"IBM Plex Sans",system-ui,sans-serif;
     --mono:"IBM Plex Mono",ui-monospace,monospace;
-    --maxw:1080px;
+    --maxw:1200px;
   }
 
   /* ===== WYSPA CIEMNA: chrom nad materiałem, nie nad stroną =====
@@ -102,63 +93,31 @@
     -webkit-font-smoothing:antialiased;
     overflow-x:hidden;
   }
-  body::before{
-    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-    background-image:
-      linear-gradient(var(--line) 1px,transparent 1px),
-      linear-gradient(90deg,var(--line) 1px,transparent 1px);
-    background-size:64px 64px;
-    -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 0%,transparent 70%);
-    mask-image:radial-gradient(120% 90% at 50% 0%,#000 0%,transparent 70%);
-    /* #000 powyżej to STOP MASKI ALFA, nie widzialny kolor — nie zamieniać.
-       Siatka rysuje się przez var(--line): ciemny tusz przy 10% alfy potrzebuje
-       podbicia, inaczej znika i ginie cały „inżynierski" charakter strony. */
-    opacity:.55;
-  }
-  #net{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6}
   a{color:inherit;text-decoration:none}
-  ::selection{background:var(--amber);color:#fff}   /* #111 na nowym bursztynie = 3.36:1 */
+  ::selection{background:var(--amber);color:#fff}
 
-  /* ---------- console top bar ---------- */
+  /* ---------- nawigacja ---------- */
   .console{
-    position:sticky;top:0;z-index:50;
-    display:flex;align-items:center;gap:1.25rem;
-    padding:.55rem clamp(1rem,4vw,2.5rem);
-    font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;
-    color:var(--muted);
-    background:rgba(247,245,241,.92);   /* prawie nieprzezroczysty: jasny pasek nad
-                                          ciemną wyspą przy .82 by się rozmył */
-    backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line-strong);   /* jasny pasek na jasnym tle
-                                                     traci krawędź — musi ją nieść border */
+    position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:1.5rem;
+    padding:.9rem clamp(1rem,4vw,3rem);background:var(--panel);
+    border-bottom:1px solid var(--line);color:var(--muted);font-size:.92rem;
   }
-  .console .brand{color:var(--text);font-weight:600;letter-spacing:.02em}
-  .console .dot{color:var(--mint)}
-  .console nav{margin-left:auto;display:flex;gap:1.4rem}
-  .console nav a{position:relative;transition:color .2s}
+  .console .brand{font-size:1.2rem;font-weight:600;white-space:nowrap;color:var(--text)}
+  .console .brand span{color:var(--amber);padding:0 .25rem}
+  .console nav{margin-left:auto;display:flex;gap:clamp(.8rem,1.5vw,1.5rem)}
+  .console nav a{white-space:nowrap;transition:color .2s}
   .console nav a:hover,.console nav a:focus-visible{color:var(--amber)}
   .lang-toggle{
-    font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;
-    background:none;border:1px solid var(--line-strong);color:var(--muted-2);
-    padding:.32rem .5rem;border-radius:3px;cursor:pointer;
-    display:inline-flex;gap:.35rem;align-items:center;transition:border-color .2s;
+    font:inherit;flex-shrink:0;background:var(--panel);border:1px solid var(--line-strong);
+    color:var(--muted);padding:.45rem .65rem;border-radius:var(--radius-sm);cursor:pointer;
+    display:inline-flex;gap:.35rem;align-items:center;min-height:44px;
   }
-  .lang-toggle:hover,.lang-toggle:focus-visible{border-color:var(--amber)}
   .lang-toggle .active{color:var(--amber);font-weight:600}
-  .console .clock{color:var(--muted-2);min-width:6.5ch;text-align:right}
-  /* Siódma pozycja („Zainteresowania") przestała się mieścić: pasek łamał się na dwie
-     linie i wypychał stronę w poziomie. Zamiast chować NAWIGACJĘ (najcenniejszą rzecz
-     w tym pasku) już na laptopach, najpierw znikają rzeczy dekoracyjne — zegar i status.
-     Kolejność poświęcania: zegar -> „SYSTEM ONLINE" -> dopiero na końcu linki. */
-  @media(max-width:1280px){
-    .console .clock{display:none}
-  }
-  @media(max-width:1150px){
-    .console .status,.console .dot{display:none}
-  }
-  @media(max-width:1000px){
-    .console nav{display:none}
+  @media(max-width:1100px){
+    .console{flex-wrap:wrap;gap:.6rem 1rem;padding:.65rem 1.25rem}
     .lang-toggle{margin-left:auto}
+    .console nav{order:3;flex-basis:100%;margin:0;overflow-x:auto;gap:1.3rem;padding:.3rem 0}
+    .console nav a{padding:.35rem 0}
   }
 
   /* ---------- layout shell ---------- */
@@ -193,7 +152,7 @@
   .chip{
     font-family:var(--mono);font-size:.8rem;
     display:inline-flex;align-items:center;gap:.5rem;
-    padding:.5rem .85rem;border:1px solid var(--line-strong);border-radius:2px;
+    padding:.5rem .85rem;border:1px solid var(--line-strong);border-radius:var(--radius-sm);
     color:var(--text);transition:border-color .2s,color .2s,background .2s;
   }
   .chip svg{width:14px;height:14px;stroke:var(--amber);fill:none;stroke-width:1.6}
@@ -209,10 +168,8 @@
 
   /* status panel */
   .panel{
-    border:1px solid var(--line-strong);border-radius:4px;
-    background:var(--panel);   /* NIEPRZEZROCZYSTY: półprzezroczysta karta nad
-                                  przerysowanym grafitowym canvasem pozwoliłaby
-                                  ruchomej siatce pełzać pod tekstem */
+    border:1px solid var(--line-strong);border-radius:var(--radius-lg);
+    background:var(--panel);
     overflow:hidden;
     box-shadow:var(--sh-1);
   }
@@ -223,10 +180,7 @@
   }
   .panel-head .live{display:inline-flex;align-items:center;gap:.45rem;color:var(--mint)}
   .pulse{width:8px;height:8px;border-radius:50%;background:var(--mint-line);position:relative}
-  .pulse::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:var(--mint-line);opacity:.35;animation:pulse 2s ease-out infinite}
-  @keyframes pulse{0%{transform:scale(.6);opacity:.5}100%{transform:scale(2.4);opacity:0}}
-  /* auto 1fr auto = indeks, nazwa, tag. Środkowa kolumna (dawne .bars — paski
-     poziomu) zniknęła razem z nimi: patrz komentarz przy panelu w <body>. */
+
   .mod{
     display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.9rem;
     padding:.72rem .95rem;border-bottom:1px solid var(--line);
@@ -254,10 +208,7 @@
   .about .lead{font-size:clamp(1.25rem,2.2vw,1.6rem);line-height:1.4;color:var(--text);margin-bottom:1.4rem;font-weight:500}
   .about .lead .amber{color:var(--amber)}
 
-  /* ---------- portret / karta ID (sekcja 01) ---------- */
-  /* Świadomie NIE nazwane .panel/.edu-card/.skill/.proj — to cztery selektory,
-     które łapie skrypt tilt (na dole pliku), a .tilt::after to biały radialny
-     rozbłysk na z-index 5, który przy każdym hoverze przejechałby po twarzy. */
+  /* ---------- portret ---------- */
   .about-grid{
     display:grid;grid-template-columns:minmax(0,1fr) 300px;
     column-gap:clamp(2rem,5vw,3.5rem);
@@ -270,7 +221,7 @@
   .about-grid .sec-head{grid-column:1/-1}
 
   .id-card{
-    margin:0;border:1px solid var(--line-strong);border-radius:4px;overflow:hidden;
+    margin:0;border:1px solid var(--line-strong);border-radius:var(--radius-lg);overflow:hidden;
     background:var(--panel);
     box-shadow:var(--sh-1);
     transition:border-color .25s ease,box-shadow .25s ease;
@@ -280,61 +231,10 @@
     box-shadow:var(--sh-2);            /* poświata bursztynowa USUNIĘTA */
   }
 
-  /* PASSE-PARTOUT.
-     Zdjęcie ma z powrotem ORYGINALNE, BIAŁE tło studyjne (pliki są nieprzezroczyste).
-     ZMIERZONE: górna/lewa/prawa krawędź zdjęcia = #FDFDFD, papier = #F7F5F1 -> 1.07:1.
-     Bez oprawy głowa PŁYWA — granicy trzeba NARYSOWAĆ, tonalnie jej nie ma.
-     Mata jest CIEMNIEJSZA od papieru (1.22:1) i od zdjęcia (1.30:1) — jako jedyny
-     element na stronie. Dzięki temu zdjęcie czyta się jako WPUSZCZONE w kartę,
-     a nie naklejone, a biel odzyskuje sens: to oświetlone tło studyjne na podkładzie. */
-  .id-frame{
-    position:relative;overflow:hidden;
-    padding:12px;                      /* bez paddingu mata nie istnieje */
-    background:var(--mat);
-  }
-  .id-frame picture{display:block;position:relative;z-index:1}
-  .id-frame img{display:block;width:100%;height:auto;aspect-ratio:3/4;
-    position:relative;z-index:1;border-radius:2px}
+  .id-frame{position:relative;overflow:hidden;background:var(--panel)}
+  .id-frame picture{display:block}
+  .id-frame img{display:block;width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
 
-  /* Pierścień + winieta NA fotografii.
-     MUSI być na ::after, a NIE box-shadow:inset na <img>: dla elementu ZASTĄPIONEGO
-     piksele obrazu malują się NAD tłem i cieniem wewnętrznym, więc inset na <img>
-     byłby zasłonięty. Element abs. pozycjonowany liczy offset od PADDING-BOXa,
-     więc inset:12px trafia dokładnie w krawędź zdjęcia.
-     Pierścień 1px = NOŚNY: to jest krawędź kadru i to on legitymizuje dwa twarde
-     cięcia, w których ramiona wychodzą poza kadr (75,4% / 83,2% wysokości).
-     DÓŁ jest inny niż reszta: koszula (zmierzone rgb ~200,219,246) dochodzi do OBU
-     dolnych rogów, więc dolna winieta + wypełniony pasek statusu dają jej PODŁOGĘ.
-     Twarz (broda na 61,9%) nie jest dotykana — rozmycia są ujemne i płytkie. */
-  .id-frame::after{
-    content:"";position:absolute;inset:12px;z-index:2;pointer-events:none;border-radius:2px;
-    box-shadow:
-      inset 0 0 0 1px rgba(22,37,43,.20),          /* KRAWĘDŹ KADRU — nie usuwać */
-      inset 0 14px 24px -20px rgba(22,37,43,.26),  /* góra: osadza biel w macie */
-      inset 0 -18px 30px -22px rgba(22,37,43,.24); /* dół: gasi rozpływanie koszuli */
-  }
-
-  /* Znaczniki pasera. --amber #96590E: 4.25:1 na macie, 5.53:1 na bieli zdjęcia.
-     Stary #F0A63C dawał na zdjęciu 2.02:1 — zniknąłby dokładnie tam, gdzie jest
-     najważniejszy. Offset 6px: ramię 20px przecina 12px maty i wchodzi w zdjęcie,
-     spinając odbitkę z podkładem. */
-  .id-frame .corner{position:absolute;width:20px;height:20px;
-    border:2px solid var(--amber);z-index:3;pointer-events:none}
-  .id-frame .corner.tl{top:6px;left:6px;border-right:0;border-bottom:0}
-  .id-frame .corner.tr{top:6px;right:6px;border-left:0;border-bottom:0}
-  .id-frame .corner.bl{bottom:6px;left:6px;border-right:0;border-top:0}
-  .id-frame .corner.br{bottom:6px;right:6px;border-left:0;border-top:0}
-
-  /* PODŁOGA KARTY: wypełniony pasek + mocniejsza linia górna. */
-  .id-status{
-    display:flex;align-items:center;justify-content:space-between;gap:.9rem;
-    padding:.7rem .95rem;border-top:1px solid var(--line-strong);
-    background:var(--panel-2);
-    font-family:var(--mono);font-size:.68rem;
-  }
-  .id-status .k{letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .id-status .v{display:inline-flex;align-items:center;gap:.45rem;color:var(--mint);white-space:nowrap}
-  .id-status .pulse{flex:0 0 8px}   /* .pulse to element flex 8px bez basis — inaczej spłaszcza się w elipsę */
 
   /* experience timeline */
   .timeline{display:flex;flex-direction:column;gap:0}
@@ -359,7 +259,7 @@
   /* education */
   .edu{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
   .edu-card{
-    border:1px solid var(--line-strong);border-radius:4px;padding:1.5rem;
+    border:1px solid var(--line-strong);border-radius:var(--radius-lg);padding:1.5rem;
     background:var(--panel);transition:border-color .25s,transform .25s;
   }
   .edu-card .yr{font-family:var(--mono);font-size:.74rem;color:var(--amber);letter-spacing:.08em}
@@ -375,16 +275,16 @@
     display:flex;align-items:center;gap:.9rem;margin-bottom:1.2rem}
   .grp-label::after{content:"";flex:1;height:1px;background:var(--line)}
   .proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem}
-  .proj{position:relative;border:1px solid var(--line-strong);border-radius:4px;padding:1.5rem;
-    background:var(--panel);   /* NIEPRZEZROCZYSTY — .proj jest celem .tilt i leży nad canvasem */
+  .proj{position:relative;border:1px solid var(--line-strong);border-radius:var(--radius-lg);padding:1.5rem;
+    background:var(--panel);
     display:flex;flex-direction:column}
   .proj h3{font-family:var(--display);font-weight:600;font-size:1.2rem;letter-spacing:-.01em;margin:.9rem 0 .5rem;padding-right:5.5rem}
   .proj p{color:var(--muted);font-size:.94rem;flex:1}
   .pstatus{position:absolute;top:1.5rem;right:1.5rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
-    padding:.28rem .55rem;border-radius:2px;border:1px solid var(--line-strong);color:var(--muted-2)}
+    padding:.28rem .55rem;border-radius:var(--radius-sm);border:1px solid var(--line-strong);color:var(--muted-2)}
   .pstatus.live{color:var(--mint);border-color:var(--mint-line);background:var(--mint-soft)}
   .ptags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.1rem}
-  .ptags span{font-family:var(--mono);font-size:.72rem;padding:.28rem .55rem;border:1px solid var(--line-strong);border-radius:2px;color:var(--muted)}
+  .ptags span{font-family:var(--mono);font-size:.72rem;padding:.28rem .55rem;border:1px solid var(--line-strong);border-radius:var(--radius-sm);color:var(--muted)}
   .plink{font-family:var(--mono);font-size:.78rem;color:var(--amber);margin-top:1.1rem;align-self:flex-start;
     border-bottom:1px solid transparent;transition:border-color .2s}
   .plink:hover,.plink:focus-visible{border-color:var(--amber)}
@@ -392,7 +292,7 @@
   /* featured project (flagship) */
   .feat{
     display:grid;grid-template-columns:.92fr 1.08fr;gap:0;
-    border:1px solid var(--line-strong);border-radius:6px;overflow:hidden;
+    border:1px solid var(--line-strong);border-radius:var(--radius-lg);overflow:hidden;
     background:var(--panel);
     box-shadow:var(--sh-1);
   }
@@ -413,10 +313,9 @@
   .feat-media .corner.br{bottom:12px;right:12px;border-left:0;border-top:0}
   .feat-media .rec{position:absolute;top:16px;left:16px;z-index:4;font-family:var(--mono);font-size:.62rem;
     letter-spacing:.12em;text-transform:uppercase;color:var(--amber);background:rgba(6,20,26,.72);
-    border:1px solid var(--line);border-radius:3px;padding:.28rem .5rem;backdrop-filter:blur(4px)}
+    border:1px solid var(--line);border-radius:var(--radius-sm);padding:.28rem .5rem;backdrop-filter:blur(4px)}
   .feat-media .rec::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
-    background:var(--amber);margin-right:.4rem;vertical-align:middle;animation:blink 1.4s steps(2) infinite}
-  @keyframes blink{50%{opacity:.3}}
+    background:var(--amber);margin-right:.4rem;vertical-align:middle;}
   .feat-media .play{position:absolute;inset:0;display:grid;place-items:center;z-index:4;pointer-events:none}
   .feat-media .play span{width:56px;height:56px;border-radius:50%;background:rgba(6,20,26,.5);
     border:1px solid var(--line-strong);display:grid;place-items:center;backdrop-filter:blur(4px);
@@ -442,7 +341,7 @@
   .feat-body .ptags{margin-top:1.1rem}
   .feat-cta{margin-top:auto;padding-top:1.35rem}
   .btn-case{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:.82rem;
-    background:var(--amber);color:#fff;font-weight:600;padding:.72rem 1.2rem;border-radius:3px;transition:all .2s}
+    background:var(--amber);color:#fff;font-weight:600;padding:.72rem 1.2rem;border-radius:var(--radius-sm);transition:all .2s}
   .btn-case:hover,.btn-case:focus-visible{background:var(--amber-hover);transform:translateY(-2px)}
   .btn-case svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
   @media(max-width:760px){
@@ -453,7 +352,7 @@
   /* skills */
   .skills{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
   .skill{
-    border:1px solid var(--line);border-radius:4px;padding:1.4rem;background:var(--panel-2);
+    border:1px solid var(--line);border-radius:var(--radius-lg);padding:1.4rem;background:var(--panel-2);
     transition:border-color .25s,background .25s;
   }
   .skill .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:.5rem}
@@ -461,7 +360,7 @@
   .skill h3{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:.8rem 0 .5rem}
   .skill p{color:var(--muted);font-size:.92rem}
   .tags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.1rem}
-  .tags span{font-family:var(--mono);font-size:.72rem;padding:.28rem .55rem;border:1px solid var(--line-strong);border-radius:2px;color:var(--muted)}
+  .tags span{font-family:var(--mono);font-size:.72rem;padding:.28rem .55rem;border:1px solid var(--line-strong);border-radius:var(--radius-sm);color:var(--muted)}
 
   .extra{display:flex;flex-wrap:wrap;gap:1.5rem;margin-top:1.6rem;align-items:center;font-family:var(--mono);font-size:.82rem;color:var(--muted)}
   .extra .lang{display:flex;align-items:center;gap:.6rem}
@@ -495,7 +394,7 @@
   .btn{
     font-family:var(--mono);font-size:.85rem;letter-spacing:.03em;
     display:inline-flex;align-items:center;gap:.6rem;
-    padding:.85rem 1.4rem;border-radius:3px;transition:all .2s;
+    padding:.85rem 1.4rem;border-radius:var(--radius-sm);transition:all .2s;
   }
   .btn.primary{background:var(--amber);color:#fff;font-weight:600}
   .btn.primary:hover,.btn.primary:focus-visible{background:var(--amber-hover);transform:translateY(-2px)}
@@ -511,38 +410,70 @@
   .foot-links a{color:var(--muted);transition:color .2s}
   .foot-links a:hover,.foot-links a:focus-visible{color:var(--amber)}
 
-  /* 3D tilt + glare */
-  .tilt{position:relative;overflow:hidden;transform-style:preserve-3d;will-change:transform;
-    transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s ease}
-  .tilt.on{box-shadow:var(--sh-2),0 0 0 1px var(--line-strong)}
-  /* ROZBŁYSK -> CIEŃ. To inwersja SEMANTYCZNA, nie korekta wartości: biały refleks
-     specular jest właściwy dla BŁYSZCZĄCEJ CIEMNEJ powierzchni; na białej stronie jest
-     w 100% niewidoczny i cały efekt 3D po cichu umiera. Matowy papier nie ma połysku —
-     jego sygnałem jest CIENIOWANIE: czysto pod kursorem, lekki grafit w rogach najdalszych
-     od niego. JS ustawiający --mx/--my nie wymaga zmian. */
-  .tilt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:5;
-    background:radial-gradient(circle at var(--mx,50%) var(--my,50%),
-      rgba(22,37,43,0) 0%,rgba(22,37,43,0) 38%,rgba(22,37,43,.07) 100%);
-    opacity:0;transition:opacity .3s ease}
-  .tilt.on::after{opacity:1}
-
-  /* reveal animation */
-  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
-  .reveal.in{opacity:1;transform:none}
-
-  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:var(--radius-sm)}
   /* .feat ma overflow:hidden (kaseta z zaokrąglonym rogiem), więc pierścień fokusa
      rysowany NA ZEWNĄTRZ zostaje odcięty i link do case study wygląda przy tabowaniu
      na nieaktywny. Dla tego jednego elementu rysujemy go DO ŚRODKA. */
   .feat-media:focus-visible{outline-offset:-4px}
+
+  /* Spójne powierzchnie i proporcje zaakceptowanej makiety. */
+  .hero{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:2.5rem;padding-top:4rem;padding-bottom:3.5rem}
+  .hero h1{font-size:clamp(3.2rem,7.3vw,6rem);line-height:1.02;margin:1.1rem 0 1.4rem}
+  .eyebrow{font-family:var(--body);font-size:.95rem;letter-spacing:0;text-transform:none;color:var(--muted)}
+  .eyebrow::before{display:none}
+  .thesis{max-width:48ch;font-size:1.08rem}
+  .chip{font-family:var(--body);font-size:.85rem;background:var(--panel);min-height:42px;padding:.5rem .7rem}
+  .chip-dl{background:var(--amber)}
+  .chip svg{flex-shrink:0}
+  .panel{padding:.35rem 1.5rem .6rem}
+  .panel-head{font-family:var(--display);font-size:1.35rem;font-weight:650;letter-spacing:0;text-transform:none;color:var(--text);border:0;padding:1rem 0 .9rem}
+  .mod{grid-template-columns:1fr;gap:.15rem;padding:.75rem 0;font-size:1rem}
+  .mod .tag{font-family:var(--body);font-size:.85rem;letter-spacing:0;text-transform:none;text-align:left}
+  .mod.main .tag{color:var(--muted)}
+  .sec{padding:3.5rem 0}
+  .sec-head .idx{display:none}
+  .sec-head h2::after{content:"";display:block;width:40px;height:3px;background:var(--amber);margin-top:.65rem}
+  .about-grid{grid-template-columns:220px minmax(0,1fr) 240px;gap:2.5rem}
+  .about-grid .sec-head{grid-column:auto;margin:0}
+  .about{font-size:1rem}
+  .about .lead{font-size:1.15rem;line-height:1.6;font-weight:400}
+  .about .lead .amber{color:inherit}
+  .timeline{gap:1.2rem}
+  .job,.job:first-child{padding:1.5rem;border:1px solid var(--line-strong);border-radius:var(--radius-lg);background:var(--panel);box-shadow:var(--sh-1)}
+  .edu-card,.proj,.skill{box-shadow:var(--sh-1);background:var(--panel)}
+  .btn.ghost{background:var(--panel)}
+  .btn.primary:hover,.btn.primary:focus-visible,.btn-case:hover,.btn-case:focus-visible{transform:none}
+  .id-card:hover{border-color:var(--line-strong);box-shadow:var(--sh-1)}
+  .chip,.btn{max-width:100%;overflow-wrap:anywhere}
+  section{scroll-margin-top:130px}
+
+  /* Wybór języka dokumentu jest niezależny od języka interfejsu. */
+  .cv-download{position:relative;max-width:100%;text-align:left}
+  .cv-download summary{list-style:none;cursor:pointer;user-select:none}
+  .cv-download summary::-webkit-details-marker{display:none}
+  .cv-download .cv-chevron{width:14px;height:14px;margin-left:.35rem;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s ease}
+  .cv-download[open] .cv-chevron{transform:rotate(180deg)}
+  .cv-download[open]{z-index:10}
+  .cv-options{position:absolute;top:calc(100% + .5rem);left:0;min-width:220px;padding:.4rem;background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius-sm);box-shadow:var(--sh-2);color:var(--text)}
+  .cv-options a{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;min-height:44px;padding:.6rem .75rem;border-radius:6px;font-family:var(--body);font-size:.9rem}
+  .cv-options a span:last-child{font-size:.75rem;color:var(--muted)}
+  .cv-options a:hover,.cv-options a:focus-visible{background:var(--panel-2)}
+  .cta-row .cv-options{top:auto;bottom:calc(100% + .5rem)}
+  @media(max-width:600px){
+    .chips .cv-download{flex-basis:100%}
+    .chips .cv-download summary{width:max-content}
+    .cv-options{min-width:200px}
+    .cta-row .cv-options{left:auto;right:0}
+  }
+  @media print{.cv-download{display:none}}
 
   /* ---------- responsive ---------- */
   @media(max-width:860px){
     .hero{grid-template-columns:1fr}
     .edu,.skills,.proj-grid{grid-template-columns:1fr}
     .skills{gap:.9rem}
-    .about-grid{grid-template-columns:1fr}
-    .id-card{max-width:320px;margin-top:2.6rem}
+    .about-grid{grid-template-columns:1fr;gap:1.5rem}
+    .id-card{width:240px;max-width:100%;margin-top:0}
     .hobbies{grid-template-columns:1fr 1fr}
     .sec-head .sub{margin-left:0;flex-basis:100%}   /* inaczej podtytuł ściska nagłówek */
   }
@@ -572,9 +503,8 @@
        TEKSTEM — ukrycie ich razem z .cta-row dawało wydruk portfolio bez jednej
        danej kontaktowej. .cta-row znika, bo powtarza te same dane wielkimi
        przyciskami. .chip-dl (bursztyn na bieli) jest już obsłużony niżej. */
-    body::before,#net,.console,.pulse,.pulse::after,.cta-row{display:none}
-    .panel,.id-card,.feat,.edu-card,.skill,.proj,.tilt{box-shadow:none!important}
-    .tilt::after{display:none}
+    .console,.pulse,.cta-row{display:none}
+    .panel,.id-card,.feat,.edu-card,.skill,.proj,.job{box-shadow:none!important}
 
     /* PRZEGLĄDARKI NIE DRUKUJĄ TŁA. Każda kontrolka z WYPEŁNIENIEM bursztynowym
        i BIAŁYM tekstem wydrukowałaby się jako biel na bieli. .btn-case siedzi
@@ -599,6 +529,7 @@
                                                                użytkownik nie doscrollował,
                                                                drukuje się PUSTE (opacity:0) */
     .about-grid{grid-template-columns:minmax(0,1fr) 150px;column-gap:1.4rem}
+    .about-grid .sec-head{grid-column:1/-1}
     .id-card{max-width:150px;margin-top:0;break-inside:avoid;page-break-inside:avoid}
 
     /* Mata to KOLOR TŁA — przeglądarka i tak go porzuci, a padding zostawiłby pustą
@@ -606,34 +537,19 @@
     .id-frame{padding:0;background:#fff}
     .id-frame::after,.id-frame .corner{display:none}   /* zdjęcie do CV bez celownika */
 
-    /* Karta ma w druku 150px, a rząd statusu jest flexem w jednej linii z
-       white-space:nowrap — „Otwarty na oferty" wychodziło poza kartę i było obcinane
-       przez overflow:hidden. W druku dwie linie; white-space:normal JEST KONIECZNE —
-       samo display:block na rodzicu tego NIE naprawia. */
-    .id-status{display:block;background:none;border-top-color:var(--line-strong)}
-    .id-status .k{display:block;margin-bottom:.15rem}
-    .id-status .v{white-space:normal}
-    .id-status .pulse{display:none}
 
     .sec,.job,.edu-card,.skill,.panel,.feat,.hobby{break-inside:avoid;page-break-inside:avoid}
   }
 </style>
-<noscript>
-  <!-- .reveal startuje z opacity:0 i dostaje .in dopiero od IntersectionObservera.
-       Bez JS-a była to strona pusta — autor zabezpieczył ten przypadek przy druku
-       i przy prefers-reduced-motion, ale nie przy wyłączonym skrypcie. -->
-  <style>.reveal{opacity:1!important;transform:none!important}</style>
-</noscript>
+
 </head>
 <body>
 
-  <canvas id="net" aria-hidden="true"></canvas>
+
 
   <div class="console">
-    <span class="brand">dawidmajewskiit.pl</span>
-    <span class="dot">●</span>
-    <span class="status">SYSTEM ONLINE</span>
-    <nav>
+    <a class="brand" href="#top" aria-label="Dawid Majewski — portfolio">DM <span>/</span> portfolio</a>
+    <nav aria-label="Nawigacja główna / Main navigation">
       <a href="#o-mnie" data-en="About">O mnie</a>
       <a href="#doswiadczenie" data-en="Experience">Doświadczenie</a>
       <a href="#projekty" data-en="Projects">Projekty</a>
@@ -645,7 +561,6 @@
     <button class="lang-toggle" id="langBtn" type="button" aria-label="Zmień język / Change language">
       <span data-role="pl">PL</span><span>/</span><span data-role="en">EN</span>
     </button>
-    <span class="clock" id="clock">--:--:--</span>
   </div>
 
   <main>
@@ -676,10 +591,16 @@
             <svg viewBox="0 0 24 24" class="brand"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
             LinkedIn
           </a>
-          <a class="chip chip-dl" href="./CV/CV_Dawid_Majewski.pdf" data-en-href="./CV/CV_Dawid_Majewski_EN.pdf" download>
+          <details class="cv-download">
+            <summary class="chip chip-dl">
             <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
             <span data-en="Download CV (PDF)">Pobierz CV (PDF)</span>
-          </a>
+          <svg class="cv-chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></summary>
+            <div class="cv-options">
+              <a href="./CV/CV_Dawid_Majewski.pdf" download lang="pl" aria-label="Pobierz CV po polsku (PDF)"><span>Polski</span><span>PDF · PL</span></a>
+              <a href="./CV/CV_Dawid_Majewski_EN.pdf" download lang="en" aria-label="Download CV in English (PDF)"><span>English</span><span>PDF · EN</span></a>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -690,31 +611,24 @@
       <div class="panel reveal" aria-label="Obszary i narzędzia">
         <div class="panel-head">
           <span data-en="Areas &amp; tools">Obszary i narzędzia</span>
-          <span class="live"><span class="pulse"></span> LIVE</span>
         </div>
         <div class="mod main">
-          <span class="idx">01</span>
           <span class="name" data-en="Artificial Intelligence &amp; Machine Learning">Sztuczna inteligencja i uczenie maszynowe</span>
           <span class="tag" data-en="Specialization">Specjalizacja</span>
         </div>
         <div class="mod">
-          <span class="idx">02</span>
           <span class="name">Microsoft 365</span>
         </div>
         <div class="mod">
-          <span class="idx">03</span>
           <span class="name" data-en="Relational databases">Relacyjne bazy danych</span>
         </div>
         <div class="mod">
-          <span class="idx">04</span>
           <span class="name" data-en="IT infrastructure">Infrastruktura IT</span>
         </div>
         <div class="mod">
-          <span class="idx">05</span>
           <span class="name">Figma</span>
         </div>
         <div class="mod">
-          <span class="idx">06</span>
           <span class="name">Power BI</span>
         </div>
       </div>
@@ -724,7 +638,6 @@
     <section class="sec" id="o-mnie">
       <div class="wrap about-grid">
         <div class="sec-head reveal">
-          <span class="idx">01</span>
           <h2 data-en="About">O mnie</h2>
         </div>
         <div class="about reveal">
@@ -733,9 +646,6 @@
           <p data-en="In AI what interests me is the deployment side — the part after the training. In a university team project I was responsible for getting a YOLOv8 detector to run on a Raspberry Pi and for the recognition pipeline.">W AI interesuje mnie strona wdrożeniowa — to, co dzieje się po treningu. W zespołowym projekcie na studiach odpowiadałem za uruchomienie detektora <b>YOLOv8 na Raspberry Pi</b> i za pipeline rozpoznawania.</p>
         </div>
 
-        <!-- data-en tylko na liściach <span> w <figcaption>. Żaden przodek <img>
-             go nie ma, więc podmiana innerHTML przez przełącznik języka nigdy nie
-             usunie węzła zdjęcia ani nie wymusi ponownego dekodowania. -->
         <figure class="id-card reveal">
           <div class="id-frame">
             <picture>
@@ -755,15 +665,7 @@
                    alt="Dawid Majewski — portret zawodowy"
                    data-en-alt="Dawid Majewski — professional headshot">
             </picture>
-            <span class="corner tl" aria-hidden="true"></span>
-            <span class="corner tr" aria-hidden="true"></span>
-            <span class="corner bl" aria-hidden="true"></span>
-            <span class="corner br" aria-hidden="true"></span>
           </div>
-          <figcaption class="id-status">
-            <span class="k" data-en="Availability">Dostępność</span>
-            <span class="v"><span class="pulse"></span><span data-en="Open to offers">Otwarty na oferty</span></span>
-          </figcaption>
         </figure>
       </div>
     </section>
@@ -772,7 +674,6 @@
     <section class="sec" id="doswiadczenie">
       <div class="wrap">
         <div class="sec-head reveal">
-          <span class="idx">02</span>
           <h2 data-en="Experience">Doświadczenie</h2>
         </div>
         <div class="timeline">
@@ -815,7 +716,6 @@
     <section class="sec" id="projekty">
       <div class="wrap">
         <div class="sec-head reveal">
-          <span class="idx">03</span>
           <h2 data-en="Projects">Projekty</h2>
         </div>
 
@@ -859,7 +759,6 @@
     <section class="sec" id="wyksztalcenie">
       <div class="wrap">
         <div class="sec-head reveal">
-          <span class="idx">04</span>
           <h2 data-en="Education">Wykształcenie</h2>
         </div>
         <div class="edu">
@@ -885,7 +784,6 @@
     <section class="sec" id="umiejetnosci">
       <div class="wrap">
         <div class="sec-head reveal">
-          <span class="idx">05</span>
           <h2 data-en="Skills">Umiejętności</h2>
         </div>
         <div class="skills">
@@ -964,7 +862,6 @@
     <section class="sec" id="zainteresowania">
       <div class="wrap">
         <div class="sec-head reveal">
-          <span class="idx">06</span>
           <h2 data-en="Interests">Zainteresowania</h2>
           <span class="sub" data-en="what I build when nobody is grading it">co buduję, kiedy nikt tego nie ocenia</span>
         </div>
@@ -1012,10 +909,16 @@
             <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
             +48 607 250 449
           </a>
-          <a class="btn ghost" href="./CV/CV_Dawid_Majewski.pdf" data-en-href="./CV/CV_Dawid_Majewski_EN.pdf" download>
+          <details class="cv-download">
+            <summary class="btn ghost">
             <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
             <span data-en="Download CV (PDF)">Pobierz CV (PDF)</span>
-          </a>
+          <svg class="cv-chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></summary>
+            <div class="cv-options">
+              <a href="./CV/CV_Dawid_Majewski.pdf" download lang="pl" aria-label="Pobierz CV po polsku (PDF)"><span>Polski</span><span>PDF · PL</span></a>
+              <a href="./CV/CV_Dawid_Majewski_EN.pdf" download lang="en" aria-label="Download CV in English (PDF)"><span>English</span><span>PDF · EN</span></a>
+            </div>
+          </details>
           <a class="btn ghost" href="https://github.com/dawidmajewskii" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" class="brand"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.05-.02-2.06-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.39 1.24-3.23-.13-.3-.54-1.53.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.88.12 3.18.77.84 1.24 1.92 1.24 3.23 0 4.62-2.81 5.64-5.49 5.94.43.37.81 1.1.81 2.22 0 1.6-.01 2.9-.01 3.29 0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5Z"/></svg>
             GitHub
@@ -1045,8 +948,6 @@
   </main>
 
 <script>
-  var REDUCE=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var CAN_HOVER=window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   // ---- language toggle (PL / EN) ----
   (function(){
@@ -1063,13 +964,6 @@
       document.querySelectorAll('[data-en-alt]').forEach(function(el){
         if(el.getAttribute('data-pl-alt')===null) el.setAttribute('data-pl-alt', el.getAttribute('alt')||'');
         el.setAttribute('alt', (lang==='en') ? el.getAttribute('data-en-alt') : el.getAttribute('data-pl-alt'));
-      });
-      // to samo dla href: przycisk „Pobierz CV" musi podać PLIK w języku, który
-      // użytkownik właśnie czyta. Sam <span> w środku tłumaczy się przez data-en,
-      // ale link prowadziłby dalej do polskiego PDF-a.
-      document.querySelectorAll('[data-en-href]').forEach(function(el){
-        if(el.getAttribute('data-pl-href')===null) el.setAttribute('data-pl-href', el.getAttribute('href')||'');
-        el.setAttribute('href', (lang==='en') ? el.getAttribute('data-en-href') : el.getAttribute('data-pl-href'));
       });
       document.documentElement.lang = lang;
       btn.querySelector('[data-role=pl]').classList.toggle('active',lang==='pl');
@@ -1100,135 +994,21 @@
     apply(q==='en' ? 'en' : (q==='pl' ? 'pl' : (saved==='en'?'en':'pl')));
   })();
 
-  // ---- live 3D network background (nodes = hosts, lines = links) ----
-  (function(){
-    var c=document.getElementById('net'); if(!c) return;
-    var ctx=c.getContext('2d');
-    var dpr=Math.min(window.devicePixelRatio||1,2);
-    var w,h,nodes=[],mouse={x:-9999,y:-9999},raf;
-    function resize(){
-      w=c.width=Math.floor(innerWidth*dpr);
-      h=c.height=Math.floor(innerHeight*dpr);
-      c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';
-    }
-    function build(){
-      resize();
-      var count=Math.max(24,Math.min(80,Math.floor(innerWidth*innerHeight/17000)));
-      nodes=[];
-      for(var i=0;i<count;i++){
-        nodes.push({
-          x:Math.random()*w,y:Math.random()*h,
-          vx:(Math.random()-.5)*.22*dpr,vy:(Math.random()-.5)*.22*dpr,
-          r:(Math.random()*1.6+.8)*dpr
-        });
-      }
-    }
-    var LINK=150*dpr, MOUSE_R=190*dpr;
-    function frame(){
-      ctx.clearRect(0,0,w,h);
-      for(var i=0;i<nodes.length;i++){
-        var n=nodes[i];
-        n.x+=n.vx;n.y+=n.vy;
-        if(n.x<0||n.x>w)n.vx*=-1;
-        if(n.y<0||n.y>h)n.vy*=-1;
-        for(var j=i+1;j<nodes.length;j++){
-          var m=nodes[j],dx=n.x-m.x,dy=n.y-m.y,d=Math.sqrt(dx*dx+dy*dy);
-          if(d<LINK){
-            var a=(1-d/LINK)*.24;                    /* było .16 — ciemny tusz na papierze
-                                                        potrzebuje WIĘCEJ alfy niż jasny na ciemnym */
-            ctx.strokeStyle='rgba(34,72,80,'+a+')';  /* głęboki grafit-teal, nie blada mięta */
-            ctx.lineWidth=dpr*.7;                    /* było .6 — cienka ciemna linia gubi się w AA */
-            ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(m.x,m.y);ctx.stroke();
-          }
-        }
-        var mdx=n.x-mouse.x,mdy=n.y-mouse.y,md=Math.sqrt(mdx*mdx+mdy*mdy);
-        if(md<MOUSE_R){
-          var ma=(1-md/MOUSE_R)*.40;                 /* było .5 — ciemna linia na bieli jest
-                                                        agresywniejsza, więc mnożnik W DÓŁ */
-          ctx.strokeStyle='rgba(150,89,14,'+ma+')';  /* ochra --amber, nie jasny bursztyn:
-                                                        #F0A63C przy 50% na bieli = żółte błoto */
-          ctx.lineWidth=dpr*.8;
-          ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(mouse.x,mouse.y);ctx.stroke();
-          n.x-=mdx/md*.4;n.y-=mdy/md*.4;
-        }
-        ctx.fillStyle='rgba(30,70,80,.34)';          /* alfa W DÓŁ z .55: ciemna kropka na
-                                                        papierze przy .55 to ciężki grys */
-        ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
-      }
-      raf=requestAnimationFrame(frame);
-    }
-    build();
-    if(REDUCE){ frame(); cancelAnimationFrame(raf); }
-    else frame();
-    addEventListener('resize',build,{passive:true});
-    if(CAN_HOVER){
-      addEventListener('pointermove',function(e){mouse.x=e.clientX*dpr;mouse.y=e.clientY*dpr;},{passive:true});
-      addEventListener('pointerleave',function(){mouse.x=mouse.y=-9999;});
-    }
-  })();
-
-  // ---- 3D tilt on cards ----
-  (function(){
-    if(!CAN_HOVER||REDUCE) return;
-    document.querySelectorAll('.panel,.edu-card,.skill,.proj').forEach(function(el){
-      el.classList.add('tilt');
-      el.addEventListener('pointermove',function(e){
-        var r=el.getBoundingClientRect();
-        var px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
-        var rx=(py-.5)*-9, ry=(px-.5)*11;
-        el.style.transform='perspective(900px) rotateX('+rx.toFixed(2)+'deg) rotateY('+ry.toFixed(2)+'deg) translateZ(8px)';
-        el.style.setProperty('--mx',(px*100).toFixed(1)+'%');
-        el.style.setProperty('--my',(py*100).toFixed(1)+'%');
-        el.classList.add('on');
-      });
-      el.addEventListener('pointerleave',function(){el.style.transform='';el.classList.remove('on');});
+  // Natywne details działa również bez JavaScriptu.
+  var cvDownloads = document.querySelectorAll('.cv-download');
+  cvDownloads.forEach(function(menu){
+    menu.addEventListener('toggle', function(){
+      if(menu.open) cvDownloads.forEach(function(other){ if(other !== menu) other.open = false; });
     });
-  })();
-
-  // ---- magnetic primary button ----
-  (function(){
-    if(!CAN_HOVER||REDUCE) return;
-    document.querySelectorAll('.btn.primary').forEach(function(b){
-      b.addEventListener('pointermove',function(e){
-        var r=b.getBoundingClientRect();
-        var x=e.clientX-r.left-r.width/2, y=e.clientY-r.top-r.height/2;
-        b.style.transform='translate('+(x*.3).toFixed(1)+'px,'+(y*.4).toFixed(1)+'px)';
-      });
-      b.addEventListener('pointerleave',function(){b.style.transform='';});
+  });
+  document.addEventListener('click', function(event){
+    cvDownloads.forEach(function(menu){ if(!menu.contains(event.target)) menu.open = false; });
+  });
+  document.addEventListener('keydown', function(event){
+    if(event.key === 'Escape') cvDownloads.forEach(function(menu){
+      if(menu.open){ menu.open = false; menu.querySelector('summary').focus(); }
     });
-  })();
-
-  // ---- live console clock ----
-  (function(){
-    var el=document.getElementById('clock');
-    // Bez tego guardu usunięcie zegara z markupu rzuca wyjątek, a że ten blok stoi
-    // PRZED blokiem .reveal — cała strona zostaje z opacity:0, czyli pusta.
-    if(!el) return;
-    function tick(){
-      var d=new Date();
-      var p=function(n){return String(n).padStart(2,'0');};
-      el.textContent=p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
-    }
-    tick();setInterval(tick,1000);
-  })();
-
-  // ---- staggered reveal on scroll ----
-  (function(){
-    var items=document.querySelectorAll('.reveal');
-    if(REDUCE){items.forEach(function(i){i.classList.add('in');});return;}
-    var io=new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting){
-          var sibs=Array.prototype.slice.call(e.target.parentNode.children).filter(function(n){return n.classList.contains('reveal');});
-          var pos=sibs.indexOf(e.target);
-          e.target.style.transitionDelay=(Math.max(0,pos)*90)+'ms';
-          e.target.classList.add('in');
-          io.unobserve(e.target);
-        }
-      });
-    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
-    items.forEach(function(i){io.observe(i);});
-  })();
+  });
 </script>
 </body>
 </html>

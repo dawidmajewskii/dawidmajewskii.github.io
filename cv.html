@@ -37,18 +37,18 @@
 
   :root{
     /* paleta 1:1 ze strony (index.html) */
-    --paper:#F7F5F1;
-    --panel:#FDFCFA;
-    --inset:#F1EDE5;
-    --mat:#E6DFD3;
-    --text:#16252B;
-    --muted:#47595E;
-    --muted-2:#566A6E;
-    --amber:#96590E;        /* TEKST: 5.17:1 na papierze */
-    --amber-line:#B0770D;   /* WYŁĄCZNIE grafika >=2px. Nigdy tekst. */
+    --paper:#F5F6F8;
+    --panel:#FFFFFF;
+    --inset:#F0F2F5;
+    --mat:#FFFFFF;
+    --text:#202A32;
+    --muted:#52606C;
+    --muted-2:#5C6873;
+    --amber:#966019;        /* TEKST: 5.17:1 na papierze */
+    --amber-line:#966019;   /* WYŁĄCZNIE grafika >=2px. Nigdy tekst. */
     --mint:#0E7351;
-    --line:rgba(22,37,43,.10);
-    --line-strong:rgba(22,37,43,.20);
+    --line:#E2E6EB;
+    --line-strong:#D5DBE3;
     --display:"BricDisplay",system-ui,sans-serif;
     --head:"BricHead",system-ui,sans-serif;
     --body:"Plex","IBM Plex Sans",system-ui,sans-serif;
@@ -60,7 +60,7 @@
     font-family:var(--body);
     color:var(--text);
     font-size:9.36pt;
-    line-height:1.3;
+    line-height:1.27;
     /* dzielenie wyrazów i ligatury WYŁĄCZONE: jedno i drugie wstawia do strumienia
        PDF glify, których parser ATS nie odwzoruje z powrotem na czyste słowo */
     hyphens:none; -webkit-hyphens:none;
@@ -81,34 +81,28 @@
   /* ---------- szyna indeksów + jedna kolumna treści ----------
      Jedna kolumna to decyzja pod ATS: prosty parser czyta PDF liniowo,
      a układ dwukolumnowy potrafi przepleść sidebar z treścią główną. */
-  .row{ display:grid; grid-template-columns:12mm 1fr; column-gap:3mm }
+  .row{ display:block }
   .rail{ font-family:var(--mono); font-size:7.7pt; font-weight:500; color:var(--amber); letter-spacing:.06em; padding-top:1.5pt }
   .rail .tick{ display:block; width:11mm; height:2px; background:var(--amber-line); margin-top:3pt; opacity:.55 }
 
   /* ---------- nagłówek ---------- */
-  .head{ display:grid; grid-template-columns:1fr 19mm; column-gap:5mm; align-items:start; padding-bottom:3pt; border-bottom:1.5px solid var(--line-strong) }
+  .head{ display:grid; grid-template-columns:minmax(0,1fr) 24mm; column-gap:5mm; align-items:start; padding:8pt 9pt; border:1px solid var(--line-strong);border-radius:4mm;background:var(--panel) }
   .name{ font-family:var(--display); font-size:22.88pt; font-weight:750; letter-spacing:-.01em; line-height:1.05; color:var(--text) }
-  .name .surname{ color:var(--amber) }
+  .name .surname{ color:var(--muted);margin-left:.1em }
   .headline{ font-size:9.88pt; font-weight:500; color:var(--muted); margin-top:2pt; line-height:1.3 }
   .meta{ font-family:var(--mono); font-size:7.28pt; color:var(--muted-2); letter-spacing:.01em; margin-top:4pt; line-height:1.45 }
   .meta a{ color:var(--muted-2) }
   .meta .k{ color:var(--text); font-weight:500 }
   .meta .status{ color:var(--mint); font-weight:500 }
 
-  /* Portret leży na białym tle studyjnym (zmierzone ~#FDFDFD), papier to #F7F5F1 —
-     kontrast 1.07:1. Bez narysowanej krawędzi głowa PŁYWA. Stąd mata + obrys + pasery. */
-  .shot{ position:relative; width:19mm; padding:1mm; background:var(--mat) }
-  .shot img{ display:block; width:17mm; height:22.7mm; object-fit:cover; object-position:50% 12%; border:.5px solid var(--line-strong) }
-  .shot .c{ position:absolute; width:4mm; height:4mm; border:1.5px solid var(--amber-line) }
-  .shot .tl{ top:-1.4mm; left:-1.4mm; border-right:0; border-bottom:0 }
-  .shot .tr{ top:-1.4mm; right:-1.4mm; border-left:0; border-bottom:0 }
-  .shot .bl{ bottom:-1.4mm; left:-1.4mm; border-right:0; border-top:0 }
-  .shot .br{ bottom:-1.4mm; right:-1.4mm; border-left:0; border-top:0 }
+  /* Oryginalny portret, bez ozdobnych znaczników. */
+  .shot{width:24mm;border:1px solid var(--line-strong);border-radius:3mm;overflow:hidden;background:var(--panel)}
+  .shot img{display:block;width:100%;height:32mm;object-fit:cover;object-position:50% 12%}
 
   /* ---------- sekcje ---------- */
-  section{ margin-top:4.2pt }
+  section{ margin-top:4.5pt }
   h2{
-    font-family:var(--mono); font-size:8.74pt; font-weight:500; text-transform:uppercase;
+    font-family:var(--head); font-size:10pt; font-weight:650; text-transform:none;
     letter-spacing:.03em; color:var(--text);
     padding-bottom:1.6pt; margin-bottom:3.2pt; border-bottom:1px solid var(--line-strong);
   }
@@ -131,14 +125,14 @@
 
   /* ---------- projekt: jedyny panel na stronie ----------
      Hierarchia, nie dekoracja: to jest najmocniejszy dowód w tym CV. */
-  .proj{ background:var(--panel); border:1px solid var(--line); border-left:2px solid var(--amber-line); padding:4pt 6pt }
+  .proj{ background:var(--panel); border:1px solid var(--line); border-radius:3mm; padding:5pt 7pt }
   .proj .ctx{ font-size:8.74pt; color:var(--muted-2); margin-top:1pt; line-height:1.25 }
   .proj ul{ margin-top:1pt }
 
   /* Pas metryk: JEDYNY element „graficzny", w całości z prawdziwego tekstu —
      żadnego SVG, żadnego obrazu, wszystko wyciągalne przez ATS. */
-  .metrics{ display:flex; margin:2pt 0 1.5pt; border:1px solid var(--line-strong); background:var(--inset) }
-  .metric{ flex:1; padding:2pt 3pt; border-right:1px solid var(--line-strong) }
+  .metrics{ border-radius:2mm;overflow:hidden;display:flex; margin:2pt 0 1.5pt; border:1px solid var(--line-strong); background:var(--inset) }
+  .metric{ flex:1 1 0; min-width:0; padding:2pt 3pt; border-right:1px solid var(--line-strong) }
   .metric:last-child{ border-right:0 }
   .m-val{ font-family:var(--head); font-size:10.92pt; font-weight:700; color:var(--text); letter-spacing:-.01em; line-height:1.1 }
   .m-lab{ font-family:var(--mono); font-size:6.34pt; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-2); margin-top:.8pt; line-height:1.2 }
@@ -164,7 +158,7 @@
   .rodo{
     position:absolute; left:12mm; right:12mm; bottom:5mm;
     padding-top:3pt; border-top:1px solid var(--line);
-    font-size:7.28pt; line-height:1.3; color:#5E6E72;   /* 7pt to DOLNA granica z wytycznych:
+    font-size:7.28pt; line-height:1.3; color:var(--muted-2);   /* 7pt to DOLNA granica z wytycznych:
         mikrodruk daje się podważyć jako brak świadomej zgody. Nie zmniejszać. */
   }
   .rodo p+p{ margin-top:2.5pt }
@@ -185,12 +179,10 @@
     </div>
     <div class="shot">
       <img src="./Img/dm-portrait-672.jpg" alt="Dawid Majewski — zdjęcie portretowe" data-en-alt="Dawid Majewski — portrait photograph">
-      <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
     </div>
   </header>
 
   <section class="row">
-    <div class="rail">01<span class="tick"></span></div>
     <div>
       <h2 data-en="Profile">Profil</h2>
       <p class="lead" data-en="MSc Computer Science student at Merito University Wrocław, specialising in artificial intelligence and machine learning; BSc (network security) completed in 2026. I built my IT foundation in the IT department of a manufacturing plant — helpdesk, IT and network infrastructure, ERP support for production and business processes — and I currently coordinate procurement and sales: B2B platforms, logistics, supplier data. In ML my interest is deployment: what happens after training, when the model has to run on real hardware.">Student informatyki II stopnia na Uniwersytecie Merito we Wrocławiu, specjalność sztuczna inteligencja i uczenie maszynowe; studia I stopnia (bezpieczeństwo sieci informatycznych) ukończone w 2026 r. Praktykę IT zdobyłem w dziale IT zakładu produkcyjnego — helpdesk, utrzymanie infrastruktury i sieci, wsparcie procesów w systemach ERP — a obecnie koordynuję zaopatrzenie i sprzedaż, pracując na co dzień z platformami B2B, logistyką i danymi od dostawców. W ML interesuje mnie strona wdrożeniowa: to, co dzieje się po treningu, gdy model musi działać na realnym sprzęcie.</p>
@@ -198,7 +190,6 @@
   </section>
 
   <section class="row">
-    <div class="rail">02<span class="tick"></span></div>
     <div>
       <h2 data-en="Professional experience">Doświadczenie zawodowe</h2>
 
@@ -230,12 +221,11 @@
   </section>
 
   <section class="row">
-    <div class="rail">03<span class="tick"></span></div>
     <div>
       <h2 data-en="Projects">Projekty</h2>
       <div class="proj">
         <div class="item-h">
-          <div class="role"><span class="when">dawidmajewskiit.pl/karty</span><span data-en="Playing-card recognition system (YOLOv8n on Raspberry Pi 4)">System rozpoznawania kart do gry (YOLOv8n na Raspberry Pi 4)</span></div>
+          <div class="role"><span class="when"><a href="https://dawidmajewskiit.pl/karty">dawidmajewskiit.pl/karty</a></span><span data-en="Playing-card recognition system (YOLOv8n on Raspberry Pi 4)">System rozpoznawania kart do gry (YOLOv8n na Raspberry Pi 4)</span></div>
         </div>
         <div class="ctx" data-en="Six-person team project, Machine Learning course, MSc programme, 2026. My area: the Raspberry Pi deployment path and the recognition pipeline.">Projekt zespołowy (6 osób), przedmiot Uczenie Maszynowe, studia magisterskie, 2026. Mój obszar: wdrożenie na Raspberry Pi i pipeline rozpoznawania.</div>
 
@@ -270,7 +260,6 @@
   </section>
 
   <section class="row">
-    <div class="rail">04<span class="tick"></span></div>
     <div>
       <h2 data-en="Education">Wykształcenie</h2>
       <div class="edu">
@@ -291,7 +280,6 @@
   </section>
 
   <section class="row">
-    <div class="rail">05<span class="tick"></span></div>
     <div>
       <h2 data-en="Skills">Umiejętności</h2>
       <dl class="skl">
@@ -314,7 +302,6 @@
   </section>
 
   <section class="row">
-    <div class="rail">06<span class="tick"></span></div>
     <div>
       <h2 data-en="Languages &amp; interests">Języki i zainteresowania</h2>
       <dl class="skl">

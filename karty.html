@@ -515,6 +515,13 @@
     .hero-cta{width:100%}
     .hero-cta .btn{flex:1 1 140px;justify-content:center}
   }
+  .hero-grid > *, .ov-grid > *, .hw-grid > *, .demo-grid > *, .mods > *{min-width:0}
+  .console nav a{min-height:44px;display:inline-flex;align-items:center}
+  .tbl-scroll,.chart-wrap{overscroll-behavior-x:contain}
+  @media(max-width:560px){
+    .sec{padding:2.5rem 0}
+    .sec-head{margin-bottom:1.5rem}
+  }
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;scroll-behavior:auto!important}
     .reveal{opacity:1;transform:none;transition:none}

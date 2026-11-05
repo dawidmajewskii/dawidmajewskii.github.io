@@ -484,9 +484,85 @@
     .rail .stem{display:none}
   }
 
+  /* Układ pośredni dla tabletów i wygodne cele dotykowe. */
+  .hero > *, .about-grid > *, .skills > *, .edu > *{min-width:0}
+  .console nav a{min-height:44px;display:inline-flex;align-items:center}
+  @media(min-width:601px) and (max-width:1100px){
+    .skills{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .about-grid{grid-template-columns:minmax(0,1fr) 220px;gap:1.5rem 2rem}
+    .about-grid .sec-head{grid-column:1/-1}
+    .id-card{width:220px;margin:0}
+  }
+  @media(max-width:600px){
+    .hero{padding-top:2.5rem;gap:2rem}
+    .sec{padding:2.5rem 0}
+    .sec-head{margin-bottom:1.5rem}
+    .panel{padding:.35rem 1.1rem .6rem}
+    .chip,.btn{min-height:44px}
+    .job,.job:first-child{padding:1.2rem}
+    .contact .btn{justify-content:center}
+  }
+
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;scroll-behavior:auto!important}
     .reveal{opacity:1;transform:none;transition:none}
+  }
+
+  /* Wyraźniejsza hierarchia portfolio i dopracowane stany interakcji. */
+  @media screen {
+    .console .brand{font-family:var(--display);letter-spacing:-.025em}
+    .console nav a{border-bottom:2px solid transparent}
+    .console nav a[aria-current="location"]{color:var(--text);border-bottom-color:var(--amber)}
+    .hero{padding-top:5rem;padding-bottom:5rem;align-items:center;gap:3.5rem}
+    .hero h1{letter-spacing:-.055em;line-height:.98;margin:1.5rem 0 2rem}
+    .hero h1 .last{font-weight:500}
+    .panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:0 1.5rem .8rem;column-gap:1.5rem;border-radius:24px;box-shadow:0 12px 40px -24px rgba(32,42,50,.22)}
+    .panel-head{grid-column:1/-1;padding:1.4rem 0 1rem;font-size:1.15rem}
+    .panel .mod{border-top:1px solid var(--line);border-bottom:0;align-content:start;padding:1rem 0;font-size:.92rem;line-height:1.45}
+    .panel .mod:first-of-type{border-bottom:0}
+    .sec-head h2{letter-spacing:-.035em}
+    .about{line-height:1.8}
+    .about .lead{font-weight:500;line-height:1.65}
+    .about p+p{margin-top:1.3rem}
+    .id-card{box-shadow:0 8px 24px -12px rgba(32,42,50,.2)}
+    .skills{grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2rem}
+    .skill{display:flex;flex-direction:column;padding:1.8rem;border-color:var(--line);box-shadow:0 3px 12px -8px rgba(32,42,50,.12);transition:border-color .2s,box-shadow .2s}
+    .skill:hover{border-color:var(--line-strong);box-shadow:var(--sh-2)}
+    .skill .k{font-family:var(--body);font-size:.82rem;text-transform:none;letter-spacing:0;color:var(--muted)}
+    .skill h3{font-size:1.3rem;letter-spacing:-.025em;margin:.85rem 0 .7rem}
+    .skill p{font-size:.98rem;line-height:1.7;max-width:55ch}
+    .skill .tags{margin-top:auto;padding-top:1.3rem}
+    .skill .tags span{background:var(--ink);border-color:transparent;font-family:var(--body);font-size:.78rem}
+    .skill:last-child{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;column-gap:2rem}
+    .skill:last-child .k{grid-column:1/-1}
+    .skill:last-child .extra{margin-top:0;align-self:center;font-family:var(--body);gap:.8rem;font-size:.9rem}
+    .feat{border-radius:24px;box-shadow:0 14px 40px -26px rgba(32,42,50,.3)}
+    .feat-body h3{font-size:clamp(1.4rem,2.3vw,1.9rem);line-height:1.2;letter-spacing:-.025em}
+    .feat-eyebrow{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:.8rem;color:var(--muted)}
+    .feat-media .corner,.feat-media .rec{display:none}
+    .feat-metrics{padding:1.2rem 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);gap:1.5rem}
+    .feat-metrics .fm b{font-size:1.45rem}
+    .grp-label{font-family:var(--body);letter-spacing:0;text-transform:none;font-size:.9rem}
+    .btn-case{font-family:var(--body);font-size:.95rem}
+    .contact h2{font-size:clamp(2rem,5vw,3rem);letter-spacing:-.04em}
+    .contact .cta-row{margin-top:1.6rem}
+    .chip,.btn,.btn-case{transition:background .2s,border-color .2s,color .2s,box-shadow .2s}
+    @media(max-width:1100px){
+      .hero{gap:2rem}
+      .panel{column-gap:1rem;padding-left:1.1rem;padding-right:1.1rem}
+    }
+    @media(max-width:860px){
+      .hero{padding-top:3rem;padding-bottom:3rem}
+      .hero h1{font-size:clamp(3.2rem,12vw,5.5rem)}
+    }
+    @media(max-width:600px){
+      .skills{grid-template-columns:1fr}
+      .skill{padding:1.4rem}
+      .skill:last-child{display:flex}
+      .skill:last-child .extra{align-self:flex-start}
+      .panel{border-radius:18px}
+      .panel .mod{font-size:.86rem}
+    }
   }
 
   /* ---------- print / export to PDF ---------- */
@@ -555,7 +631,6 @@
       <a href="#projekty" data-en="Projects">Projekty</a>
       <a href="#wyksztalcenie" data-en="Education">Wykształcenie</a>
       <a href="#umiejetnosci" data-en="Skills">Umiejętności</a>
-      <a href="#zainteresowania" data-en="Interests">Zainteresowania</a>
       <a href="#kontakt" data-en="Contact">Kontakt</a>
     </nav>
     <button class="lang-toggle" id="langBtn" type="button" aria-label="Zmień język / Change language">
@@ -569,7 +644,6 @@
       <div class="reveal">
         <span class="eyebrow" data-en="CS Student · AI &amp; Machine Learning">Student informatyki · SI i uczenie maszynowe</span>
         <h1>Dawid<span class="last">Majewski</span></h1>
-        <p class="thesis" data-en="I'm heading into <b>artificial intelligence and machine learning</b> . My IT experience comes from an internship in a manufacturing plant&rsquo;s IT department: helpdesk, networks and <b>ERP systems</b>.">Idę w stronę <b>sztucznej inteligencji i uczenia maszynowego</b> . Praktykę IT mam ze stażu w dziale IT zakładu produkcyjnego: helpdesk, sieci i <b>systemy ERP</b>.</p>
         <div class="chips">
           <a class="chip" href="mailto:dawid.majewski.it@gmail.com">
             <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
@@ -604,32 +678,33 @@
         </div>
       </div>
 
-      <!-- Paski poziomu (5/5, 4/5...) zostały USUNIĘTE świadomie. Były deklaracją
-           biegłości, a Dawid — jako student — takiej deklaracji nie składa. Panel
-           mówi teraz CZYM się zajmuje i co jest specjalizacją, a nie JAK dobry jest.
-           Numeracja mono utrzymuje „konsolowy" rytm, którego pilnowały paski. -->
       <div class="panel reveal" aria-label="Obszary i narzędzia">
         <div class="panel-head">
           <span data-en="Areas &amp; tools">Obszary i narzędzia</span>
         </div>
-        <div class="mod main">
-          <span class="name" data-en="Artificial Intelligence &amp; Machine Learning">Sztuczna inteligencja i uczenie maszynowe</span>
-          <span class="tag" data-en="Specialization">Specjalizacja</span>
+        <div class="mod">
+          <span class="name" data-en="SQL &amp; databases">SQL i bazy danych</span>
         </div>
         <div class="mod">
-          <span class="name">Microsoft 365</span>
+          <span class="name" data-en="AI tools">Narzędzia AI</span>
         </div>
         <div class="mod">
-          <span class="name" data-en="Relational databases">Relacyjne bazy danych</span>
+          <span class="name" data-en="Microsoft 365">Microsoft 365</span>
         </div>
         <div class="mod">
           <span class="name" data-en="IT infrastructure">Infrastruktura IT</span>
         </div>
         <div class="mod">
-          <span class="name">Figma</span>
+          <span class="name" data-en="Web development">Tworzenie stron internetowych</span>
         </div>
         <div class="mod">
-          <span class="name">Power BI</span>
+          <span class="name" data-en="ERP systems">Systemy ERP</span>
+        </div>
+        <div class="mod">
+          <span class="name" data-en="Artificial intelligence &amp; machine learning">Sztuczna inteligencja i uczenie maszynowe</span>
+        </div>
+        <div class="mod">
+          <span class="name" data-en="Power BI">Power BI</span>
         </div>
       </div>
     </header>
@@ -641,9 +716,9 @@
           <h2 data-en="About">O mnie</h2>
         </div>
         <div class="about reveal">
-          <p class="lead" data-en="I study Computer Science at MSc level, specializing in <span class='amber'>artificial intelligence and machine learning</span>.">Studiuję informatykę na II stopniu, specjalność <span class="amber">sztuczna inteligencja i uczenie maszynowe</span>.</p>
-          <p data-en="Alongside my studies I work in a small trading company, in procurement and sales.">Równolegle do studiów pracuję w kilkuosobowej firmie handlowej, przy zaopatrzeniu i sprzedaży.</p>
-          <p data-en="In AI what interests me is the deployment side — the part after the training. In a university team project I was responsible for getting a YOLOv8 detector to run on a Raspberry Pi and for the recognition pipeline.">W AI interesuje mnie strona wdrożeniowa — to, co dzieje się po treningu. W zespołowym projekcie na studiach odpowiadałem za uruchomienie detektora <b>YOLOv8 na Raspberry Pi</b> i za pipeline rozpoznawania.</p>
+          <p class="lead" data-en="I enjoy working with people and helping them understand technology. When talking to a customer, I want to understand their needs and clearly explain the available options. I want to develop a career in IT consulting or systems implementation, combining this approach with my interest in databases and SQL.">Lubię pracować z ludźmi i pomagać im zrozumieć technologię. W rozmowie z klientem zależy mi na tym, żeby poznać jego potrzeby i jasno wyjaśnić dostępne możliwości. Chcę rozwijać się w konsultingu IT lub wdrażaniu systemów, gdzie mogę połączyć ten sposób pracy z zainteresowaniem bazami danych i SQL.</p>
+          <p data-en="I am studying for a master’s degree in computer science while working in procurement and sales. Every day I speak with customers and suppliers, compare offers and look for solutions that fit their needs. I enjoy analysing which option will work best, what its limitations are and whether it offers good value for money.">Studiuję informatykę na II stopniu i pracuję przy zaopatrzeniu oraz sprzedaży. Na co dzień rozmawiam z klientami i dostawcami, porównuję oferty i szukam rozwiązań dopasowanych do potrzeb. Lubię analizować, co sprawdzi się najlepiej, jakie ma ograniczenia i czy jest warte swojej ceny.</p>
+          <p data-en="When something does not work, I try to understand why. I look for information in documentation and forums, try different approaches and learn from each attempt. I find it rewarding to discover a solution that gets something working again or makes someone’s daily work easier.">Gdy coś nie działa, staram się zrozumieć przyczynę. Szukam informacji w dokumentacji i na forach, sprawdzam różne podejścia i wyciągam wnioski z kolejnych prób. Satysfakcję daje mi znalezienie rozwiązania, które przywraca coś do działania lub ułatwia komuś codzienną pracę.</p>
         </div>
 
         <figure class="id-card reveal">
@@ -686,7 +761,7 @@
               <div class="co" data-en="FISHKA — Pet &amp; Fishing Store">FISHKA — Market Zoologiczno-Wędkarski</div>
               <ul>
                 <li data-en="Managing B2B purchasing platforms">Obsługa platform zakupowych B2B</li>
-                <li data-en="Ordering and stock — I decide what to order and when">Zamówienia i stany magazynowe — decyduję, co i kiedy zamówić</li>
+                <li data-en="Ordering and stock">Zamówienia i stany magazynowe</li>
                 <li data-en="Price lists and supplier data in Excel">Cenniki i dane od dostawców w Excelu</li>
                 <li data-en="Customer service and supplier contact">Obsługa klientów i kontakt z dostawcami</li>
               </ul>
@@ -700,6 +775,8 @@
               <h3 data-en="IT Department Internship">Staż w Dziale IT</h3>
               <div class="co">Leszczyńska Fabryka Pomp</div>
               <ul>
+                <li data-en="Designed a website from scratch in Figma. The design received positive feedback within the company and remained at the design stage.">Zaprojektowałem od podstaw stronę internetową w Figmie. Projekt spotkał się z pozytywnym odbiorem w firmie; pozostał na etapie projektu graficznego.</li>
+                <li data-en="Built a desktop application to monitor printers and toner usage and record computer cleaning dates. The application was put into use within the company.">Stworzyłem aplikację desktopową do monitorowania drukarek i zużycia tonerów oraz ewidencjonowania dat czyszczenia komputerów. Aplikacja trafiła do użytku w firmie.</li>
                 <li data-en="User technical support (Helpdesk) and hardware troubleshooting">Wsparcie techniczne użytkowników (Helpdesk) i rozwiązywanie problemów sprzętowych</li>
                 <li data-en="Administration and day-to-day maintenance of IT and network infrastructure">Administracja oraz bieżące utrzymanie infrastruktury IT i sieci</li>
                 <li data-en="Supporting production and business processes using ERP systems">Wsparcie procesów produkcyjnych i biznesowych przy użyciu systemów ERP</li>
@@ -790,53 +867,44 @@
 
           <div class="skill reveal">
             <span class="k"><svg viewBox="0 0 24 24"><path d="M8 17l-5-5 5-5M16 7l5 5-5 5M13 4l-2 16"/></svg><span data-en="Programming &amp; data">Programowanie i dane</span></span>
-            <h3 data-en="Analysis &amp; automation">Analiza i automatyzacja</h3>
-            <p data-en="Python for scripting and machine learning, SQL for querying relational data, Power BI for turning it into a report someone can actually read.">Python do skryptów i uczenia maszynowego, SQL do odpytywania danych relacyjnych, Power BI do zamiany ich w raport, który da się przeczytać.</p>
-            <div class="tags"><span>Python</span><span>MySQL</span><span>Power BI</span></div>
+            <h3 data-en="SQL &amp; databases">SQL i bazy danych</h3>
+            <p data-en="SQL is where I feel most confident, with knowledge developed through university and personal practice. I am learning Power BI and the foundations of Python.">SQL to obszar, w którym czuję się najpewniej — wiedzę rozwijam na studiach i we własnej praktyce. Power BI poznaję, a w Pythonie uczę się podstaw.</p>
+            <div class="tags"><span>SQL</span><span>MySQL</span><span>Power BI</span><span>Python</span></div>
+          </div>
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M6.6 7.1 10 10.2M17.4 7.1 14 10.2M6.6 16.9 10 13.8M17.4 16.9 14 13.8"/></svg><span data-en="Practical applications">Praktyczne zastosowania</span></span>
+            <h3 data-en="AI tools">Narzędzia AI</h3>
+            <p data-en="I use AI tools to analyse information, learn, and build websites and applications. With their assistance, I built a desktop application for printer monitoring and computer maintenance records that was put into use within the company.">Narzędzia AI wykorzystuję do analizy informacji, nauki oraz tworzenia stron i aplikacji. Z ich pomocą stworzyłem aplikację desktopową do monitorowania drukarek i ewidencji konserwacji komputerów, która trafiła do użytku w firmie.</p>
+            <div class="tags"><span data-en="Analysis">Analiza</span><span data-en="AI-assisted development">Tworzenie z AI</span></div>
+          </div>
+
+          <div class="skill reveal">
+            <span class="k"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span data-en="Office tools">Narzędzia biurowe</span></span>
+            <h3 data-en="Microsoft 365">Microsoft 365</h3>
+            <p data-en="I have a very good working knowledge of Microsoft 365 and use it daily. I work with price lists and supplier data in Excel, and use the other tools for documents and communication.">Bardzo dobrze znam Microsoft 365 i korzystam z niego w codziennej pracy. W Excelu pracuję z cennikami i danymi od dostawców, a pozostałe narzędzia wykorzystuję do dokumentów i komunikacji.</p>
+            <div class="tags"><span>Microsoft 365</span><span>Google Workspace</span></div>
           </div>
 
           <div class="skill reveal">
             <span class="k"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4zM4 10h16"/><path d="M7 8h.01M9.5 8h.01"/></svg><span data-en="Web &amp; tooling">Web i narzędzia</span></span>
-            <h3 data-en="Front-end &amp; workflow">Front-end i warsztat</h3>
-            <p data-en="Building interfaces with HTML, CSS and JavaScript; versioning in Git, designing in Figma before touching the code.">Budowanie interfejsów w HTML, CSS i JavaScript; wersjonowanie w Git, projektowanie w Figmie zanim powstanie kod.</p>
+            <h3 data-en="Websites &amp; Figma">Strony internetowe i Figma</h3>
+            <p data-en="During my internship I designed a website from scratch in Figma that received positive feedback within the company. I also develop my own portfolio with HTML, CSS and JavaScript, using AI tools.">Podczas stażu zaprojektowałem od podstaw stronę internetową w Figmie, która spotkała się z pozytywnym odbiorem w firmie. Rozwijam też własne portfolio w HTML, CSS i JavaScript, korzystając z narzędzi AI.</p>
             <div class="tags"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>GitHub</span><span>Figma</span></div>
           </div>
 
           <div class="skill reveal">
             <span class="k"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></svg><span data-en="IT Infrastructure">Infrastruktura IT</span></span>
-            <h3 data-en="Systems &amp; hardware">Systemy i sprzęt</h3>
-            <p data-en="Workstation setup, hardware maintenance and virtualization — from my internship in a manufacturing plant&rsquo;s IT department.">Konfiguracja stanowisk, utrzymanie sprzętu i wirtualizacja — ze stażu w dziale IT zakładu produkcyjnego.</p>
-            <div class="tags"><span data-en="Operating systems">Systemy operacyjne</span><span data-en="Virtualization">Wirtualizacja</span><span>Helpdesk</span></div>
-          </div>
-
-          <div class="skill reveal">
-            <span class="k"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="M5 8v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M12 13v3"/></svg><span data-en="Computer networks">Sieci komputerowe</span></span>
-            <h3>LAN / WAN</h3>
-            <p data-en="Administration and diagnostics of local and wide-area networks.">Administracja i diagnostyka sieci lokalnych i rozległych.</p>
-            <div class="tags"><span data-en="Administration">Administracja</span><span data-en="Diagnostics">Diagnostyka</span><span>LAN/WAN</span></div>
+            <h3 data-en="IT infrastructure &amp; networks">Infrastruktura IT i sieci</h3>
+            <p data-en="During my internship I prepared workstations, configured hardware and helped users resolve technical problems. I also worked on maintaining the plant’s network, drawing on my undergraduate studies in network security.">Na stażu przygotowywałem stanowiska, konfigurowałem sprzęt i pomagałem użytkownikom rozwiązywać problemy. Pracowałem również przy utrzymaniu sieci zakładu, wykorzystując wiedzę ze studiów o specjalności bezpieczeństwo sieci.</p>
+            <div class="tags"><span data-en="Operating systems">Systemy operacyjne</span><span data-en="Virtualization">Wirtualizacja</span><span>Helpdesk</span><span>LAN/WAN</span></div>
           </div>
 
           <div class="skill reveal">
             <span class="k"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="1.8"/><circle cx="19" cy="6" r="1.8"/><circle cx="5" cy="18" r="1.8"/><circle cx="19" cy="18" r="1.8"/><path d="M6.6 7.1 10 10.2M17.4 7.1 14 10.2M6.6 16.9 10 13.8M17.4 16.9 14 13.8"/></svg><span data-en="Degree specialization">Specjalizacja studiów</span></span>
             <h3 data-en="AI &amp; machine learning">Sztuczna inteligencja i uczenie maszynowe</h3>
-            <!-- BEZ deklaracji biegłości i BEZ powielania case study (sekcja 03 opisuje
-                 projekt szczegółowo). Kafelek mówi: kierunek studiów + jak się uczę. -->
-            <p data-en="The specialization of my MSc — the area I'm still learning.">Specjalizacja moich studiów II stopnia — obszar, którego się uczę.</p>
-            <div class="tags"><span data-en="Machine learning">Uczenie maszynowe</span><span>YOLOv8</span></div>
-          </div>
-
-          <div class="skill reveal">
-            <span class="k"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span data-en="Office tools">Narzędzia biurowe</span></span>
-            <h3 data-en="Productivity suites">Pakiety produktywności</h3>
-            <p data-en="I use Microsoft 365 and Google Workspace day to day.">Na co dzień pracuję w Microsoft 365 i Google Workspace.</p>
-            <div class="tags"><span>Microsoft 365</span><span>Google Workspace</span></div>
-          </div>
-
-          <div class="skill reveal">
-            <span class="k"><svg viewBox="0 0 24 24"><path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M15 11a3 3 0 1 0 0-6M3 20c0-3 2.5-5 6-5s6 2 6 5M15 15c3 0 6 2 6 5"/></svg><span data-en="Soft skills">Kompetencje miękkie</span></span>
-            <h3 data-en="Way of working">Sposób pracy</h3>
-            <p data-en="A six-person team project at university, and daily contact with customers and suppliers at work.">Projekt zespołowy na studiach (6 osób) i codzienny kontakt z klientami oraz dostawcami w pracy.</p>
-            <div class="tags"><span data-en="Analytics">Analityka</span><span>Problem-solving</span><span data-en="Teamwork">Praca zespołowa</span></div>
+            <p data-en="I am developing my knowledge of machine learning through my master’s degree. I am interested in choosing methods for a problem, preparing data and evaluating model results.">Na studiach magisterskich rozwijam wiedzę o uczeniu maszynowym. Interesuje mnie dobór metod do problemu, przygotowanie danych i ocena wyników modeli.</p>
+            <div class="tags"><span data-en="Machine learning">Uczenie maszynowe</span></div>
           </div>
 
           <div class="skill reveal">
@@ -855,51 +923,10 @@
       </div>
     </section>
 
-    <!-- ZAINTERESOWANIA -->
-    <!-- Celowo LŻEJSZE wizualnie niż karty w Umiejętnościach (hairline zamiast
-         wypełnionej karty): to kontekst, a nie kompetencja — nie może konkurować
-         o uwagę z sekcją 05. -->
-    <section class="sec" id="zainteresowania">
-      <div class="wrap">
-        <div class="sec-head reveal">
-          <h2 data-en="Interests">Zainteresowania</h2>
-          <span class="sub" data-en="what I build when nobody is grading it">co buduję, kiedy nikt tego nie ocenia</span>
-        </div>
-        <div class="hobbies">
-
-          <div class="hobby reveal">
-            <span class="k"><svg viewBox="0 0 24 24"><path d="M7.5 12c0-3.1 3.8-5.6 8-5.6 2.6 0 4.9 1 6.3 2.5-.9 1-1.4 2-1.4 3.1s.5 2.1 1.4 3.1c-1.4 1.5-3.7 2.5-6.3 2.5-4.2 0-8-2.5-8-5.6Z"/><path d="M7.5 12 2.5 8v8l5-4Z"/><path d="M17.5 10.6h.01"/></svg><span data-en="Fishing">Wędkarstwo</span></span>
-            <h3 data-en="Patience and persistence">Cierpliwość i konsekwencja</h3>
-            <p data-en="Hours of analysis and preparation — the spot, the gear, the conditions — and many more hours of waiting.">Godziny analizy i przygotowania — łowisko, sprzęt, warunki — i jeszcze więcej godzin czekania.</p>
-          </div>
-
-          <div class="hobby reveal">
-            <span class="k"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M10 8V5M14 8V5M10 19v-3M14 19v-3M8 10H5M8 14H5M19 10h-3M19 14h-3"/></svg><span data-en="Electronics &amp; hardware prototyping">Elektronika i prototypowanie</span></span>
-            <h3 data-en="A bait boat, built from zero">Łódź zanętowa od zera</h3>
-            <p data-en="Soldering, circuits, wiring. The last one: my own bait boat — from the schematic, through the electronics and the drive, to the first launch.">Lutowanie, układy, okablowanie. Ostatni projekt: własna łódź zanętowa — od schematu, przez elektronikę i napęd, po pierwsze wodowanie.</p>
-          </div>
-
-          <div class="hobby reveal">
-            <span class="k"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M8 13l-2 2 2 2M14 13l2 2-2 2"/></svg><span data-en="Web development">Tworzenie stron</span></span>
-            <h3 data-en="Front-end without frameworks">Front-end bez frameworków</h3>
-            <p data-en="HTML, CSS and plain JavaScript, no frameworks — this site runs on it.">HTML, CSS i czysty JavaScript, bez frameworków — na tym stoi ta strona.</p>
-          </div>
-
-          <div class="hobby reveal">
-            <span class="k"><svg viewBox="0 0 24 24"><path d="M4 11a9 9 0 0 1 9 9M4 15a5 5 0 0 1 5 5"/><circle cx="5" cy="19" r="1.4"/><path d="M14 4h6v6"/><path d="M20 4l-7 7"/></svg><span data-en="Technology">Nowinki technologiczne</span></span>
-            <h3 data-en="What is new, and what it is for">Co nowego i po co</h3>
-            <p data-en="I follow what is happening in AI, embedded and hardware — mostly to check what can actually be built with it.">Śledzę, co dzieje się w AI, embedded i sprzęcie — głównie po to, żeby sprawdzić, co da się z tego naprawdę zbudować.</p>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
     <!-- KONTAKT -->
     <section class="sec contact" id="kontakt">
       <div class="wrap">
-        <span class="eyebrow reveal" data-en="Looking for my first job in IT">Szukam pierwszej pracy w IT</span>
-        <h2 class="reveal" data-en="Let's talk —<br><a class='big' href='mailto:dawid.majewski.it@gmail.com'>write to me</a>">Porozmawiajmy —<br><a class="big" href="mailto:dawid.majewski.it@gmail.com">napisz do mnie</a></h2>
+        <h2 class="reveal" data-en="Contact">Kontakt</h2>
         <div class="cta-row reveal">
           <a class="btn primary" href="mailto:dawid.majewski.it@gmail.com">
             <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
@@ -909,16 +936,7 @@
             <svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-3 2a11 11 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>
             +48 607 250 449
           </a>
-          <details class="cv-download">
-            <summary class="btn ghost">
-            <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
-            <span data-en="Download CV (PDF)">Pobierz CV (PDF)</span>
-          <svg class="cv-chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></summary>
-            <div class="cv-options">
-              <a href="./CV/CV_Dawid_Majewski.pdf" download lang="pl" aria-label="Pobierz CV po polsku (PDF)"><span>Polski</span><span>PDF · PL</span></a>
-              <a href="./CV/CV_Dawid_Majewski_EN.pdf" download lang="en" aria-label="Download CV in English (PDF)"><span>English</span><span>PDF · EN</span></a>
-            </div>
-          </details>
+
           <a class="btn ghost" href="https://github.com/dawidmajewskii" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" class="brand"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.05-.02-2.06-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.39 1.24-3.23-.13-.3-.54-1.53.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.65.25 2.88.12 3.18.77.84 1.24 1.92 1.24 3.23 0 4.62-2.81 5.64-5.49 5.94.43.37.81 1.1.81 2.22 0 1.6-.01 2.9-.01 3.29 0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5Z"/></svg>
             GitHub
@@ -1008,6 +1026,23 @@
     if(event.key === 'Escape') cvDownloads.forEach(function(menu){
       if(menu.open){ menu.open = false; menu.querySelector('summary').focus(); }
     });
+  });
+  // Wskazanie aktualnie czytanej sekcji w nawigacji.
+  var sectionLinks = document.querySelectorAll('.console nav a[href^="#"]');
+  var sectionObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting) return;
+      sectionLinks.forEach(function(link){
+        if(link.hash === '#' + entry.target.id){
+          link.setAttribute('aria-current', 'location');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+    });
+  }, {rootMargin:'-20% 0px -55% 0px', threshold:0});
+  document.querySelectorAll('main section[id]').forEach(function(section){
+    sectionObserver.observe(section);
   });
 </script>
 </body>

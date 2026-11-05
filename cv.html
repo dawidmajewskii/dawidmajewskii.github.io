@@ -60,7 +60,7 @@
     font-family:var(--body);
     color:var(--text);
     font-size:9.36pt;
-    line-height:1.27;
+    line-height:1.38;
     /* dzielenie wyrazów i ligatury WYŁĄCZONE: jedno i drugie wstawia do strumienia
        PDF glify, których parser ATS nie odwzoruje z powrotem na czyste słowo */
     hyphens:none; -webkit-hyphens:none;
@@ -100,7 +100,7 @@
   .shot img{display:block;width:100%;height:32mm;object-fit:cover;object-position:50% 12%}
 
   /* ---------- sekcje ---------- */
-  section{ margin-top:4.5pt }
+  section{ margin-top:11pt }
   h2{
     font-family:var(--head); font-size:10pt; font-weight:650; text-transform:none;
     letter-spacing:.03em; color:var(--text);
@@ -122,26 +122,6 @@
   ul{ list-style:disc; margin:2.5pt 0 0 4mm }
   li{ color:var(--muted); margin-bottom:1.2pt; padding-left:1mm }
   li:last-child{ margin-bottom:0 }
-
-  /* ---------- projekt: jedyny panel na stronie ----------
-     Hierarchia, nie dekoracja: to jest najmocniejszy dowód w tym CV. */
-  .proj{ background:var(--panel); border:1px solid var(--line); border-radius:3mm; padding:5pt 7pt }
-  .proj .ctx{ font-size:8.74pt; color:var(--muted-2); margin-top:1pt; line-height:1.25 }
-  .proj ul{ margin-top:1pt }
-
-  /* Pas metryk: JEDYNY element „graficzny", w całości z prawdziwego tekstu —
-     żadnego SVG, żadnego obrazu, wszystko wyciągalne przez ATS. */
-  .metrics{ border-radius:2mm;overflow:hidden;display:flex; margin:2pt 0 1.5pt; border:1px solid var(--line-strong); background:var(--inset) }
-  .metric{ flex:1 1 0; min-width:0; padding:2pt 3pt; border-right:1px solid var(--line-strong) }
-  .metric:last-child{ border-right:0 }
-  .m-val{ font-family:var(--head); font-size:10.92pt; font-weight:700; color:var(--text); letter-spacing:-.01em; line-height:1.1 }
-  .m-lab{ font-family:var(--mono); font-size:6.34pt; text-transform:uppercase; letter-spacing:.06em; color:var(--muted-2); margin-top:.8pt; line-height:1.2 }
-  /* "mAP" (mean Average Precision) — wersaliki robią z tego nieistniejące "MAP".
-     Dokładnie po tym detalu osoba z ML poznaje, czy kandydat rozumie, co mierzy. */
-  .m-lab.exact{ text-transform:none; letter-spacing:.02em }
-
-  .stack{ font-family:var(--mono); font-size:7.59pt; color:var(--muted-2); margin-top:3.5pt; padding-top:3pt; border-top:1px solid var(--line); line-height:1.4 }
-  .stack b{ color:var(--text); font-weight:500 }
 
   .edu{ display:grid; grid-template-columns:1fr; row-gap:2pt }
 
@@ -215,45 +195,6 @@
           <li data-en="Run B2B purchasing platforms: orders, price lists and supplier data.">Obsługuję platformy zakupowe B2B: zamówienia, cenniki i dane od dostawców.</li>
           <li data-en="I decide what to order and when, so nothing runs out and the small stockroom does not overflow.">Sam decyduję, co i kiedy zamówić — tak, żeby towaru nie zabrakło, a mały magazyn się nie zapchał.</li>
           <li data-en="I deal with customers and suppliers — by phone, by e-mail and in person.">Obsługuję klientów i dostawców — telefonicznie, mailowo i bezpośrednio.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="row">
-    <div>
-      <h2 data-en="Projects">Projekty</h2>
-      <div class="proj">
-        <div class="item-h">
-          <div class="role"><span class="when"><a href="https://dawidmajewskiit.pl/karty">dawidmajewskiit.pl/karty</a></span><span data-en="Playing-card recognition system (YOLOv8n on Raspberry Pi 4)">System rozpoznawania kart do gry (YOLOv8n na Raspberry Pi 4)</span></div>
-        </div>
-        <div class="ctx" data-en="Six-person team project, Machine Learning course, MSc programme, 2026. My area: the Raspberry Pi deployment path and the recognition pipeline.">Projekt zespołowy (6 osób), przedmiot Uczenie Maszynowe, studia magisterskie, 2026. Mój obszar: wdrożenie na Raspberry Pi i pipeline rozpoznawania.</div>
-
-        <div class="metrics">
-          <div class="metric">
-            <div class="m-val">52</div>
-            <div class="m-lab" data-en="Card classes">Klasy kart</div>
-          </div>
-          <div class="metric">
-            <div class="m-val" data-en="0.789">0,789</div>
-            <div class="m-lab exact">mAP50-95</div>
-          </div>
-          <div class="metric">
-            <div class="m-val">90–95%</div>
-            <div class="m-lab" data-en="Real-card confidence">Pewność w praktyce</div>
-          </div>
-          <div class="metric">
-            <div class="m-val">~5&nbsp;FPS</div>
-            <div class="m-lab" data-en="On Raspberry Pi 4">Na Raspberry Pi 4</div>
-          </div>
-          <div class="metric">
-            <div class="m-val" data-en="24,233">24&nbsp;233</div>
-            <div class="m-lab" data-en="Images in dataset">Zdjęć w zbiorze</div>
-          </div>
-        </div>
-
-        <ul>
-          <li data-en="Deployed a fine-tuned YOLOv8n model to a Raspberry Pi 4: all inference on-device, no cloud, ~5 FPS end to end; a systemd service boots the Pi headless.">Wdrożyłem dostrojony model YOLOv8n na Raspberry Pi 4: cała inferencja lokalnie, bez chmury, ~5 FPS end-to-end; usługa systemd startuje urządzenie bez klawiatury i monitora.</li>
         </ul>
       </div>
     </div>

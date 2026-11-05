@@ -44,16 +44,15 @@ BUILDS = [
         "subject": "CV — student informatyki II stopnia (SI i uczenie maszynowe), "
                    "infrastruktura IT, sieci, ERP",
         "keywords": ("Dawid Majewski, CV, informatyka, sztuczna inteligencja, uczenie maszynowe, "
-                     "machine learning, YOLOv8, Raspberry Pi, Python, SQL, Power BI, ERP, helpdesk, "
+                     "machine learning, Python, SQL, Power BI, ERP, helpdesk, "
                      "infrastruktura IT, LAN/WAN, Microsoft 365, junior IT"),
         # every one of these must survive text extraction, diacritics intact
         "checks": ["Wyrażam zgodę", "Doświadczenie", "Umiejętności", "Wykształcenie",
-                   "dawid.majewski.it@gmail.com", "607 250 449", "YOLOv8n", "Raspberry Pi",
+                   "dawid.majewski.it@gmail.com", "607 250 449",
                    "ERP", "Python", "Merito", "art. 6 ust. 1 lit. a RODO",
                    # DATES — see the note on the EN build below. A CV whose roles have no
                    # dates is worthless, and nothing else in this audit would notice.
-                   "2025 · staż", "2023–obecnie", "2026–obecnie", "2022–2026",
-                   "dawidmajewskiit.pl/karty"],
+                   "2025 · staż", "2023–obecnie", "2026–obecnie", "2022–2026"],
     },
     {
         "lang": "en",
@@ -63,7 +62,7 @@ BUILDS = [
         "subject": "CV — MSc Computer Science student (AI & Machine Learning), "
                    "IT infrastructure, networks, ERP",
         "keywords": ("Dawid Majewski, CV, resume, computer science, artificial intelligence, "
-                     "machine learning, YOLOv8, Raspberry Pi, Python, SQL, Power BI, ERP, helpdesk, "
+                     "machine learning, Python, SQL, Power BI, ERP, helpdesk, "
                      "IT infrastructure, LAN/WAN, Microsoft 365, junior IT"),
         # THE DATES ARE HERE FOR A REASON — DO NOT DROP THEM.
         # The EN build is produced by swapping innerHTML on every [data-en] node. A [data-en]
@@ -77,10 +76,9 @@ BUILDS = [
         # another. These checks are the regression test for that class of bug — if one of them
         # ever prints MISS, look for a [data-en] that has swallowed a child.
         "checks": ["I consent to the processing", "Professional experience", "Education",
-                   "dawid.majewski.it@gmail.com", "607 250 449", "YOLOv8n", "Raspberry Pi",
+                   "dawid.majewski.it@gmail.com", "607 250 449",
                    "ERP", "Python", "Merito", "Article 6(1)(a) GDPR",
-                   "2025 · internship", "2023–present", "2026–present", "2022–2026",
-                   "dawidmajewskiit.pl/karty"],
+                   "2025 · internship", "2023–present", "2026–present", "2022–2026"],
     },
 ]
 

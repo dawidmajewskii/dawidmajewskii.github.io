@@ -100,7 +100,7 @@
   .shot img{display:block;width:100%;height:32mm;object-fit:cover;object-position:50% 12%}
 
   /* ---------- sekcje ---------- */
-  section{ margin-top:11pt }
+  section{ margin-top:10pt }
   h2{
     font-family:var(--head); font-size:10pt; font-weight:650; text-transform:none;
     letter-spacing:.03em; color:var(--text);
@@ -142,6 +142,30 @@
         mikrodruk daje się podważyć jako brak świadomej zgody. Nie zmniejszać. */
   }
   .rodo p+p{ margin-top:2.5pt }
+
+  .head{border-radius:4mm;padding:10pt;background:#fff}
+  .name{font-size:25pt}
+  .headline{color:var(--amber);font-size:10pt;margin-top:4pt}
+  .item{margin-top:7pt}
+  h2{font-size:10.5pt;padding-bottom:3pt;margin-bottom:5pt}
+  .skl{grid-template-columns:34mm 1fr;row-gap:4pt}
+  .skl dt{text-transform:none;font-family:var(--body);font-weight:600;font-size:8.6pt}
+
+  /* Czytelna skala typograficzna dla A4. */
+  body{font-size:10pt;line-height:1.32}
+  .meta{font-family:var(--body);font-size:8.5pt;line-height:1.4;letter-spacing:0}
+  .meta .k{font-weight:600}
+  h2{font-size:11.5pt;letter-spacing:0;padding-bottom:2.5pt;margin-bottom:4pt}
+  .role{font-size:10.5pt;line-height:1.25}
+  .org{font-size:9.5pt}
+  .when{font-family:var(--body);font-size:8.5pt;letter-spacing:0}
+  .skl dt{font-size:9.5pt;padding-top:0}
+  .skl dd{font-size:9.5pt;line-height:1.3}
+  .skl{row-gap:3pt}
+  section{margin-top:8pt}
+  .item{margin-top:5pt}
+  li{margin-bottom:1pt}
+  .rodo{font-size:8pt;line-height:1.25}
 </style>
 </head>
 <body>
@@ -150,7 +174,7 @@
   <header class="head">
     <div>
       <h1 class="name">Dawid <span class="surname">Majewski</span></h1>
-      <div class="headline" data-en="MSc Computer Science student · AI &amp; Machine Learning">Student informatyki II stopnia · AI i uczenie maszynowe</div>
+      <div class="headline" data-en="IT Support · Databases · Systems Implementation">Wsparcie IT · Bazy danych · Wdrażanie systemów</div>
       <div class="meta">
         <div><span class="k">E-mail:</span> <a href="mailto:dawid.majewski.it@gmail.com">dawid.majewski.it@gmail.com</a> &nbsp;·&nbsp; <span class="k" data-en="Mobile:">Tel.:</span> <a href="tel:+48607250449">+48 607 250 449</a></div>
         <div><span class="k" data-en="Location:">Lokalizacja:</span> <span data-en="Poznań / Łęka Mała, Poland">Poznań / Łęka Mała, Polska</span> &nbsp;·&nbsp; <span class="k">Portfolio:</span> <a href="https://dawidmajewskiit.pl">dawidmajewskiit.pl</a></div>
@@ -165,7 +189,7 @@
   <section class="row">
     <div>
       <h2 data-en="Profile">Profil</h2>
-      <p class="lead" data-en="MSc Computer Science student at Merito University Wrocław, specialising in artificial intelligence and machine learning; BSc (network security) completed in 2026. I built my IT foundation in the IT department of a manufacturing plant — helpdesk, IT and network infrastructure, ERP support for production and business processes — and I currently coordinate procurement and sales: B2B platforms, logistics, supplier data. In ML my interest is deployment: what happens after training, when the model has to run on real hardware.">Student informatyki II stopnia na Uniwersytecie Merito we Wrocławiu, specjalność sztuczna inteligencja i uczenie maszynowe; studia I stopnia (bezpieczeństwo sieci informatycznych) ukończone w 2026 r. Praktykę IT zdobyłem w dziale IT zakładu produkcyjnego — helpdesk, utrzymanie infrastruktury i sieci, wsparcie procesów w systemach ERP — a obecnie koordynuję zaopatrzenie i sprzedaż, pracując na co dzień z platformami B2B, logistyką i danymi od dostawców. W ML interesuje mnie strona wdrożeniowa: to, co dzieje się po treningu, gdy model musi działać na realnym sprzęcie.</p>
+      <p class="lead" data-en="I am studying for a master’s degree in computer science and want to develop a career in IT consulting or systems implementation. I combine an interest in databases and SQL with customer service experience and hands-on work in an IT department. I enjoy analysing needs, comparing solutions and explaining technical topics clearly.">Studiuję informatykę na II stopniu i chcę rozwijać się w konsultingu IT lub wdrażaniu systemów. Łączę zainteresowanie bazami danych i SQL z doświadczeniem w obsłudze klientów oraz praktyką zdobytą w dziale IT. Lubię analizować potrzeby, porównywać rozwiązania i jasno tłumaczyć zagadnienia techniczne.</p>
     </div>
   </section>
 
@@ -177,13 +201,13 @@
         <div class="item-h">
           <div class="role"><span class="when" data-en="2025 · internship, 3 months">2025 · staż, 3 miesiące</span><span data-en="IT Department Intern">Stażysta, Dział IT</span></div>
         </div>
-        <div class="org" data-en="Leszczyńska Fabryka Pomp (pump manufacturer) — Leszno">Leszczyńska Fabryka Pomp — Leszno</div>
+        <div class="org">Leszczyńska Fabryka Pomp — Leszno</div>
         <ul>
-          <li data-en="Provided user technical support (helpdesk) and hardware troubleshooting.">Prowadziłem wsparcie techniczne użytkowników (helpdesk) i diagnostykę problemów sprzętowych.</li>
-          <li data-en="Administered and maintained the plant's IT and network infrastructure.">Administrowałem infrastrukturą IT i siecią zakładu oraz utrzymywałem je na bieżąco.</li>
-          <li data-en="Supported production and business processes in ERP systems.">Wspierałem procesy produkcyjne i biznesowe w systemach ERP.</li>
-          <li data-en="Configured workstations and prepared hardware for rollout.">Konfigurowałem stanowiska robocze i przygotowywałem sprzęt do wdrożenia.</li>
-        </ul>
+<li data-en="Built a desktop application to monitor printers and toner usage and record computer cleaning dates. The application was put into use within the company.">Stworzyłem aplikację desktopową do monitorowania drukarek, zużycia tonerów i ewidencji dat czyszczenia komputerów. Aplikacja trafiła do użytku w firmie.</li>
+<li data-en="Designed a website from scratch in Figma. The design received positive feedback within the company and remained at the design stage.">Zaprojektowałem od podstaw stronę internetową w Figmie. Projekt spotkał się z pozytywnym odbiorem w firmie i pozostał na etapie graficznym.</li>
+<li data-en="Helped users resolve technical problems, configured workstations and worked on maintaining IT and network infrastructure.">Pomagałem użytkownikom rozwiązywać problemy techniczne, konfigurowałem stanowiska i pracowałem przy utrzymaniu infrastruktury IT oraz sieci.</li>
+<li data-en="Supported production and business processes in ERP systems.">Wspierałem procesy produkcyjne i biznesowe w systemach ERP.</li>
+</ul>
       </div>
 
       <div class="item">
@@ -192,9 +216,9 @@
         </div>
         <div class="org" data-en="FISHKA — Pet &amp; Fishing Store — Rawicz">FISHKA — Market Zoologiczno-Wędkarski — Rawicz</div>
         <ul>
-          <li data-en="Run B2B purchasing platforms: orders, price lists and supplier data.">Obsługuję platformy zakupowe B2B: zamówienia, cenniki i dane od dostawców.</li>
-          <li data-en="I decide what to order and when, so nothing runs out and the small stockroom does not overflow.">Sam decyduję, co i kiedy zamówić — tak, żeby towaru nie zabrakło, a mały magazyn się nie zapchał.</li>
-          <li data-en="I deal with customers and suppliers — by phone, by e-mail and in person.">Obsługuję klientów i dostawców — telefonicznie, mailowo i bezpośrednio.</li>
+          <li data-en="Manage orders, price lists and supplier data through B2B purchasing platforms.">Obsługuję platformy zakupowe B2B: zamówienia, cenniki i dane od dostawców.</li>
+          <li data-en="Compare supplier offers and work with orders, price lists and stock records.">Porównuję oferty dostawców oraz pracuję z zamówieniami, cennikami i stanami magazynowymi.</li>
+          <li data-en="Assist customers and liaise with suppliers by phone, email and in person.">Obsługuję klientów i dostawców — telefonicznie, mailowo i bezpośrednio.</li>
         </ul>
       </div>
     </div>
@@ -208,13 +232,13 @@
           <div class="item-h">
             <div class="role"><span class="when" data-en="2026–present · in progress">2026–obecnie · w toku</span><span data-en="Computer Science — Artificial Intelligence &amp; Machine Learning">Informatyka — sztuczna inteligencja i uczenie maszynowe</span></div>
           </div>
-          <div class="org" data-en="Merito University Wrocław · Master's degree, part-time">Uniwersytet Merito we Wrocławiu · studia II stopnia (magisterskie), niestacjonarne</div>
+          <div class="org" data-en="Merito University Wrocław · Master’s degree, part-time">Uniwersytet Merito we Wrocławiu · studia II stopnia (magisterskie), niestacjonarne</div>
         </div>
         <div class="item">
           <div class="item-h">
             <div class="role"><span class="when" data-en="2022–2026 · completed">2022–2026 · ukończone</span><span data-en="Computer Science — Network Security">Informatyka — bezpieczeństwo sieci informatycznych</span></div>
           </div>
-          <div class="org" data-en="Merito University Poznań · Bachelor's degree, part-time">Uniwersytet Merito w Poznaniu · studia I stopnia, niestacjonarne</div>
+          <div class="org" data-en="Merito University Poznań · Bachelor’s degree, part-time">Uniwersytet Merito w Poznaniu · studia I stopnia, niestacjonarne</div>
         </div>
       </div>
     </div>
@@ -223,37 +247,18 @@
   <section class="row">
     <div>
       <h2 data-en="Skills">Umiejętności</h2>
-      <dl class="skl">
-        <dt data-en="Programming &amp; data">Programowanie i dane</dt>
-        <dd>Python · SQL · Power BI</dd>
-
-        <dt data-en="IT infra &amp; networks">IT i sieci</dt>
-        <dd data-en="Helpdesk · operating systems · virtualization · workstation setup · hardware maintenance · LAN/WAN · network administration · diagnostics">Helpdesk&nbsp;· systemy operacyjne&nbsp;· wirtualizacja&nbsp;· konfiguracja stanowisk&nbsp;· utrzymanie sprzętu&nbsp;· LAN/WAN&nbsp;· administracja sieci&nbsp;· diagnostyka</dd>
-
-        <dt data-en="Business systems">Systemy biznesowe</dt>
-        <dd data-en="ERP · B2B purchasing platforms · Microsoft 365 · Google Workspace">ERP · platformy zakupowe B2B · Microsoft 365 · Google Workspace</dd>
-
-        <dt data-en="Web &amp; tooling">Web i narzędzia</dt>
-        <dd>HTML · CSS · JavaScript · Git · GitHub · Figma</dd>
-
-        <dt data-en="Additional">Dodatkowe</dt>
-        <dd data-en="Analytical thinking · problem-solving · teamwork · category B driving licence">Analityczne podejście · rozwiązywanie problemów · praca zespołowa · prawo jazdy kat. B</dd>
-      </dl>
+<dl class="skl">
+<dt>SQL</dt><dd>SQL · MySQL</dd>
+<dt>Microsoft 365</dt><dd data-en="Very good working knowledge. Excel for price lists and supplier data.">Bardzo dobra znajomość. Excel w pracy z cennikami i danymi dostawców.</dd>
+<dt data-en="AI tools">Narzędzia AI</dt><dd data-en="Information analysis, learning, and AI-assisted website and application development.">Analiza informacji, nauka i tworzenie stron oraz aplikacji z pomocą AI.</dd>
+<dt data-en="IT support">Wsparcie IT</dt><dd data-en="Helpdesk · workstation setup · hardware · networks · ERP systems.">Helpdesk · konfiguracja stanowisk · sprzęt · sieci · systemy ERP.</dd>
+<dt data-en="Web &amp; design">Web i projektowanie</dt><dd>Figma · HTML · CSS · JavaScript · Git · GitHub.</dd>
+<dt data-en="Currently learning">W trakcie nauki</dt><dd>Power BI · Python.</dd>
+</dl>
     </div>
   </section>
 
-  <section class="row">
-    <div>
-      <h2 data-en="Languages &amp; interests">Języki i zainteresowania</h2>
-      <dl class="skl">
-        <dt data-en="Languages">Języki</dt>
-        <dd data-en="Polish — native · English — B2">Polski — ojczysty · Angielski — B2</dd>
-
-        <dt data-en="Interests">Zainteresowania</dt>
-        <dd data-en="Electronics and hardware prototyping — most recently a bait boat, from schematic to first launch · front-end without frameworks · fishing">Elektronika i prototypowanie sprzętu — ostatnio własna łódź zanętowa, od schematu po wodowanie&nbsp;· front-end bez frameworków&nbsp;· wędkarstwo</dd>
-      </dl>
-    </div>
-  </section>
+  <section class="row"><div><h2 data-en="Languages &amp; licences">Języki i uprawnienia</h2><p data-en="Polish — native &amp;nbsp;·&amp;nbsp; English — B2 &amp;nbsp;·&amp;nbsp; Category B driving licence">Polski — ojczysty &nbsp;·&nbsp; Angielski — B2 &nbsp;·&nbsp; Prawo jazdy kat. B</p></div></section>
 
   <div class="rodo">
     <p data-en="I consent to the processing of the personal data contained in this CV that go beyond the scope set out in Article 22¹ § 1 of the Polish Labour Code — in particular my image (photograph) and information about my interests — by a prospective employer or other entity conducting recruitment, to whom I have voluntarily provided this document or who has downloaded it from my website, for the purpose of carrying out the recruitment process for the position I am applying for (Article 6(1)(a) GDPR). I provide these data voluntarily and on my own initiative; I may withdraw my consent at any time by contacting the controller, and such withdrawal does not affect the lawfulness of processing carried out before the withdrawal (Article 7(3) GDPR).">Wyrażam zgodę na przetwarzanie moich danych osobowych zawartych w&nbsp;niniejszym CV wykraczających poza zakres określony w&nbsp;art.&nbsp;22¹ §&nbsp;1 Kodeksu pracy — w&nbsp;szczególności mojego wizerunku (zdjęcia) oraz informacji o&nbsp;zainteresowaniach — przez potencjalnego pracodawcę lub inny podmiot prowadzący rekrutację, któremu dobrowolnie przekazałem ten dokument albo który pobrał go z&nbsp;mojej strony internetowej, w&nbsp;celu przeprowadzenia procesu rekrutacji na stanowisko, na które aplikuję (art.&nbsp;6 ust.&nbsp;1 lit.&nbsp;a&nbsp;RODO). Dane te podaję dobrowolnie i&nbsp;z&nbsp;własnej inicjatywy; zgodę mogę wycofać w&nbsp;każdym czasie, kontaktując się z&nbsp;administratorem, a&nbsp;wycofanie zgody nie wpływa na zgodność z&nbsp;prawem przetwarzania dokonanego przed jej wycofaniem (art.&nbsp;7 ust.&nbsp;3 RODO).</p>
@@ -277,5 +282,4 @@
   document.title = 'Dawid Majewski — Curriculum Vitae';
 })();
 </script>
-</body>
-</html>
+</body></html>
